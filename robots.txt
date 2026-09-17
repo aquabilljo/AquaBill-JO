@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ahmad-albetar.github.io/AquaBill-JO/sitemap.xml
