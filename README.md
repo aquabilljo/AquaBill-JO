@@ -72,8 +72,7 @@ python3 -m http.server 8000
 
 المشروع منشور حالياً على GitHub Pages عبر:
 
-https://ahmad-albetar.github.io/AquaBill-JO/
-
+https://aquabilljo.github.io/AquaBill-JO/
 لإعادة نشره أو تحديثه:
 
 1. ارفع الملفات إلى مستودع GitHub.
@@ -93,8 +92,7 @@ https://ahmad-albetar.github.io/AquaBill-JO/
 
 رابط AquaBill JO المنشور على GitHub Pages:
 
-https://ahmad-albetar.github.io/AquaBill-JO/
-
+https://aquabilljo.github.io/AquaBill-JO/
 ويجب أن تشير إعدادات المشاركة ومحركات البحث إلى هذا الرابط، بما في ذلك:
 
 - `canonical`
