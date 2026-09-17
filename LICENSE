@@ -1,28 +1,21 @@
-Proprietary License
+MIT License
 
-Copyright (c) 2026 AquaBill JO. All Rights Reserved.
+Copyright (c) 2026 AquaBill JO
 
-This software, its source code, and design are the exclusive property of AquaBill JO.
-Permission is hereby granted solely for individuals to access and use the deployed application
-for personal, non-commercial purposes via the official website.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-STRICTLY PROHIBITED:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-- Copying, reproducing, or redistributing any part of the source code.
-- Modifying, reverse-engineering, or creating derivative works.
-- Using this project or its assets for any commercial purposes.
-
----
-
-حقوق الملكية والنشر
-
-حقوق الطبع والنشر © 2026 AquaBill JO. جميع الحقوق محفوظة.
-
-هذه البرمجية وكودها المصدري وتصميمها ملك حصري لـ AquaBill JO.
-يُسمح فقط بالأغراض الشخصية للاستخدام المباشر للأداة عبر الرابط الرسمي.
-
-يُمنع منعاً باتاً:
-
-- نسخ أو إعادة توزيع أو نشر أي جزء من الكود المصدري.
-- تعديل أو هندسة عكسية أو اشتقاق أعمال أخرى من هذا المشروع.
-- استخدام المشروع أو أي من أجزائه لأغراض تجارية أو غير شخصية دون إذن مسبق.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
