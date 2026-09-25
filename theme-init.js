@@ -14,8 +14,12 @@
     var settings = raw ? JSON.parse(raw) : null;
     if (settings && (settings.theme === 'dark' || settings.theme === 'light')) {
       document.documentElement.setAttribute('data-theme', settings.theme);
+    } else {
+      // لضمان وجود قيمة افتراضية صريحة في أول زيارة للموقع
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   } catch (e) {
-    // يُتجاهل بصمت — لن يمنع عرض الصفحة بالوضع الافتراضي
+    // تعيين القيمة الافتراضية أيضاً في حال حدوث خطأ في القراءة
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
 })();
