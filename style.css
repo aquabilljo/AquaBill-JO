@@ -429,6 +429,16 @@ h2 .icn-tip {
 .compare .box.win .val { 
   color: var(--gold-text); 
 }
+/* هذا الكود سيستهدف فقط قسم "عني" بناءً على الـ ID الخاص به */
+#about {
+    width: 95% !important;
+    max-width: 608px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 1.1rem !important;
+    padding-right: 1.1rem !important;
+    box-sizing: border-box;
+}
 /* ==========================================================================
    6. BUTTONS — أزرار القفل، تبديل الوضع، المشاركة، وتثبيت PWA
    ========================================================================== */
