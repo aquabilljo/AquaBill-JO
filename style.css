@@ -472,8 +472,8 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 .theme-toggle .icon-sun{ display: none; }
 .theme-toggle .icon-moon{ display: block; }
 /* عند الوضع الداكن: تظهر أيقونة الشمس (اضغط للرجوع للفاتح) */
-:root[data-theme="dark"] .theme-toggle .icon-sun{ display: block; }
-:root[data-theme="dark"] .theme-toggle .icon-moon{ display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun{ display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon{ display: block; }
 
 /* زر مشاركة واتساب بالتذييل */
 .share{ display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
