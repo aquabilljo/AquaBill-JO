@@ -270,7 +270,7 @@ function calcAll() {
   const marginal = Math.max(0, nextWater + nextSewage);
 
   document.getElementById('marginalHint').textContent =
-    `المتر القادم (رقم ${Math.ceil(n) + 1}) سيكلفك تقريباً ${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr} إضافية.`;
+    `المتر القادم (رقم ${Math.ceil(n) + 1}) سيكلفك تقريباً ${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr} إضافي.`;
 
   // 6. شارة تقييم الاستهلاك
   const badge = document.getElementById('statusBadge');
