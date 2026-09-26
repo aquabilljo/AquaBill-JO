@@ -446,9 +446,9 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-    // 8. SHARE FEATURE    
+    // 8. SHARE FEATURE
     ------------------------------------------------------------------------
-    → مشاركة الأداة عبر Web Share API مع fallback
+    → مشاركة الأداة + QR + رابط نظيف بدون معاملات التتبع
    ========================================================================== */
 
 const shareBtn = document.getElementById('shareBtn');
@@ -461,15 +461,46 @@ const qrModal = document.getElementById('qrModal');
 const closeQrBtn = document.getElementById('closeQrBtn');
 const qrContainer = document.getElementById('qrContainer');
 
-
-
 if (shareBtn && shareFallback) {
+
+    /* -----------------------------------------------------------------------
+       رابط AquaBill JO النظيف
+       -------------------------------------------------------------------- */
+    const cleanUrl =
+        `${window.location.origin}${window.location.pathname}`;
+
     const shareData = {
         title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
         text: 'قدّر تكلفة استهلاكك الشهري للمياه بسهولة مع AquaBill JO.',
-        url: window.location.href
+        url: cleanUrl
     };
 
+    /* -----------------------------------------------------------------------
+       تنظيف معاملات التتبع من شريط العنوان
+       -------------------------------------------------------------------- */
+    const currentUrl = new URL(window.location.href);
+    let hasTrackingParams = false;
+
+    for (const key of currentUrl.searchParams.keys()) {
+        if (key.toLowerCase().startsWith('utm_')) {
+            currentUrl.searchParams.delete(key);
+            hasTrackingParams = true;
+        }
+    }
+
+    if (hasTrackingParams || currentUrl.hash) {
+        currentUrl.hash = '';
+
+        window.history.replaceState(
+            {},
+            document.title,
+            `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
+        );
+    }
+
+    /* -----------------------------------------------------------------------
+       فتح وإغلاق قائمة المشاركة
+       -------------------------------------------------------------------- */
     const closeShareFallback = () => {
         shareFallback.hidden = true;
         shareBtn.setAttribute('aria-expanded', 'false');
@@ -480,8 +511,17 @@ if (shareBtn && shareFallback) {
         shareBtn.setAttribute('aria-expanded', 'true');
     };
 
+    /* -----------------------------------------------------------------------
+       زر المشاركة الرئيسي
+       على الكمبيوتر: افتح قائمة AquaBill مباشرة.
+       على الأجهزة التي تدعم المشاركة الأصلية: استخدم Web Share.
+       -------------------------------------------------------------------- */
     shareBtn.addEventListener('click', async () => {
-        if (navigator.share) {
+
+        const isDesktop =
+            window.matchMedia('(min-width: 769px)').matches;
+
+        if (!isDesktop && navigator.share) {
             try {
                 if (!navigator.canShare || navigator.canShare(shareData)) {
                     await navigator.share(shareData);
@@ -497,6 +537,9 @@ if (shareBtn && shareFallback) {
         openShareFallback();
     });
 
+    /* -----------------------------------------------------------------------
+       WhatsApp
+       -------------------------------------------------------------------- */
     if (shareWhatsApp) {
         shareWhatsApp.href =
             `https://api.whatsapp.com/send?text=${encodeURIComponent(
@@ -504,6 +547,9 @@ if (shareBtn && shareFallback) {
             )}`;
     }
 
+    /* -----------------------------------------------------------------------
+       Facebook
+       -------------------------------------------------------------------- */
     if (shareFacebook) {
         shareFacebook.href =
             `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -511,52 +557,66 @@ if (shareBtn && shareFallback) {
             )}`;
     }
 
+    /* -----------------------------------------------------------------------
+       نسخ الرابط
+       -------------------------------------------------------------------- */
     if (copyShareLink) {
         copyShareLink.addEventListener('click', async () => {
             try {
                 await navigator.clipboard.writeText(shareData.url);
+
                 copyShareLink.textContent = 'تم نسخ الرابط';
-                
+
                 window.setTimeout(() => {
                     copyShareLink.textContent = 'نسخ الرابط';
                 }, 1800);
+
             } catch {
                 closeShareFallback();
             }
         });
     }
 
-   if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
-    shareQRBtn.addEventListener('click', () => {
-        qrContainer.innerHTML = '';
+    /* -----------------------------------------------------------------------
+       QR Code
+       -------------------------------------------------------------------- */
+    if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
 
-        new QRCode(qrContainer, {
-            text: shareData.url,
-            width: 220,
-            height: 220,
-            correctLevel: QRCode.CorrectLevel.M
+        shareQRBtn.addEventListener('click', () => {
+
+            qrContainer.innerHTML = '';
+
+            new QRCode(qrContainer, {
+                text: shareData.url,
+                width: 220,
+                height: 220,
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            closeShareFallback();
+
+            qrModal.hidden = false;
+            closeQrBtn.focus();
         });
 
-        shareFallback.hidden = true;
-        shareBtn.setAttribute('aria-expanded', 'false');
-
-        qrModal.hidden = false;
-        closeQrBtn.focus();
-    });
-
-    closeQrBtn.addEventListener('click', () => {
-        qrModal.hidden = true;
-        shareQRBtn.focus();
-    });
-
-    qrModal.addEventListener('click', (event) => {
-        if (event.target === qrModal) {
+        closeQrBtn.addEventListener('click', () => {
             qrModal.hidden = true;
             shareQRBtn.focus();
-        }
-    });
-}
-           document.addEventListener('click', (event) => {
+        });
+
+        qrModal.addEventListener('click', (event) => {
+            if (event.target === qrModal) {
+                qrModal.hidden = true;
+                shareQRBtn.focus();
+            }
+        });
+    }
+
+    /* -----------------------------------------------------------------------
+       إغلاق قائمة المشاركة عند الضغط خارجها
+       -------------------------------------------------------------------- */
+    document.addEventListener('click', (event) => {
+
         if (
             !shareFallback.hidden &&
             !shareFallback.contains(event.target) &&
@@ -565,18 +625,25 @@ if (shareBtn && shareFallback) {
             closeShareFallback();
         }
     });
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-            if (!qrModal.hidden) {
-                qrModal.hidden = true;
-                shareQRBtn.focus();
-                return;
-            }
 
-            if (!shareFallback.hidden) {
-                closeShareFallback();
-                shareBtn.focus();
-            }
+    /* -----------------------------------------------------------------------
+       زر Escape
+       -------------------------------------------------------------------- */
+    document.addEventListener('keydown', (event) => {
+
+        if (event.key !== 'Escape') {
+            return;
+        }
+
+        if (qrModal && !qrModal.hidden) {
+            qrModal.hidden = true;
+            shareQRBtn.focus();
+            return;
+        }
+
+        if (!shareFallback.hidden) {
+            closeShareFallback();
+            shareBtn.focus();
         }
     });
 }
