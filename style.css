@@ -1130,7 +1130,70 @@ main > .card:first-of-type table.tariff th {
     }
 }
 
+/* ===================== نافذة QR ===================== */
 
+.qr-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.qr-modal[hidden] {
+    display: none;
+}
+
+.qr-modal-content {
+    position: relative;
+    width: min(90vw, 360px);
+    padding: 24px;
+    border-radius: 18px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.qr-modal-content h3 {
+    margin: 0 0 20px;
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 220px;
+    margin-bottom: 16px;
+}
+
+.qr-container img {
+    display: block;
+    width: 220px;
+    height: 220px;
+    max-width: 100%;
+}
+
+.qr-modal-content p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.75;
+}
+
+.close-qr {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
 
 /* --- تطبيق الثيم العصري الموحد على كافة بطاقات التطبيق --- */
 /* ==========================================================================

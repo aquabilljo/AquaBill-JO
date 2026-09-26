@@ -456,6 +456,12 @@ const shareFallback = document.getElementById('shareFallback');
 const shareWhatsApp = document.getElementById('shareWhatsApp');
 const shareFacebook = document.getElementById('shareFacebook');
 const copyShareLink = document.getElementById('copyShareLink');
+const shareQRBtn = document.getElementById('shareQRBtn');
+const qrModal = document.getElementById('qrModal');
+const closeQrBtn = document.getElementById('closeQrBtn');
+const qrContainer = document.getElementById('qrContainer');
+
+
 
 if (shareBtn && shareFallback) {
     const shareData = {
@@ -520,16 +526,57 @@ if (shareBtn && shareFallback) {
         });
     }
 
-    document.addEventListener('click', (event) => {
-        if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
+   if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
+    shareQRBtn.addEventListener('click', () => {
+        qrContainer.innerHTML = '';
+
+        new QRCode(qrContainer, {
+            text: shareData.url,
+            width: 220,
+            height: 220,
+            correctLevel: QRCode.CorrectLevel.M
+        });
+
+        shareFallback.hidden = true;
+        shareBtn.setAttribute('aria-expanded', 'false');
+
+        qrModal.hidden = false;
+        closeQrBtn.focus();
+    });
+
+    closeQrBtn.addEventListener('click', () => {
+        qrModal.hidden = true;
+        shareQRBtn.focus();
+    });
+
+    qrModal.addEventListener('click', (event) => {
+        if (event.target === qrModal) {
+            qrModal.hidden = true;
+            shareQRBtn.focus();
+        }
+    });
+}
+           document.addEventListener('click', (event) => {
+        if (
+            !shareFallback.hidden &&
+            !shareFallback.contains(event.target) &&
+            !shareBtn.contains(event.target)
+        ) {
             closeShareFallback();
         }
     });
-
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !shareFallback.hidden) {
-            closeShareFallback();
-            shareBtn.focus();
+        if (event.key === 'Escape') {
+            if (!qrModal.hidden) {
+                qrModal.hidden = true;
+                shareQRBtn.focus();
+                return;
+            }
+
+            if (!shareFallback.hidden) {
+                closeShareFallback();
+                shareBtn.focus();
+            }
         }
     });
 }

@@ -1,17 +1,9 @@
 /* ==========================================================================
    AquaBill JO — حاسبة فاتورة المياه الأردنية — Service Worker
-   يقوم بتخزين كل ملفات المشروع مؤقتاً (Cache) عند أول زيارة، بحيث تعمل
-   الأداة بالكامل حتى بدون اتصال بالإنترنت في الزيارات اللاحقة.
    ========================================================================== */
 
-/* رقم إصدار الكاش — يجب أن يطابق APP_CONFIG.cacheVersion بملف config.js.
-   غيّروا القيمتين معاً عند أي تحديث مستقبلي للملفات، حتى يُجبر المتصفح على
-   تحميل النسخة الجديدة بدل القديمة المخزّنة. */
-const CACHE_NAME = 'aquabill-jo-v13.2';
+const CACHE_NAME = 'aquabill-jo-v14';
 
-/* قائمة كل الملفات المطلوبة لعمل الأداة بدون إنترنت.
-   الموقع وindex.html يستخدمان الملفات المصدرية مباشرة: style.css وconfig.js وscript.js.
-   لا توجد ملفات .min مستخدمة أو مخزنة. */
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -19,6 +11,7 @@ const ASSETS_TO_CACHE = [
   './config.js',
   './theme-init.js',
   './script.js',
+  './qrcode.min.js',
   './manifest.webmanifest',
   './favicon.ico',
   './images/favicon.svg',
@@ -34,9 +27,9 @@ const ASSETS_TO_CACHE = [
 ];
 
 /* ---------------------------------------------------------------------------
-   حدث التثبيت (install): يُشغَّل مرة واحدة عند تسجيل الـ Service Worker،
-   ويقوم بتنزيل كل الملفات أعلاه وتخزينها بالكاش.
-   -------------------------------------------------------------------------*/
+   Install
+   ------------------------------------------------------------------------- */
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -46,60 +39,64 @@ self.addEventListener('install', (event) => {
 });
 
 /* ---------------------------------------------------------------------------
-   حدث التفعيل (activate): يحذف أي نسخ كاش قديمة من إصدارات سابقة،
-   للحفاظ على تحديث الملفات المخزّنة دون تراكم نسخ غير مستخدمة.
-   -------------------------------------------------------------------------*/
+   Activate
+   ------------------------------------------------------------------------- */
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+    caches.keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter((cacheName) => cacheName.startsWith('aquabill-jo-'))
+            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .map((cacheName) => caches.delete(cacheName))
+        )
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim())
   );
 });
 
 /* ---------------------------------------------------------------------------
-   حدث الجلب (fetch): يعترض كل طلبات الشبكة.
-   الاستراتيجية: "الكاش أولاً، ثم الشبكة" (Cache First, Fallback to Network)
-   - إن وُجد الملف بالكاش، يُعاد مباشرة (سريع، ويعمل بدون إنترنت)
-   - إن لم يوجد، يُطلب من الشبكة، ويُخزَّن نسخة منه بالكاش للمرة القادمة
-   -------------------------------------------------------------------------*/
+   Fetch
+   ------------------------------------------------------------------------- */
+
 self.addEventListener('fetch', (event) => {
-  // نتجاهل الطلبات لغير GET (مثل طلبات الخطوط الخارجية القابلة للتغيير) بأمان
-  if (event.request.method !== 'GET') return;
+  if (event.request.method !== 'GET') {
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request)
-        .then((networkResponse) => {
-          // تخزين نسخة من الاستجابة بالكاش لطلبات لاحقة (فقط للطلبات الناجحة من نفس الأصل)
-          if (
-            networkResponse &&
-            networkResponse.status === 200 &&
-            event.request.url.startsWith(self.location.origin)
-          ) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          // في حال فشل الشبكة تماماً (بدون إنترنت) ولم يوجد بالكاش،
-          // نعيد صفحة index.html كحل احتياطي للتصفح الأساسي
-          if (event.request.mode === 'navigate') {
-            return caches.match('./index.html');
-          }
-        });
-    })
+    caches.match(event.request)
+      .then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        return fetch(event.request)
+          .then((networkResponse) => {
+            if (
+              networkResponse &&
+              networkResponse.status === 200 &&
+              event.request.url.startsWith(self.location.origin)
+            ) {
+              const responseClone = networkResponse.clone();
+
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(event.request, responseClone);
+                });
+            }
+
+            return networkResponse;
+          })
+          .catch(() => {
+            if (event.request.mode === 'navigate') {
+              return caches.match('./index.html');
+            }
+
+            return Response.error();
+          });
+      })
   );
 });

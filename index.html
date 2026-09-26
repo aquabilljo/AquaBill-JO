@@ -402,9 +402,35 @@
         >
             نسخ الرابط
         </button>
+      <button
+    id="shareQRBtn"
+    class="share-option"
+    type="button"
+    role="menuitem"
+>
+    رمز QR للمشاركة
+</button>
     </div>
 </div>
+<!-- نافذة رمز QR -->
+<div id="qrModal" class="qr-modal" hidden>
+    <div class="qr-modal-content">
+        <button
+            id="closeQrBtn"
+            class="close-qr"
+            type="button"
+            aria-label="إغلاق"
+        >
+            &times;
+        </button>
 
+        <h3>امسح الرمز لفتح الأداة</h3>
+
+        <div id="qrContainer" class="qr-container"></div>
+
+        <p>AquaBill JO — حاسبة فاتورة المياه</p>
+    </div>
+</div>
 <!-- ===================== إشعار تثبيت التطبيق (PWA) ===================== -->
 <div class="pwa-toast" id="pwaToast">
 <span>ثبّت الأداة على شاشة هاتفك الرئيسية أو على حاسوبك للوصول إليها بسرعة.</span>  <div class="pwa-toast-actions">
@@ -416,6 +442,7 @@
 <!-- ===================== ملف المنطق ===================== -->
 <!-- defer: يحمّل الملف بالتوازي مع تحليل الصفحة وينفّذه بعد اكتمالها، دون حجب العرض.
      ملاحظة: config.js مُحمَّل مسبقاً برأس الصفحة (غير مؤجل) لأن script.js يعتمد عليه. -->
+<script src="qrcode.min.js" defer></script>
 <script src="script.js" defer></script>
 </body>
 </html>
