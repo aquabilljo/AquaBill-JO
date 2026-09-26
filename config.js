@@ -13,7 +13,7 @@ const APP_CONFIG = {
   /* ---------- معلومات التطبيق العامة ---------- */
   appName: 'AquaBill JO',
   version: '1.0.0',
-  cacheVersion: 'aquabill-jo-v13.0',
+  cacheVersion: 'aquabill-jo-v13.1',
   currencyLabelAr: 'دينار',
   complaintsPhone: '117116',
 
