@@ -526,27 +526,36 @@ if (shareBtn && shareFallback) {
         });
     }
 
-    if (shareQRBtn && qrModal && closeQrBtn) {
-        shareQRBtn.addEventListener('click', () => {
-            shareFallback.hidden = true;
-            shareBtn.setAttribute('aria-expanded', 'false');
+   if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
+    shareQRBtn.addEventListener('click', () => {
+        qrContainer.innerHTML = '';
 
-            qrModal.hidden = false;
-            closeQrBtn.focus();
+        new QRCode(qrContainer, {
+            text: shareData.url,
+            width: 220,
+            height: 220,
+            correctLevel: QRCode.CorrectLevel.M
         });
 
-        closeQrBtn.addEventListener('click', () => {
+        shareFallback.hidden = true;
+        shareBtn.setAttribute('aria-expanded', 'false');
+
+        qrModal.hidden = false;
+        closeQrBtn.focus();
+    });
+
+    closeQrBtn.addEventListener('click', () => {
+        qrModal.hidden = true;
+        shareQRBtn.focus();
+    });
+
+    qrModal.addEventListener('click', (event) => {
+        if (event.target === qrModal) {
             qrModal.hidden = true;
             shareQRBtn.focus();
-        });
-
-        qrModal.addEventListener('click', (event) => {
-            if (event.target === qrModal) {
-                qrModal.hidden = true;
-                shareQRBtn.focus();
-            }
-        });
-    }
+        }
+    });
+}
            document.addEventListener('click', (event) => {
         if (
             !shareFallback.hidden &&
