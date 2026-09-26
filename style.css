@@ -1058,45 +1058,62 @@ main > .card:first-of-type table.tariff th {
 }
 
 /* 4. قائمة المشاركة الاحتياطية (مُصححة لعدم الاختفاء والشفافية) */
+/* 4. قائمة المشاركة */
 .share-fallback {
     position: absolute;
     top: calc(100% + 0.6rem);
     left: 50%;
     transform: translateX(-50%);
-    min-width: 190px;
+
+    width: min(220px, calc(100vw - 32px));
+    max-height: min(320px, 60vh);
+    overflow-y: auto;
+    overflow-x: hidden;
+
     padding: 0.5rem;
-    border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
-    border-radius: 12px;
-    background-color: #16211d !important; /* لون معتم صريح مأخوذ من ثيم AquaBill الداكن */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    z-index: 99;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
+    border-radius: 14px;
+
+    background-color: #16211d !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+
+    z-index: 999;
+    box-sizing: border-box;
 }
 
 .share-fallback[hidden] {
     display: none;
 }
 
-/* 5. خيارات المشاركة مع تحسين محاذاة الأيقونات والنص */
+/* 5. خيارات المشاركة */
 .share-option {
     width: 100%;
+    min-height: 44px;
     padding: 0.65rem 0.75rem;
+
     border: 0;
     border-radius: 8px;
+
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    color: #ffffff !important; /* ضمان القراءة بدون إعتام */
+
+    color: #ffffff !important;
     background: transparent;
+
     font: inherit;
     font-size: 0.88rem;
     text-align: right;
     text-decoration: none;
+
     cursor: pointer;
     box-sizing: border-box;
 }
 
 .share-option svg {
-    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
     fill: currentColor;
 }
 
@@ -1105,7 +1122,7 @@ main > .card:first-of-type table.tariff th {
     background: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* 6. إصلاح صريح للقائمة في Light Mode */
+/* Light Mode */
 [data-theme="light"] .share-fallback {
     background-color: #ffffff !important;
     border-color: rgba(0, 0, 0, 0.15);
@@ -1116,7 +1133,8 @@ main > .card:first-of-type table.tariff th {
     color: #1c2d42 !important;
 }
 
-[data-theme="light"] .share-option:hover {
+[data-theme="light"] .share-option:hover,
+[data-theme="light"] .share-option:focus-visible {
     background: rgba(0, 0, 0, 0.05) !important;
 }
 
