@@ -1125,6 +1125,15 @@ main > .card:first-of-type table.tariff th {
 [data-theme="light"] .share-option:hover {
     background: rgba(0, 0, 0, 0.05) !important;
 }
+}
+
+[data-theme="light"] .share-option {
+    color: #1c2d42 !important;
+}
+
+[data-theme="light"] .share-option:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
     .share-btn {
@@ -1134,6 +1143,21 @@ main > .card:first-of-type table.tariff th {
     .share-btn:hover {
         transform: none;
     }
+   
+   .share-fallback.open-up {
+    top: auto;
+    bottom: calc(100% + 0.6rem);
+   }
+
+@media (prefers-reduced-motion: reduce) {
+    .share-btn {
+        transition: none;
+    }
+
+    .share-btn:hover {
+        transform: none;
+    }
+   
 }
 
 /* ===================== نافذة QR ===================== */
