@@ -986,7 +986,7 @@ main > .card:first-of-type table.tariff th {
     margin-top: 1rem;
 }
 
-/* 1. التنسيق الأساسي مع دعم متغيرات الألوان التلقائية */
+/* 1. التنسيق الأساسي لزر المشاركة */
 .share-btn {
     min-height: 44px;
     padding: 0.65rem 1.15rem;
@@ -996,12 +996,12 @@ main > .card:first-of-type table.tariff th {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: var(--text-main, #1a202c);               /* لون نص يتكيف تلقائياً */
-    background: var(--card, #ffffff);                 /* خلفية بارزة تعتمد على الثيم */
+    color: var(--text-main, #1a202c);
+    background: var(--card, #ffffff);
     cursor: pointer;
     font: inherit;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);        /* ظل خفيف للبروز في Light Mode */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition:
         transform 0.2s ease,
         background-color 0.2s ease,
@@ -1019,7 +1019,6 @@ main > .card:first-of-type table.tariff th {
     flex-shrink: 0;
 }
 
-/* 2. التأثير عند تحريك الماوس (Hover) */
 .share-btn:hover {
     transform: translateY(-2px);
     border-color: var(--accent-strong, #2563eb);
@@ -1032,7 +1031,7 @@ main > .card:first-of-type table.tariff th {
     outline-offset: 3px;
 }
 
-/* 3. تخصيص محدد للوضع الفاتح (Light Mode) ليكون بارزاً وبشكل أنيق */
+/* 2. تخصيص الوضع الفاتح (Light Mode) */
 [data-theme="light"] .share-btn {
     color: var(--text-main, #1c2d42);
     background: var(--card, #ffffff);
@@ -1045,7 +1044,7 @@ main > .card:first-of-type table.tariff th {
     border-color: var(--accent-strong, #1f4068);
 }
 
-/* 4. تخصيص محدد للوضع الداكن (Dark Mode) */
+/* 3. تخصيص الوضع الداكن (Dark Mode) */
 [data-theme="dark"] .share-btn {
     color: var(--text-main, #f0f4f8);
     background: var(--card, rgba(255, 255, 255, 0.06));
@@ -1058,42 +1057,67 @@ main > .card:first-of-type table.tariff th {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* قائمة المشاركة الاحتياطية (Fallback Menu) */
+/* 4. قائمة المشاركة الاحتياطية (مُصححة لعدم الاختفاء والشفافية) */
 .share-fallback {
     position: absolute;
     top: calc(100% + 0.6rem);
     left: 50%;
     transform: translateX(-50%);
-    min-width: 180px;
-    padding: 0.45rem;
-    border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+    min-width: 190px;
+    padding: 0.5rem;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
     border-radius: 12px;
-    background: var(--card, #ffffff);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-    z-index: 20;
+    background-color: #16211d !important; /* لون معتم صريح مأخوذ من ثيم AquaBill الداكن */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    z-index: 99;
 }
 
 .share-fallback[hidden] {
     display: none;
 }
 
+/* 5. خيارات المشاركة مع تحسين محاذاة الأيقونات والنص */
 .share-option {
     width: 100%;
     padding: 0.65rem 0.75rem;
     border: 0;
     border-radius: 8px;
-    display: block;
-    color: var(--text-main, #1c2d42);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #ffffff !important; /* ضمان القراءة بدون إعتام */
     background: transparent;
     font: inherit;
+    font-size: 0.88rem;
     text-align: right;
     text-decoration: none;
     cursor: pointer;
+    box-sizing: border-box;
+}
+
+.share-option svg {
+    flex-shrink: 0;
+    fill: currentColor;
 }
 
 .share-option:hover,
 .share-option:focus-visible {
-    background: var(--surface-hover, rgba(0, 0, 0, 0.05));
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 6. إصلاح صريح للقائمة في Light Mode */
+[data-theme="light"] .share-fallback {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .share-option {
+    color: #1c2d42 !important;
+}
+
+[data-theme="light"] .share-option:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1105,6 +1129,9 @@ main > .card:first-of-type table.tariff th {
         transform: none;
     }
 }
+
+
+
 /* --- تطبيق الثيم العصري الموحد على كافة بطاقات التطبيق --- */
 /* ==========================================================================
    تنسيق البطاقات الأساسي والحركة (مُوحّد وسلس)
