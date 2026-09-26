@@ -986,20 +986,22 @@ main > .card:first-of-type table.tariff th {
     margin-top: 1rem;
 }
 
+/* 1. التنسيق الأساسي مع دعم متغيرات الألوان التلقائية */
 .share-btn {
     min-height: 44px;
     padding: 0.65rem 1.15rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: var(--text-primary, #fff);
-    background: var(--surface-color, rgba(255, 255, 255, 0.08));
+    color: var(--text-main, #1a202c);               /* لون نص يتكيف تلقائياً */
+    background: var(--card, #ffffff);                 /* خلفية بارزة تعتمد على الثيم */
     cursor: pointer;
     font: inherit;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);        /* ظل خفيف للبروز في Light Mode */
     transition:
         transform 0.2s ease,
         background-color 0.2s ease,
@@ -1017,19 +1019,46 @@ main > .card:first-of-type table.tariff th {
     flex-shrink: 0;
 }
 
+/* 2. التأثير عند تحريك الماوس (Hover) */
 .share-btn:hover {
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.35);
-    background: var(--surface-hover, rgba(255, 255, 255, 0.12));
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-strong, #2563eb);
+    background: var(--surface-hover, rgba(0, 0, 0, 0.04));
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
 }
 
 .share-btn:focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid var(--accent-strong, #2563eb);
     outline-offset: 3px;
 }
 
-/* قائمة المشاركة الاحتياطية */
+/* 3. تخصيص محدد للوضع الفاتح (Light Mode) ليكون بارزاً وبشكل أنيق */
+[data-theme="light"] .share-btn {
+    color: var(--text-main, #1c2d42);
+    background: var(--card, #ffffff);
+    border-color: rgba(0, 0, 0, 0.18);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .share-btn:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--accent-strong, #1f4068);
+}
+
+/* 4. تخصيص محدد للوضع الداكن (Dark Mode) */
+[data-theme="dark"] .share-btn {
+    color: var(--text-main, #f0f4f8);
+    background: var(--card, rgba(255, 255, 255, 0.06));
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .share-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* قائمة المشاركة الاحتياطية (Fallback Menu) */
 .share-fallback {
     position: absolute;
     top: calc(100% + 0.6rem);
@@ -1037,10 +1066,10 @@ main > .card:first-of-type table.tariff th {
     transform: translateX(-50%);
     min-width: 180px;
     padding: 0.45rem;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
     border-radius: 12px;
-    background: var(--surface-color, #123b38);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    background: var(--card, #ffffff);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     z-index: 20;
 }
 
@@ -1054,7 +1083,7 @@ main > .card:first-of-type table.tariff th {
     border: 0;
     border-radius: 8px;
     display: block;
-    color: var(--text-primary, #fff);
+    color: var(--text-main, #1c2d42);
     background: transparent;
     font: inherit;
     text-align: right;
@@ -1064,7 +1093,7 @@ main > .card:first-of-type table.tariff th {
 
 .share-option:hover,
 .share-option:focus-visible {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-hover, rgba(0, 0, 0, 0.05));
 }
 
 @media (prefers-reduced-motion: reduce) {
