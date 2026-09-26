@@ -14,9 +14,12 @@
      7. THEME TOGGLE           → التبديل اليدوي بين الوضع الفاتح والداكن
      8. EXPORT / IMPORT        → تصدير واستيراد الإعدادات كملف JSON
      9. SCROLL EFFECTS       → شريط التقدم والظهور التدريجي للبطاقات
-     10. INITIALIZATION       → التشغيل الأولي عند تحميل الصفحة
-     11. SERVICE WORKER       → تسجيل العمل بدون إنترنت (PWA)
+     10. SERVICE WORKER       → تسجيل العمل بدون إنترنت (PWA)
+     11. SHARE FEATURE       → مشاركة الأداة عبر Web Share API مع fallback
      12. PWA INSTALL PROMPT   → إشعار "تثبيت التطبيق" على الهاتف
+     13. INITIALIZATION       → التشغيل الأولي عند تحميل الصفحة
+
+
    ========================================================================== */
 
 'use strict';
@@ -499,9 +502,94 @@ function initFadeInCards() {
   }
 })();
 
+ // */=======================================================================
+   // 11. SHARE FEATURE       → مشاركة الأداة عبر Web Share API مع fallback
+ // */=======================================================================
 
+const shareBtn = document.getElementById('shareBtn');
+const shareFallback = document.getElementById('shareFallback');
+const shareWhatsApp = document.getElementById('shareWhatsApp');
+const shareFacebook = document.getElementById('shareFacebook');
+const copyShareLink = document.getElementById('copyShareLink');
+
+if (shareBtn && shareFallback) {
+    const shareData = {
+        title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
+        text: 'قدّر تكلفة استهلاكك الشهري للمياه بسهولة مع AquaBill JO.',
+        url: window.location.href
+    };
+
+    const closeShareFallback = () => {
+        shareFallback.hidden = true;
+        shareBtn.setAttribute('aria-expanded', 'false');
+    };
+
+    const openShareFallback = () => {
+        shareFallback.hidden = false;
+        shareBtn.setAttribute('aria-expanded', 'true');
+    };
+
+    shareBtn.addEventListener('click', async () => {
+        if (navigator.share) {
+            try {
+                if (!navigator.canShare || navigator.canShare(shareData)) {
+                    await navigator.share(shareData);
+                    return;
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    return;
+                }
+            }
+        }
+
+        openShareFallback();
+    });
+
+    if (shareWhatsApp) {
+        shareWhatsApp.href =
+            `https://api.whatsapp.com/send?text=${encodeURIComponent(
+                `${shareData.text} ${shareData.url}`
+            )}`;
+    }
+
+    if (shareFacebook) {
+        shareFacebook.href =
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                shareData.url
+            )}`;
+    }
+
+    if (copyShareLink) {
+        copyShareLink.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(shareData.url);
+                copyShareLink.textContent = 'تم نسخ الرابط';
+                
+                window.setTimeout(() => {
+                    copyShareLink.textContent = 'نسخ الرابط';
+                }, 1800);
+            } catch {
+                closeShareFallback();
+            }
+        });
+    }
+
+    document.addEventListener('click', (event) => {
+        if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
+            closeShareFallback();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !shareFallback.hidden) {
+            closeShareFallback();
+            shareBtn.focus();
+        }
+    });
+}
 /* ==========================================================================
-   11. SERVICE WORKER — تسجيل العمل بدون إنترنت (PWA)
+   12. SERVICE WORKER — تسجيل العمل بدون إنترنت (PWA)
    ------------------------------------------------------------------------
    يعمل فقط عند التصفح عبر HTTPS أو localhost (شرط أساسي من المتصفحات).
    ========================================================================== */
@@ -517,7 +605,7 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-   12. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
+   13. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
    ========================================================================== */
 
 window.addEventListener('beforeinstallprompt', (e) => {
