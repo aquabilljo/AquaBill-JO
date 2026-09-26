@@ -1063,11 +1063,17 @@ main > .card:first-of-type table.tariff th {
     top: calc(100% + 0.6rem);
     left: 50%;
     transform: translateX(-50%);
+
     min-width: 190px;
+    max-height: min(280px, calc(100vh - 120px));
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+
     padding: 0.5rem;
     border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
     border-radius: 12px;
-    background-color: #16211d !important; /* لون معتم صريح مأخوذ من ثيم AquaBill الداكن */
+    background-color: #16211d !important;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     z-index: 99;
 }
