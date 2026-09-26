@@ -431,79 +431,12 @@ function initFadeInCards() {
 }
 
 
-/* ==========================================================================
-   10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
-   ========================================================================== */
 
-(function initApp() {
-  // استعادة أي تعديل سابق على التعرفة كان المستخدم قد حفظه بجلسة سابقة
-  const settings = loadSettings();
-  if (Array.isArray(settings.tariffOverride) && settings.tariffOverride.length === tiers.length) {
-    settings.tariffOverride.forEach((t, i) => {
-      tiers[i].water = sanitizeNumber(t.water, tiers[i].water);
-      tiers[i].sewage = sanitizeNumber(t.sewage, tiers[i].sewage);
-    });
-  }
-  initScrollProgress();
-  initFadeInCards();
 
-  // ===== EVENT LISTENERS (مستبدلة من inline handlers) =====
-  // 1. Theme toggle button
-  const themeToggleBtn = document.getElementById('themeToggle');
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', toggleTheme);
-  }
 
-  // 2. Consumption input
-  const consumptionInput = document.getElementById('consumption');
-  if (consumptionInput) {
-    consumptionInput.addEventListener('input', calcAll);
-  }
-
-  // 3. Tanker quantity input
-  const tankerQtyInput = document.getElementById('tankerQty');
-  if (tankerQtyInput) {
-    tankerQtyInput.addEventListener('input', calcAll);
-  }
-
-  // 4. Tanker price input
-  const tankerPriceInput = document.getElementById('tankerPrice');
-  if (tankerPriceInput) {
-    tankerPriceInput.addEventListener('input', calcAll);
-  }
-
-  // 5 & 6. PWA toast buttons (install and dismiss)
-  const pwaToast = document.getElementById('pwaToast');
-  if (pwaToast) {
-    const buttons = pwaToast.querySelectorAll('button');
-    if (buttons.length >= 1) {
-      buttons[0].addEventListener('click', installApp);
-      buttons[0].removeAttribute('onclick');
-    }
-    if (buttons.length >= 2) {
-      buttons[1].addEventListener('click', hideInstallToast);
-      buttons[1].removeAttribute('onclick');
-    }
-  }
-
-  // مزامنة حالة aria-pressed لزر تبديل الوضع مع الوضع الفعلي الحالي عند التحميل
-  // (إصلاح خلل وصولية: كانت تبقى "false" افتراضياً حتى لو كان الوضع محفوظاً داكناً فعلياً)
-  if (themeToggleBtn) {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDarkNow = currentTheme ? currentTheme === 'dark' : systemPrefersDark;
-    themeToggleBtn.setAttribute('aria-pressed', String(isDarkNow));
-  }
-
-  // عرض رقم إصدار التطبيق بالتذييل
-  const versionEl = document.getElementById('appVersion');
-  if (versionEl) {
-    versionEl.textContent = `${APP_CONFIG.appName} — الإصدار ${APP_CONFIG.version}`;
-  }
-})();
 
  // */=======================================================================
-   // 11. SHARE FEATURE       → مشاركة الأداة عبر Web Share API مع fallback
+   // 10. SHARE FEATURE       → مشاركة الأداة عبر Web Share API مع fallback
  // */=======================================================================
 
 const shareBtn = document.getElementById('shareBtn');
@@ -589,7 +522,7 @@ if (shareBtn && shareFallback) {
     });
 }
 /* ==========================================================================
-   12. SERVICE WORKER — تسجيل العمل بدون إنترنت (PWA)
+   11. SERVICE WORKER — تسجيل العمل بدون إنترنت (PWA)
    ------------------------------------------------------------------------
    يعمل فقط عند التصفح عبر HTTPS أو localhost (شرط أساسي من المتصفحات).
    ========================================================================== */
@@ -605,7 +538,7 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-   13. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
+   12. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
    ========================================================================== */
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -654,3 +587,73 @@ if (consumptionInput && warningBadge) {
     }
   });
 }
+/* ==========================================================================
+   13. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
+   ========================================================================== */
+
+(function initApp() {
+  // استعادة أي تعديل سابق على التعرفة كان المستخدم قد حفظه بجلسة سابقة
+  const settings = loadSettings();
+  if (Array.isArray(settings.tariffOverride) && settings.tariffOverride.length === tiers.length) {
+    settings.tariffOverride.forEach((t, i) => {
+      tiers[i].water = sanitizeNumber(t.water, tiers[i].water);
+      tiers[i].sewage = sanitizeNumber(t.sewage, tiers[i].sewage);
+    });
+  }
+  initScrollProgress();
+  initFadeInCards();
+
+  // ===== EVENT LISTENERS (مستبدلة من inline handlers) =====
+  // 1. Theme toggle button
+  const themeToggleBtn = document.getElementById('themeToggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', toggleTheme);
+  }
+
+  // 2. Consumption input
+  const consumptionInput = document.getElementById('consumption');
+  if (consumptionInput) {
+    consumptionInput.addEventListener('input', calcAll);
+  }
+
+  // 3. Tanker quantity input
+  const tankerQtyInput = document.getElementById('tankerQty');
+  if (tankerQtyInput) {
+    tankerQtyInput.addEventListener('input', calcAll);
+  }
+
+  // 4. Tanker price input
+  const tankerPriceInput = document.getElementById('tankerPrice');
+  if (tankerPriceInput) {
+    tankerPriceInput.addEventListener('input', calcAll);
+  }
+
+  // 5 & 6. PWA toast buttons (install and dismiss)
+  const pwaToast = document.getElementById('pwaToast');
+  if (pwaToast) {
+    const buttons = pwaToast.querySelectorAll('button');
+    if (buttons.length >= 1) {
+      buttons[0].addEventListener('click', installApp);
+      buttons[0].removeAttribute('onclick');
+    }
+    if (buttons.length >= 2) {
+      buttons[1].addEventListener('click', hideInstallToast);
+      buttons[1].removeAttribute('onclick');
+    }
+  }
+
+  // مزامنة حالة aria-pressed لزر تبديل الوضع مع الوضع الفعلي الحالي عند التحميل
+  // (إصلاح خلل وصولية: كانت تبقى "false" افتراضياً حتى لو كان الوضع محفوظاً داكناً فعلياً)
+  if (themeToggleBtn) {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDarkNow = currentTheme ? currentTheme === 'dark' : systemPrefersDark;
+    themeToggleBtn.setAttribute('aria-pressed', String(isDarkNow));
+  }
+
+  // عرض رقم إصدار التطبيق بالتذييل
+  const versionEl = document.getElementById('appVersion');
+  if (versionEl) {
+    versionEl.textContent = `${APP_CONFIG.appName} — الإصدار ${APP_CONFIG.version}`;
+  }
+})();
