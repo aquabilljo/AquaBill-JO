@@ -501,15 +501,23 @@ if (shareBtn && shareFallback) {
     /* -----------------------------------------------------------------------
        فتح وإغلاق قائمة المشاركة
        -------------------------------------------------------------------- */
-    const closeShareFallback = () => {
-        shareFallback.hidden = true;
-        shareBtn.setAttribute('aria-expanded', 'false');
-    };
+ const closeShareFallback = () => {
+     shareFallback.hidden = true;
+     shareBtn.setAttribute('aria-expanded', 'false');
+ };
 
-    const openShareFallback = () => {
-        shareFallback.hidden = false;
-        shareBtn.setAttribute('aria-expanded', 'true');
-    };
+const openShareFallback = () => {
+ shareFallback.hidden = false;
+ shareBtn.setAttribute('aria-expanded', 'true');
+
+ shareFallback.classList.remove('open-up');
+
+ const rect = shareFallback.getBoundingClientRect();
+
+ if (rect.bottom > window.innerHeight - 16) {
+     shareFallback.classList.add('open-up');
+ }
+};
 
     /* -----------------------------------------------------------------------
        زر المشاركة الرئيسي
