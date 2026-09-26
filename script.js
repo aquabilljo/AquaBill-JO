@@ -526,16 +526,48 @@ if (shareBtn && shareFallback) {
         });
     }
 
-    document.addEventListener('click', (event) => {
-        if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
+    if (shareQRBtn && qrModal && closeQrBtn) {
+        shareQRBtn.addEventListener('click', () => {
+            shareFallback.hidden = true;
+            shareBtn.setAttribute('aria-expanded', 'false');
+
+            qrModal.hidden = false;
+            closeQrBtn.focus();
+        });
+
+        closeQrBtn.addEventListener('click', () => {
+            qrModal.hidden = true;
+            shareQRBtn.focus();
+        });
+
+        qrModal.addEventListener('click', (event) => {
+            if (event.target === qrModal) {
+                qrModal.hidden = true;
+                shareQRBtn.focus();
+            }
+        });
+    }
+           document.addEventListener('click', (event) => {
+        if (
+            !shareFallback.hidden &&
+            !shareFallback.contains(event.target) &&
+            !shareBtn.contains(event.target)
+        ) {
             closeShareFallback();
         }
     });
-
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !shareFallback.hidden) {
-            closeShareFallback();
-            shareBtn.focus();
+        if (event.key === 'Escape') {
+            if (!qrModal.hidden) {
+                qrModal.hidden = true;
+                shareQRBtn.focus();
+                return;
+            }
+
+            if (!shareFallback.hidden) {
+                closeShareFallback();
+                shareBtn.focus();
+            }
         }
     });
 }
