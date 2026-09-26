@@ -456,6 +456,12 @@ const shareFallback = document.getElementById('shareFallback');
 const shareWhatsApp = document.getElementById('shareWhatsApp');
 const shareFacebook = document.getElementById('shareFacebook');
 const copyShareLink = document.getElementById('copyShareLink');
+const shareQRBtn = document.getElementById('shareQRBtn');
+const qrModal = document.getElementById('qrModal');
+const closeQrBtn = document.getElementById('closeQrBtn');
+const qrContainer = document.getElementById('qrContainer');
+
+
 
 if (shareBtn && shareFallback) {
     const shareData = {
