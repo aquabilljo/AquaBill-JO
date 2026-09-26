@@ -516,26 +516,13 @@ if (shareBtn && shareFallback) {
        على الكمبيوتر: افتح قائمة AquaBill مباشرة.
        على الأجهزة التي تدعم المشاركة الأصلية: استخدم Web Share.
        -------------------------------------------------------------------- */
-    shareBtn.addEventListener('click', async () => {
-
-        const isDesktop =
-            window.matchMedia('(min-width: 769px)').matches;
-
-        if (!isDesktop && navigator.share) {
-            try {
-                if (!navigator.canShare || navigator.canShare(shareData)) {
-                    await navigator.share(shareData);
-                    return;
-                }
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    return;
-                }
-            }
-        }
-
+ shareBtn.addEventListener('click', () => {
+    if (shareFallback.hidden) {
         openShareFallback();
-    });
+    } else {
+        closeShareFallback();
+    }
+});
 
     /* -----------------------------------------------------------------------
        WhatsApp
