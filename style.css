@@ -498,16 +498,38 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 }
 
 /* أزرار إشعار تثبيت PWA (تثبيت / لاحقاً) */
-.pwa-toast button{
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+/* أزرار إشعار تثبيت PWA */
+.pwa-toast button {
   border: none;
   border-radius: 8px;
-  padding: .4rem .8rem;
+  padding: .4rem .82rem;
   font-family: 'Tajawal', sans-serif;
   font-weight: 700;
   font-size: .8rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* زر التثبيت الرئيسي */
+#pwaInstallBtn {
+  background: var(--accent-strong, #00A86B);
+  color: #ffffff;
+}
+
+#pwaInstallBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* زر لاحقاً الثانوي */
+#pwaDismissBtn {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-muted, #a0aec0);
+}
+
+#pwaDismissBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 
 /* أزرار تصدير/استيراد الإعدادات (نمط ثانوي خفيف "Ghost Button") */
@@ -1208,7 +1230,7 @@ main > .card:first-of-type table.tariff th {
     left: 10px;
     width: 36px;
     height: 36px;
-    border: 0;
+    border-radius: 12px;
     background: #000000;
     font-size: 28px;
     line-height: 1;
