@@ -639,14 +639,17 @@ function initShareLogic() {
 initShareLogic();
 
 /* ==========================================================================
-    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
+    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" مع الحركة الانسيابية والضبط الزمني
    ========================================================================== */
 
+let deferredInstallPrompt = null;
 let isDismissedByUser = false;
 let installToastTimer = null;
+let isTimerPassed = false; // يمنع التمرير من إظهار البنر قبل 6 ثوانٍ
+let lastScrollY = window.scrollY;
 
 /**
- * هل المستخدم قريب من أسفل الصفحة؟ (الفوتر/زر المشاركة)
+ * هل المستخدم قريب من أسفل الصفحة؟
  */
 function isNearPageBottom() {
     const scrollPosition = window.scrollY + window.innerHeight;
@@ -663,7 +666,7 @@ function isShareMenuOpen() {
 }
 
 /**
- * إظهار إشعار التثبيت
+ * إظهار إشعار التثبيت بحركة انسيابية سلسة
  */
 function showInstallToast() {
     const toast = document.getElementById('pwaToast');
@@ -672,31 +675,35 @@ function showInstallToast() {
         !toast ||
         isDismissedByUser ||
         !deferredInstallPrompt ||
+        !isTimerPassed || // شرط حاسم: يمنع الظهور قبل انقضاء 6 ثوانٍ
         isNearPageBottom() ||
         isShareMenuOpen()
     ) {
         return;
     }
 
+    if (toast.classList.contains('show')) return;
+
     toast.hidden = false;
-    requestAnimationFrame(() => {
-        toast.classList.add('show');
-    });
+    // إعادة رسم الكرت (Reflow) لإجبار المتصفح على تشغيل انزلاق CSS السلس
+    void toast.offsetWidth; 
+    toast.classList.add('show');
 }
 
 /**
- * إخفاء إشعار التثبيت مؤقتًا
+ * إخفاء إشعار التثبيت بمؤثر خروج ناعم
  */
 function hideInstallToast() {
     const toast = document.getElementById('pwaToast');
-    if (!toast) return;
+    if (!toast || !toast.classList.contains('show')) return;
 
     toast.classList.remove('show');
+
     setTimeout(() => {
         if (!toast.classList.contains('show')) {
             toast.hidden = true;
         }
-    }, 400);
+    }, 350);
 }
 
 /**
@@ -738,6 +745,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 
     installToastTimer = window.setTimeout(() => {
+        isTimerPassed = true; // تفعيل الإمكانية فقط بعد 6 ثوانٍ
+
         if (isDismissedByUser) return;
 
         if (!isShareMenuOpen() && !isNearPageBottom()) {
@@ -747,19 +756,30 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 /**
- * التعامل مع التمرير: إخفاء عند النزول للأسفل وإعادة إظهار عند الصعود
+ * التعامل مع التمرير: النزول يُخفي البنر والصعود يُظهره بانسيابية
  */
 window.addEventListener('scroll', () => {
-    if (isDismissedByUser) return;
+    // يتجاهل التمرير تماماً قبل الـ 6 ثوانٍ أو إذا رفض المستخدم البنر
+    if (isDismissedByUser || !isTimerPassed) return;
 
-    if (isNearPageBottom() || isShareMenuOpen()) {
+    const currentScrollY = window.scrollY;
+
+    // منع الحساسية العالية للتمريرات البسيطة (أقل من 6 بكسل)
+    if (Math.abs(currentScrollY - lastScrollY) < 6) return;
+
+    const isScrollingDown = currentScrollY > lastScrollY && currentScrollY > 50;
+
+    if (isNearPageBottom() || isShareMenuOpen() || isScrollingDown) {
+        // النزول للأسفل: إخفاء البنر
         hideInstallToast();
-        return;
+    } else {
+        // الصعود للأعلى: إظهار البنر بانسيابية
+        if (deferredInstallPrompt) {
+            showInstallToast();
+        }
     }
 
-    if (deferredInstallPrompt) {
-        showInstallToast();
-    }
+    lastScrollY = currentScrollY;
 }, { passive: true });
 
 /**
@@ -771,26 +791,33 @@ window.addEventListener('appinstalled', () => {
 });
 
 /* -----------------------------------------------------------------------
-   ربط أزرار بنر التثبيت برمجياً وإتاحة الدوال عالمياً
+   ربط أزرار بنر التثبيت برمجياً بعد اكتمال تحميل الصفحة
    -------------------------------------------------------------------- */
-const pwaToast = document.getElementById('pwaToast');
-if (pwaToast) {
-    const buttons = pwaToast.querySelectorAll('button');
+function initPwaToastEvents() {
+    const pwaToast = document.getElementById('pwaToast');
+    if (pwaToast) {
+        const buttons = pwaToast.querySelectorAll('button');
 
-    if (buttons.length >= 1) {
-        buttons[0].addEventListener('click', installApp);
-        buttons[0].removeAttribute('onclick');
-    }
+        if (buttons.length >= 1) {
+            buttons[0].addEventListener('click', installApp);
+            buttons[0].removeAttribute('onclick');
+        }
 
-    if (buttons.length >= 2) {
-        buttons[1].addEventListener('click', dismissInstallToast);
-        buttons[1].removeAttribute('onclick');
+        if (buttons.length >= 2) {
+            buttons[1].addEventListener('click', dismissInstallToast);
+            buttons[1].removeAttribute('onclick');
+        }
     }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPwaToastEvents);
+} else {
+    initPwaToastEvents();
 }
 
 window.dismissInstallToast = dismissInstallToast;
 window.installApp = installApp;
-
 /* ==========================================================================
     10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
