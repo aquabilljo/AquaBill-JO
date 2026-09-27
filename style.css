@@ -1058,6 +1058,7 @@ main > .card:first-of-type table.tariff th {
 }
 
 /* 4. قائمة المشاركة الاحتياطية (مُصححة لعدم الاختفاء والشفافية) */
+/* 4. قائمة المشاركة */
 .share-fallback {
     position: fixed;
 
@@ -1084,24 +1085,31 @@ main > .card:first-of-type table.tariff th {
 /* 5. خيارات المشاركة */
 .share-option {
     width: 100%;
+    min-height: 44px;
     padding: 0.65rem 0.75rem;
+
     border: 0;
     border-radius: 8px;
+
     display: flex;
     align-items: center;
     gap: 0.6rem;
     color: #ffffff !important;
     background: transparent;
+
     font: inherit;
     font-size: 0.88rem;
     text-align: right;
     text-decoration: none;
+
     cursor: pointer;
     box-sizing: border-box;
 }
 
 .share-option svg {
-    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
     fill: currentColor;
 }
 
@@ -1121,7 +1129,8 @@ main > .card:first-of-type table.tariff th {
     color: #1c2d42 !important;
 }
 
-[data-theme="light"] .share-option:hover {
+[data-theme="light"] .share-option:hover,
+[data-theme="light"] .share-option:focus-visible {
     background: rgba(0, 0, 0, 0.05) !important;
 }
 
