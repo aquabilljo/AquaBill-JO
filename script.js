@@ -639,14 +639,16 @@ function initShareLogic() {
 initShareLogic();
 
 /* ==========================================================================
-    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
+    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" مع الحركة الانسيابية
    ========================================================================== */
 
 let isDismissedByUser = false;
 let installToastTimer = null;
+let isTimerPassed = false; // يمنع التمرير من إظهار البنر قبل 6 ثوانٍ
+let lastScrollY = window.scrollY;
 
 /**
- * هل المستخدم قريب من أسفل الصفحة؟ (الفوتر/زر المشاركة)
+ * هل المستخدم قريب من أسفل الصفحة؟
  */
 function isNearPageBottom() {
     const scrollPosition = window.scrollY + window.innerHeight;
