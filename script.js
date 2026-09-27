@@ -617,18 +617,29 @@ initShareLogic();
 /* ==========================================================================
    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
    ========================================================================== */
-
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  showInstallToast();
+
+  // إظهار الإشعار بعد 6 ثوانٍ من فتح الصفحة (بشرط ألا تكون قائمة المشاركة مفتوحة)
+  setTimeout(() => {
+    const shareFallback = document.getElementById('shareFallback');
+    const isShareOpen = shareFallback && !shareFallback.hidden;
+
+    if (deferredInstallPrompt && !isShareOpen) {
+      showInstallToast();
+    }
+  }, 6000);
 });
 
 /** يُظهر إشعار "ثبّتوا الأداة" العائم أسفل الشاشة */
 function showInstallToast() {
   const toast = document.getElementById('pwaToast');
   if (!toast) return;
-  toast.classList.add('show');
+  toast.hidden = false;
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
 }
 
 /** يُخفي إشعار التثبيت (عند الضغط على "لاحقاً" أو بعد بدء التثبيت) */
@@ -636,6 +647,9 @@ function hideInstallToast() {
   const toast = document.getElementById('pwaToast');
   if (!toast) return;
   toast.classList.remove('show');
+  setTimeout(() => {
+    toast.hidden = true;
+  }, 400);
 }
 
 /** يُشغّل حوار تثبيت PWA الأصلي للمتصفح عند الضغط على زر "تثبيت" */
@@ -647,6 +661,24 @@ function installApp() {
     deferredInstallPrompt = null;
   });
 }
+
+/* -----------------------------------------------------------------------
+   إخفاء بنر التثبيت فوراً عند الضغط على زر "شارك الأداة"
+   -------------------------------------------------------------------- */
+const shareBtn = document.getElementById('shareBtn');
+if (shareBtn) {
+  shareBtn.addEventListener('click', () => {
+    hideInstallToast();
+  });
+}
+
+/* -----------------------------------------------------------------------
+   إخفاء تلقائي عند إتمام تثبيت التطبيق
+   -------------------------------------------------------------------- */
+window.addEventListener('appinstalled', () => {
+  hideInstallToast();
+  deferredInstallPrompt = null;
+});
   // *******************************************************************************
 // فحص كمية الاستهلاك وإظهار التنبيه
 const consumptionInput = document.getElementById('consumption');
