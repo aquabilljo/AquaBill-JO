@@ -740,7 +740,7 @@ if (dismissBtn) {
     tankerPriceInput.addEventListener('input', calcAll);
   }
 
-  // 5 & 6. PWA toast buttons (install and dismiss)
+ // 5 & 6. PWA toast buttons (install and dismiss)
   const pwaToast = document.getElementById('pwaToast');
   if (pwaToast) {
     const buttons = pwaToast.querySelectorAll('button');
@@ -749,7 +749,8 @@ if (dismissBtn) {
       buttons[0].removeAttribute('onclick');
     }
     if (buttons.length >= 2) {
-      buttons[1].addEventListener('click', hideInstallToast);
+      // استدعاء dismissInstallToast لتثبيت خيار الإلغاء ومنع ظهوره عند التمرير
+      buttons[1].addEventListener('click', dismissInstallToast);
       buttons[1].removeAttribute('onclick');
     }
   }
