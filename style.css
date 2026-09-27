@@ -1134,6 +1134,7 @@ main > .card:first-of-type table.tariff th {
     background: rgba(0, 0, 0, 0.05) !important;
 }
 
+/* ===================== Reduced Motion ===================== */
 @media (prefers-reduced-motion: reduce) {
     .share-btn {
         transition: none;
@@ -1142,21 +1143,11 @@ main > .card:first-of-type table.tariff th {
     .share-btn:hover {
         transform: none;
     }
-   
-   .share-fallback.open-up {
-    top: auto;
-    bottom: calc(100% + 0.6rem);
-   }
 
-@media (prefers-reduced-motion: reduce) {
-    .share-btn {
-        transition: none;
+    .share-fallback.open-up {
+        top: auto;
+        bottom: calc(100% + 0.6rem);
     }
-
-    .share-btn:hover {
-        transform: none;
-    }
-   
 }
 
 /* ===================== نافذة QR ===================== */
