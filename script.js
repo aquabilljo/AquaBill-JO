@@ -501,62 +501,34 @@ if (shareBtn && shareFallback) {
     /* -----------------------------------------------------------------------
        فتح وإغلاق قائمة المشاركة
        -------------------------------------------------------------------- */
-    const positionShareFallback = () => {
-        if (shareFallback.hidden) {
-            return;
-        }
-
-        const buttonRect = shareBtn.getBoundingClientRect();
-        const menuRect = shareFallback.getBoundingClientRect();
-
-        const gap = 10;
-        const screenPadding = 16;
-
-        const spaceBelow = window.innerHeight - buttonRect.bottom - gap;
-        const spaceAbove = buttonRect.top - gap;
-
-        let top;
-
-        if (spaceBelow >= menuRect.height || spaceBelow >= spaceAbove) {
-            top = buttonRect.bottom + gap;
-        } else {
-            top = buttonRect.top - menuRect.height - gap;
-        }
-
-        const minTop = screenPadding;
-        const maxTop =
-            window.innerHeight - menuRect.height - screenPadding;
-
-        top = Math.max(minTop, Math.min(top, maxTop));
-
-        let left =
-            buttonRect.left +
-            (buttonRect.width - menuRect.width) / 2;
-
-        const minLeft = screenPadding;
-        const maxLeft =
-            window.innerWidth - menuRect.width - screenPadding;
-
-        left = Math.max(minLeft, Math.min(left, maxLeft));
-
-        shareFallback.style.top = `${top}px`;
-        shareFallback.style.left = `${left}px`;
-    };
-
     const closeShareFallback = () => {
         shareFallback.hidden = true;
         shareBtn.setAttribute('aria-expanded', 'false');
-
-        shareFallback.style.top = '';
-        shareFallback.style.left = '';
     };
+ const closeShareFallback = () => {
+     shareFallback.hidden = true;
+     shareBtn.setAttribute('aria-expanded', 'false');
+ };
 
     const openShareFallback = () => {
         shareFallback.hidden = false;
         shareBtn.setAttribute('aria-expanded', 'true');
-
-        requestAnimationFrame(positionShareFallback);
     };
+const openShareFallback = () => {
+ shareFallback.hidden = false;
+ shareBtn.setAttribute('aria-expanded', 'true');
+
+ shareFallback.classList.remove('open-up');
+
+ const rect = shareFallback.getBoundingClientRect();
+
+ if (rect.bottom > window.innerHeight - 16) {
+     shareFallback.classList.add('open-up');
+ }
+};
+
+    /* -----------------------------------------------------------------------
+       زر المشاركة الرئيسي
     /* -----------------------------------------------------------------------
        زر المشاركة الرئيسي
        على الكمبيوتر: افتح قائمة AquaBill مباشرة.
