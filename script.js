@@ -501,16 +501,62 @@ if (shareBtn && shareFallback) {
     /* -----------------------------------------------------------------------
        فتح وإغلاق قائمة المشاركة
        -------------------------------------------------------------------- */
+    const positionShareFallback = () => {
+        if (shareFallback.hidden) {
+            return;
+        }
+
+        const buttonRect = shareBtn.getBoundingClientRect();
+        const menuRect = shareFallback.getBoundingClientRect();
+
+        const gap = 10;
+        const screenPadding = 16;
+
+        const spaceBelow = window.innerHeight - buttonRect.bottom - gap;
+        const spaceAbove = buttonRect.top - gap;
+
+        let top;
+
+        if (spaceBelow >= menuRect.height || spaceBelow >= spaceAbove) {
+            top = buttonRect.bottom + gap;
+        } else {
+            top = buttonRect.top - menuRect.height - gap;
+        }
+
+        const minTop = screenPadding;
+        const maxTop =
+            window.innerHeight - menuRect.height - screenPadding;
+
+        top = Math.max(minTop, Math.min(top, maxTop));
+
+        let left =
+            buttonRect.left +
+            (buttonRect.width - menuRect.width) / 2;
+
+        const minLeft = screenPadding;
+        const maxLeft =
+            window.innerWidth - menuRect.width - screenPadding;
+
+        left = Math.max(minLeft, Math.min(left, maxLeft));
+
+        shareFallback.style.top = `${top}px`;
+        shareFallback.style.left = `${left}px`;
+    };
+
     const closeShareFallback = () => {
         shareFallback.hidden = true;
         shareBtn.setAttribute('aria-expanded', 'false');
+
+        shareFallback.style.top = '';
+        shareFallback.style.left = '';
     };
 
     const openShareFallback = () => {
         shareFallback.hidden = false;
         shareBtn.setAttribute('aria-expanded', 'true');
-    };
 
+        requestAnimationFrame(positionShareFallback);
+    };
     /* -----------------------------------------------------------------------
        زر المشاركة الرئيسي
        على الكمبيوتر: افتح قائمة AquaBill مباشرة.
@@ -633,6 +679,10 @@ if (shareBtn && shareFallback) {
             shareBtn.focus();
         }
     });
+      window.addEventListener('resize', positionShareFallback);
+
+    window.addEventListener('scroll', positionShareFallback, { passive: true
+  });
 }
 /* ==========================================================================
    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
