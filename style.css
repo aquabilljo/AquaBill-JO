@@ -498,7 +498,7 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 }
 
 /* ==========================================================================
-   1. PWA INSTALL TOAST STYLES (إشعار التثبيت العائم)
+   6. PWA INSTALL TOAST STYLES (إشعار التثبيت العائم)
    ========================================================================== */
 
 /* إجبار المتصفح على إخفاء البنر فور تفعيل خاصية hidden */
@@ -550,41 +550,53 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 /* -----------------------------------------------------------------------
    أزرار إشعار تثبيت PWA (تثبيت / لاحقاً)
    -------------------------------------------------------------------- */
+/* -----------------------------------------------------------------------
+   أزرار إشعار تثبيت PWA — حل مشكلة التداخل والألوان السوداء
+   -------------------------------------------------------------------- */
+
+/* القواعد الأساسية للأزرار داخل البنر */
+#pwaToast button,
 .pwa-toast button {
-  border: none;
-  border-radius: 8px;
-  padding: 0.4rem 0.82rem;
-  font-family: 'Tajawal', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.45rem 0.9rem !important;
+  font-family: 'Tajawal', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
 }
 
-/* زر التثبيت الرئيسي */
-#pwaInstallBtn {
-  background: var(--accent-strong, #00A86B);
-  color: #ffffff;
+/* زر التثبيت الرئيسي — أبيض ناصع بنص تيركوازي بارز */
+#pwaToast #pwaInstallBtn,
+.pwa-toast #pwaInstallBtn {
+  background-color: #ffffff !important;
+  color: #0d9488 !important; /* لون النص طابق لون خلفية البنر */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
 }
 
-#pwaInstallBtn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+#pwaToast #pwaInstallBtn:hover,
+.pwa-toast #pwaInstallBtn:hover {
+  background-color: #f0fdf4 !important;
+  transform: translateY(-1px) !important;
 }
 
-/* زر لاحقاً الثانوي (متناسق مع خلفية var(--teal) الداكنة) */
-#pwaDismissBtn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+/* زر "لاحقاً" الثانوي — خلفية زجاجية شفافة وناعمة */
+#pwaToast #pwaDismissBtn,
+.pwa-toast #pwaDismissBtn {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
 }
 
-#pwaDismissBtn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
+#pwaToast #pwaDismissBtn:hover,
+.pwa-toast #pwaDismissBtn:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
 }
 
 /* ==========================================================================
-   2. SETTINGS ACTIONS & ACCESSIBILITY (أزرار الإعدادات والوصولية)
+   6.1. SETTINGS ACTIONS & ACCESSIBILITY (أزرار الإعدادات والوصولية)
    ========================================================================== */
 
 .settings-actions {
