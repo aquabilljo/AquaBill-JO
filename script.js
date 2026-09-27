@@ -451,23 +451,20 @@ if ('serviceWorker' in navigator) {
     → مشاركة الأداة + QR + رابط نظيف بدون معاملات التتبع
    ========================================================================== */
 
-const shareBtn = document.getElementById('shareBtn');
-const shareFallback = document.getElementById('shareFallback');
-const shareWhatsApp = document.getElementById('shareWhatsApp');
-const shareFacebook = document.getElementById('shareFacebook');
-const copyShareLink = document.getElementById('copyShareLink');
-const shareQRBtn = document.getElementById('shareQRBtn');
-const qrModal = document.getElementById('qrModal');
-const closeQrBtn = document.getElementById('closeQrBtn');
-const qrContainer = document.getElementById('qrContainer');
+function initShareLogic() {
+    const shareBtn = document.getElementById('shareBtn');
+    const shareFallback = document.getElementById('shareFallback');
+    const shareWhatsApp = document.getElementById('shareWhatsApp');
+    const shareFacebook = document.getElementById('shareFacebook');
+    const copyShareLink = document.getElementById('copyShareLink');
+    const shareQRBtn = document.getElementById('shareQRBtn');
+    const qrModal = document.getElementById('qrModal');
+    const closeQrBtn = document.getElementById('closeQrBtn');
+    const qrContainer = document.getElementById('qrContainer');
 
-if (shareBtn && shareFallback) {
+    if (!shareBtn || !shareFallback) return;
 
-    /* -----------------------------------------------------------------------
-       رابط AquaBill JO النظيف
-       -------------------------------------------------------------------- */
-    const cleanUrl =
-        `${window.location.origin}${window.location.pathname}`;
+    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
 
     const shareData = {
         title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
@@ -476,68 +473,27 @@ if (shareBtn && shareFallback) {
     };
 
     /* -----------------------------------------------------------------------
-       تنظيف معاملات التتبع من شريط العنوان
-       -------------------------------------------------------------------- */
-    const currentUrl = new URL(window.location.href);
-    let hasTrackingParams = false;
-
-    for (const key of currentUrl.searchParams.keys()) {
-        if (key.toLowerCase().startsWith('utm_')) {
-            currentUrl.searchParams.delete(key);
-            hasTrackingParams = true;
-        }
-    }
-
-    if (hasTrackingParams || currentUrl.hash) {
-        currentUrl.hash = '';
-
-        window.history.replaceState(
-            {},
-            document.title,
-            `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
-        );
-    }
-
-    /* -----------------------------------------------------------------------
-       فتح وإغلاق قائمة المشاركة
+       تموضع وإغلاق/فتح قائمة المشاركة
        -------------------------------------------------------------------- */
     const positionShareFallback = () => {
-        if (shareFallback.hidden) {
-            return;
-        }
+        if (shareFallback.hidden) return;
 
         const buttonRect = shareBtn.getBoundingClientRect();
         const menuRect = shareFallback.getBoundingClientRect();
-
         const gap = 10;
         const screenPadding = 16;
 
         const spaceBelow = window.innerHeight - buttonRect.bottom - gap;
         const spaceAbove = buttonRect.top - gap;
 
-        let top;
+        let top = (spaceBelow >= menuRect.height || spaceBelow >= spaceAbove)
+            ? buttonRect.bottom + gap
+            : buttonRect.top - menuRect.height - gap;
 
-        if (spaceBelow >= menuRect.height || spaceBelow >= spaceAbove) {
-            top = buttonRect.bottom + gap;
-        } else {
-            top = buttonRect.top - menuRect.height - gap;
-        }
+        top = Math.max(screenPadding, Math.min(top, window.innerHeight - menuRect.height - screenPadding));
 
-        const minTop = screenPadding;
-        const maxTop =
-            window.innerHeight - menuRect.height - screenPadding;
-
-        top = Math.max(minTop, Math.min(top, maxTop));
-
-        let left =
-            buttonRect.left +
-            (buttonRect.width - menuRect.width) / 2;
-
-        const minLeft = screenPadding;
-        const maxLeft =
-            window.innerWidth - menuRect.width - screenPadding;
-
-        left = Math.max(minLeft, Math.min(left, maxLeft));
+        let left = buttonRect.left + (buttonRect.width - menuRect.width) / 2;
+        left = Math.max(screenPadding, Math.min(left, window.innerWidth - menuRect.width - screenPadding));
 
         shareFallback.style.top = `${top}px`;
         shareFallback.style.left = `${left}px`;
@@ -546,7 +502,6 @@ if (shareBtn && shareFallback) {
     const closeShareFallback = () => {
         shareFallback.hidden = true;
         shareBtn.setAttribute('aria-expanded', 'false');
-
         shareFallback.style.top = '';
         shareFallback.style.left = '';
     };
@@ -554,40 +509,29 @@ if (shareBtn && shareFallback) {
     const openShareFallback = () => {
         shareFallback.hidden = false;
         shareBtn.setAttribute('aria-expanded', 'true');
-
         requestAnimationFrame(positionShareFallback);
     };
+
     /* -----------------------------------------------------------------------
        زر المشاركة الرئيسي
-       على الكمبيوتر: افتح قائمة AquaBill مباشرة.
-       على الأجهزة التي تدعم المشاركة الأصلية: استخدم Web Share.
        -------------------------------------------------------------------- */
- shareBtn.addEventListener('click', () => {
-    if (shareFallback.hidden) {
-        openShareFallback();
-    } else {
-        closeShareFallback();
-    }
-});
+    shareBtn.addEventListener('click', () => {
+        if (shareFallback.hidden) {
+            openShareFallback();
+        } else {
+            closeShareFallback();
+        }
+    });
 
     /* -----------------------------------------------------------------------
-       WhatsApp
+       روابط WhatsApp & Facebook
        -------------------------------------------------------------------- */
     if (shareWhatsApp) {
-        shareWhatsApp.href =
-            `https://api.whatsapp.com/send?text=${encodeURIComponent(
-                `${shareData.text} ${shareData.url}`
-            )}`;
+        shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
     }
 
-    /* -----------------------------------------------------------------------
-       Facebook
-       -------------------------------------------------------------------- */
     if (shareFacebook) {
-        shareFacebook.href =
-            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                shareData.url
-            )}`;
+        shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`;
     }
 
     /* -----------------------------------------------------------------------
@@ -597,13 +541,11 @@ if (shareBtn && shareFallback) {
         copyShareLink.addEventListener('click', async () => {
             try {
                 await navigator.clipboard.writeText(shareData.url);
-
+                const originalText = copyShareLink.textContent;
                 copyShareLink.textContent = 'تم نسخ الرابط';
-
-                window.setTimeout(() => {
-                    copyShareLink.textContent = 'نسخ الرابط';
+                setTimeout(() => {
+                    copyShareLink.textContent = originalText;
                 }, 1800);
-
             } catch {
                 closeShareFallback();
             }
@@ -611,23 +553,20 @@ if (shareBtn && shareFallback) {
     }
 
     /* -----------------------------------------------------------------------
-       QR Code
+       QR Code Modal
        -------------------------------------------------------------------- */
     if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
-
         shareQRBtn.addEventListener('click', () => {
-
             qrContainer.innerHTML = '';
-
-            new QRCode(qrContainer, {
-                text: shareData.url,
-                width: 220,
-                height: 220,
-                correctLevel: QRCode.CorrectLevel.M
-            });
-
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(qrContainer, {
+                    text: shareData.url,
+                    width: 220,
+                    height: 220,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
             closeShareFallback();
-
             qrModal.hidden = false;
             closeQrBtn.focus();
         });
@@ -646,27 +585,16 @@ if (shareBtn && shareFallback) {
     }
 
     /* -----------------------------------------------------------------------
-       إغلاق قائمة المشاركة عند الضغط خارجها
+       إغلاق عند الضغط خارجاً أو زر Escape
        -------------------------------------------------------------------- */
     document.addEventListener('click', (event) => {
-
-        if (
-            !shareFallback.hidden &&
-            !shareFallback.contains(event.target) &&
-            !shareBtn.contains(event.target)
-        ) {
+        if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
             closeShareFallback();
         }
     });
 
-    /* -----------------------------------------------------------------------
-       زر Escape
-       -------------------------------------------------------------------- */
     document.addEventListener('keydown', (event) => {
-
-        if (event.key !== 'Escape') {
-            return;
-        }
+        if (event.key !== 'Escape') return;
 
         if (qrModal && !qrModal.hidden) {
             qrModal.hidden = true;
@@ -679,7 +607,7 @@ if (shareBtn && shareFallback) {
             shareBtn.focus();
         }
     });
-  // التحديث عند تغيير حجم الشاشة أو الـ Scroll
+
     window.addEventListener('resize', positionShareFallback);
     window.addEventListener('scroll', positionShareFallback, { passive: true });
 }
