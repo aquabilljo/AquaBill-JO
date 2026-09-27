@@ -622,10 +622,19 @@ function initShareLogic() {
         }
     });
 
-    window.addEventListener('resize', positionShareFallback);
-    window.addEventListener('scroll', positionShareFallback, { passive: true });
-}
+  // إغلاق قائمة المشاركة تلقائياً عند التمرير (Scroll) أو تغيير حجم الشاشة
+    window.addEventListener('resize', () => {
+        if (!shareFallback.hidden) {
+            closeShareFallback();
+        }
+    });
 
+    window.addEventListener('scroll', () => {
+        if (!shareFallback.hidden) {
+            closeShareFallback();
+        }
+    }, { passive: true });
+}
 // تشغيل الوظيفة
 initShareLogic();
 
