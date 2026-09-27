@@ -339,6 +339,20 @@ function calcAll() {
   }
 }
 /* ==========================================================================
+   فحص كمية الاستهلاك وإظهار التنبيه عند تجاوز 500 م³
+   ========================================================================== */
+(function initConsumptionWarning() {
+  const input = document.getElementById('consumption');
+  const badge = document.getElementById('consumption-warning');
+
+  if (input && badge) {
+    input.addEventListener('input', function () {
+      const val = parseFloat(this.value);
+      badge.style.display = (val > 500) ? 'block' : 'none';
+    });
+  }
+})();
+/* ==========================================================================
    5. THEME TOGGLE — التبديل اليدوي بين الوضع الفاتح والداكن
    ------------------------------------------------------------------------
    يُخزَّن اختيار المستخدم ضمن كائن الإعدادات الموحّد (راجع قسم STORAGE)
