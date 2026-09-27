@@ -694,6 +694,11 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
 });
 
+const dismissBtn = document.getElementById('pwaDismissBtn');
+if (dismissBtn) {
+  dismissBtn.addEventListener('click', dismissInstallToast);
+}
+
 /* ==========================================================================
    10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
