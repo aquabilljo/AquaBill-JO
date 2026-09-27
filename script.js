@@ -501,10 +501,31 @@ if (shareBtn && shareFallback) {
     /* -----------------------------------------------------------------------
        فتح وإغلاق قائمة المشاركة
        -------------------------------------------------------------------- */
+ /* ==========================================================================
+   SHARE MENU & DROPDOWN LOGIC — قائمة المشاركة والتمركز الذكي
+   ========================================================================== */
+function initShareLogic() {
+    const shareBtn = document.getElementById('shareBtn');
+    const shareFallback = document.getElementById('shareFallback');
+    const shareWhatsApp = document.getElementById('shareWhatsApp');
+    const shareFacebook = document.getElementById('shareFacebook');
+    const copyShareLink = document.getElementById('copyShareLink');
+    const shareQRBtn = document.getElementById('shareQRBtn');
+    const qrModal = document.getElementById('qrModal');
+    const closeQrBtn = document.getElementById('closeQrBtn');
+    const qrContainer = document.getElementById('qrContainer');
+
+    if (!shareBtn || !shareFallback) return;
+
+    const shareData = {
+        title: 'AquaBill JO',
+        text: 'احسب فاتورة المياه الأردنية بدقة عبر أداة AquaBill JO:',
+        url: window.location.href
+    };
+
+    // حساب ومحاذاة القائمة تلقائياً حسب المساحة المتوفرة
     const positionShareFallback = () => {
-        if (shareFallback.hidden) {
-            return;
-        }
+        if (shareFallback.hidden) return;
 
         const buttonRect = shareBtn.getBoundingClientRect();
         const menuRect = shareFallback.getBoundingClientRect();
@@ -516,7 +537,6 @@ if (shareBtn && shareFallback) {
         const spaceAbove = buttonRect.top - gap;
 
         let top;
-
         if (spaceBelow >= menuRect.height || spaceBelow >= spaceAbove) {
             top = buttonRect.bottom + gap;
         } else {
@@ -524,19 +544,12 @@ if (shareBtn && shareFallback) {
         }
 
         const minTop = screenPadding;
-        const maxTop =
-            window.innerHeight - menuRect.height - screenPadding;
-
+        const maxTop = window.innerHeight - menuRect.height - screenPadding;
         top = Math.max(minTop, Math.min(top, maxTop));
 
-        let left =
-            buttonRect.left +
-            (buttonRect.width - menuRect.width) / 2;
-
+        let left = buttonRect.left + (buttonRect.width - menuRect.width) / 2;
         const minLeft = screenPadding;
-        const maxLeft =
-            window.innerWidth - menuRect.width - screenPadding;
-
+        const maxLeft = window.innerWidth - menuRect.width - screenPadding;
         left = Math.max(minLeft, Math.min(left, maxLeft));
 
         shareFallback.style.top = `${top}px`;
@@ -546,7 +559,6 @@ if (shareBtn && shareFallback) {
     const closeShareFallback = () => {
         shareFallback.hidden = true;
         shareBtn.setAttribute('aria-expanded', 'false');
-
         shareFallback.style.top = '';
         shareFallback.style.left = '';
     };
@@ -554,71 +566,47 @@ if (shareBtn && shareFallback) {
     const openShareFallback = () => {
         shareFallback.hidden = false;
         shareBtn.setAttribute('aria-expanded', 'true');
-
         requestAnimationFrame(positionShareFallback);
     };
-    /* -----------------------------------------------------------------------
-       زر المشاركة الرئيسي
-       على الكمبيوتر: افتح قائمة AquaBill مباشرة.
-       على الأجهزة التي تدعم المشاركة الأصلية: استخدم Web Share.
-       -------------------------------------------------------------------- */
- shareBtn.addEventListener('click', () => {
-    if (shareFallback.hidden) {
-        openShareFallback();
-    } else {
-        closeShareFallback();
-    }
-});
 
-    /* -----------------------------------------------------------------------
-       WhatsApp
-       -------------------------------------------------------------------- */
+    // زر المشاركة الرئيسي (فتح / إغلاق بالنقر المكرر)
+    shareBtn.addEventListener('click', () => {
+        if (shareFallback.hidden) {
+            openShareFallback();
+        } else {
+            closeShareFallback();
+        }
+    });
+
+    // رابط واتساب
     if (shareWhatsApp) {
-        shareWhatsApp.href =
-            `https://api.whatsapp.com/send?text=${encodeURIComponent(
-                `${shareData.text} ${shareData.url}`
-            )}`;
+        shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
     }
 
-    /* -----------------------------------------------------------------------
-       Facebook
-       -------------------------------------------------------------------- */
+    // رابط فيسبوك
     if (shareFacebook) {
-        shareFacebook.href =
-            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                shareData.url
-            )}`;
+        shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`;
     }
 
-    /* -----------------------------------------------------------------------
-       نسخ الرابط
-       -------------------------------------------------------------------- */
+    // نسخ الرابط
     if (copyShareLink) {
         copyShareLink.addEventListener('click', async () => {
             try {
                 await navigator.clipboard.writeText(shareData.url);
-
-                copyShareLink.textContent = 'تم نسخ الرابط';
-
-                window.setTimeout(() => {
+                copyShareLink.textContent = 'تم نسخ الرابط!';
+                setTimeout(() => {
                     copyShareLink.textContent = 'نسخ الرابط';
                 }, 1800);
-
             } catch {
                 closeShareFallback();
             }
         });
     }
 
-    /* -----------------------------------------------------------------------
-       QR Code
-       -------------------------------------------------------------------- */
+    // رمز QR Modal
     if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
-
         shareQRBtn.addEventListener('click', () => {
-
             qrContainer.innerHTML = '';
-
             new QRCode(qrContainer, {
                 text: shareData.url,
                 width: 220,
@@ -627,7 +615,6 @@ if (shareBtn && shareFallback) {
             });
 
             closeShareFallback();
-
             qrModal.hidden = false;
             closeQrBtn.focus();
         });
@@ -645,28 +632,16 @@ if (shareBtn && shareFallback) {
         });
     }
 
-    /* -----------------------------------------------------------------------
-       إغلاق قائمة المشاركة عند الضغط خارجها
-       -------------------------------------------------------------------- */
+    // إغلاق القائمة عند النقر خارجها
     document.addEventListener('click', (event) => {
-
-        if (
-            !shareFallback.hidden &&
-            !shareFallback.contains(event.target) &&
-            !shareBtn.contains(event.target)
-        ) {
+        if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
             closeShareFallback();
         }
     });
 
-    /* -----------------------------------------------------------------------
-       زر Escape
-       -------------------------------------------------------------------- */
+    // إغلاق بزر Escape
     document.addEventListener('keydown', (event) => {
-
-        if (event.key !== 'Escape') {
-            return;
-        }
+        if (event.key !== 'Escape') return;
 
         if (qrModal && !qrModal.hidden) {
             qrModal.hidden = true;
@@ -679,11 +654,14 @@ if (shareBtn && shareFallback) {
             shareBtn.focus();
         }
     });
-      window.addEventListener('resize', positionShareFallback);
 
-    window.addEventListener('scroll', positionShareFallback, { passive: true
-  });
+    // التحديث عند تغيير حجم الشاشة أو الـ Scroll
+    window.addEventListener('resize', positionShareFallback);
+    window.addEventListener('scroll', positionShareFallback, { passive: true });
 }
+
+// تشغيل الوظيفة
+initShareLogic();
 /* ==========================================================================
    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
    ========================================================================== */
