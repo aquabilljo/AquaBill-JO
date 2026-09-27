@@ -1081,7 +1081,7 @@ main > .card:first-of-type table.tariff th {
     display: none;
 }
 
-/* 5. خيارات المشاركة مع تحسين محاذاة الأيقونات والنص */
+/* 5. خيارات المشاركة */
 .share-option {
     width: 100%;
     padding: 0.65rem 0.75rem;
@@ -1090,7 +1090,7 @@ main > .card:first-of-type table.tariff th {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    color: #ffffff !important; /* ضمان القراءة بدون إعتام */
+    color: #ffffff !important;
     background: transparent;
     font: inherit;
     font-size: 0.88rem;
@@ -1110,20 +1110,11 @@ main > .card:first-of-type table.tariff th {
     background: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* 6. إصلاح صريح للقائمة في Light Mode */
+/* 6. Light Mode */
 [data-theme="light"] .share-fallback {
     background-color: #ffffff !important;
     border-color: rgba(0, 0, 0, 0.15);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-[data-theme="light"] .share-option {
-    color: #1c2d42 !important;
-}
-
-[data-theme="light"] .share-option:hover {
-    background: rgba(0, 0, 0, 0.05) !important;
-}
 }
 
 [data-theme="light"] .share-option {
