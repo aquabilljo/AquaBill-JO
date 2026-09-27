@@ -498,10 +498,10 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 }
 
 /* ==========================================================================
-   PWA INSTALL TOAST STYLES
+   1. PWA INSTALL TOAST STYLES (إشعار التثبيت العائم)
    ========================================================================== */
 
-/* إجبار المتصفح على إخفاء البنر فور تفعيل خاصية hidden لمنع تغليب الخواص */
+/* إجبار المتصفح على إخفاء البنر فور تفعيل خاصية hidden */
 #pwaToast[hidden],
 .pwa-toast[hidden] {
   display: none !important;
@@ -510,19 +510,41 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 /* الحاوية الرئيسية لإشعار التثبيت */
 .pwa-toast {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(120px);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: 16px;
+  right: 16px;
+  max-width: 608px;
+  margin: 0 auto;
+  background: var(--teal, #0d9488);
+  color: #ffffff;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-md, 12px);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.4);
+  z-index: 9999; /* أولوية عالية لمنع اختفائه تحت العناصر الأخرى */
+
+  /* حركة سلسة مع منع حجب النقرات عندما يكون مخفياً */
   opacity: 0;
-  pointer-events: none; /* يمنع حجب النقرات عندما يكون مخفياً */
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-  z-index: 9999;
+  pointer-events: none;
+  transform: translateY(120%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
 
+/* حالة الظهور */
 .pwa-toast.show {
-  transform: translateX(-50%) translateY(0);
   opacity: 1;
   pointer-events: auto; /* تفعيل التفاعل فور الظهور */
+  transform: translateY(0);
+}
+
+.pwa-toast-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex: none;
 }
 
 /* -----------------------------------------------------------------------
@@ -531,10 +553,10 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 .pwa-toast button {
   border: none;
   border-radius: 8px;
-  padding: .4rem .82rem;
+  padding: 0.4rem 0.82rem;
   font-family: 'Tajawal', sans-serif;
   font-weight: 700;
-  font-size: .8rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -550,52 +572,62 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   transform: translateY(-1px);
 }
 
-/* زر لاحقاً الثانوي */
+/* زر لاحقاً الثانوي (متناسق مع خلفية var(--teal) الداكنة) */
 #pwaDismissBtn {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--text-muted, #a0aec0);
-}
-
-#pwaDismissBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
 
-/* أزرار تصدير/استيراد الإعدادات (نمط ثانوي خفيف "Ghost Button") */
-.settings-actions{
+#pwaDismissBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   2. SETTINGS ACTIONS & ACCESSIBILITY (أزرار الإعدادات والوصولية)
+   ========================================================================== */
+
+.settings-actions {
   display: flex;
   gap: var(--space-sm);
   margin-top: var(--space-md);
   flex-wrap: wrap;
 }
-.ghost-btn{
+
+.ghost-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: none;
   border: 1px dashed var(--border);
   border-radius: 8px;
-  padding: .4rem .8rem;
+  padding: 0.4rem 0.8rem;
   font-family: 'Tajawal', sans-serif;
-  font-size: .78rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--ink-soft);
   cursor: pointer;
   transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
-.ghost-btn:hover{ background: var(--teal-light); border-color: var(--accent-strong); color: var(--accent-strong); }
+
+.ghost-btn:hover {
+  background: var(--teal-light);
+  border-color: var(--accent-strong);
+  color: var(--accent-strong);
+}
+
 /* إخفاء بصري لحقل اختيار الملف مع إبقائه قابلاً للوصول عبر لوحة المفاتيح وقارئ الشاشة */
-.sr-only-input{
+.sr-only-input {
   position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
 }
-
-
 /* ==========================================================================
    7. FORMS — حقول الإدخال والتسميات
    ========================================================================== */
@@ -808,28 +840,6 @@ body.dark-mode .badge.critical,
 ul.tips{ margin: .4rem 0 0; padding-inline-start: 1.2rem; font-size: .9rem; }
 ul.tips li{ margin-bottom: .55rem; }
 
-/* إشعار "ثبّتوا التطبيق" العائم أسفل الشاشة */
-.pwa-toast{
-  position: fixed;
-  bottom: 16px; left: 16px; right: 16px;
-  max-width: 608px;
-  margin: 0 auto;
-  background: var(--teal);
-  color: #fff;
-  padding: .8rem 1rem;
-  border-radius: var(--radius-md);
-  font-size: .85rem;
-  display: flex;
-  align-items: center;
-  gap: 16rem;
-  justify-content: space-between;
-  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.4);
-  z-index: 50;
-  transform: translateY(120%);
-  transition: transform .3s ease;
-}
-.pwa-toast.show{ transform: translateY(0); }
-.pwa-toast-actions{ display: flex; gap: .4rem; flex: none; }
 
 /* شعار SVG الصغير أعلى التذييل */
 .footer-logo{ margin-bottom: .6rem; }
@@ -1201,7 +1211,7 @@ main > .card:first-of-type table.tariff th {
     }
 }
 
-/* ===================== نافذة QR ===================== */
+/* ===================== نافذة QR (دعم كامل للوضع الداكن والأجهزة) ===================== */
 
 .qr-modal {
     position: fixed;
@@ -1211,36 +1221,46 @@ main > .card:first-of-type table.tariff th {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px); /* تأثير ضبابي خفيف للخلفية */
 }
 
 .qr-modal[hidden] {
-    display: none;
+    display: none !important;
 }
 
+/* الكرت الرئيسي للنافذة — يتكيف تلقائياً مع متغيرات الوضع الداكن/الفاتح */
 .qr-modal-content {
     position: relative;
     width: min(90vw, 360px);
     padding: 24px;
     border-radius: 18px;
-    background: #fff;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-color, #1a202c);
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color, transparent);
 }
 
 .qr-modal-content h3 {
     margin: 0 0 20px;
+    color: inherit;
 }
 
+/* حاوية رمز QR — تبقى بيضاء دائماً لضمان قراءة ماسح الهاتف */
 .qr-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 220px;
     margin-bottom: 16px;
+    background: #ffffff !important;
+    padding: 12px;
+    border-radius: 14px;
 }
 
-.qr-container img {
+.qr-container img,
+.qr-container canvas {
     display: block;
     width: 220px;
     height: 220px;
@@ -1250,22 +1270,56 @@ main > .card:first-of-type table.tariff th {
 .qr-modal-content p {
     margin: 0;
     font-size: 14px;
-    opacity: 0.75;
+    opacity: 0.8;
+    color: inherit;
 }
 
-.close-qr {
+/* زر الإغلاق المحدث — معزول عن ألوان الفوتر ومحاذى بدقة */
+button.close-qr {
     position: absolute;
-    top: 8px;
-    left: 10px;
+    top: 12px;
+    left: 12px;
     width: 36px;
     height: 36px;
     border-radius: 12px;
-    background: #000000;
-    font-size: 28px;
-    line-height: 1;
+    border: none !important;
+    
+    /* ألوان مستقلة لمنع التداخل */
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: #2d3748 !important;
+    
     cursor: pointer;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    z-index: 10;
 }
 
+button.close-qr:hover {
+    background: rgba(0, 0, 0, 0.15) !important;
+}
+
+button.close-qr:active {
+    transform: scale(0.92);
+}
+
+/* -----------------------------------------------------------------------
+   دعم الوضع الداكن (Dark Mode)
+   -------------------------------------------------------------------- */
+[data-theme="dark"] .qr-modal-content {
+    background: var(--card-bg, #1a202c);
+    color: var(--text-color, #f7fafc);
+}
+
+[data-theme="dark"] button.close-qr {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] button.close-qr:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
 /* --- تطبيق الثيم العصري الموحد على كافة بطاقات التطبيق --- */
 /* ==========================================================================
    تنسيق البطاقات الأساسي والحركة (مُوحّد وسلس)
