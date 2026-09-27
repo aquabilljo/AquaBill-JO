@@ -679,23 +679,7 @@ window.addEventListener('appinstalled', () => {
   hideInstallToast();
   deferredInstallPrompt = null;
 });
-  // *******************************************************************************
-// فحص كمية الاستهلاك وإظهار التنبيه
-const consumptionInput = document.getElementById('consumption');
-const warningBadge = document.getElementById('consumption-warning');
 
-if (consumptionInput && warningBadge) {
-  consumptionInput.addEventListener('input', function () {
-    const val = parseFloat(this.value);
-    
-    // إظهار التنبيه فقط إذا كان الرقم أكبر من 500
-    if (val > 500) {
-      warningBadge.style.display = 'block';
-    } else {
-      warningBadge.style.display = 'none';
-    }
-  });
-}
 /* ==========================================================================
    10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
