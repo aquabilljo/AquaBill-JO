@@ -1059,13 +1059,10 @@ main > .card:first-of-type table.tariff th {
 
 /* 4. قائمة المشاركة الاحتياطية (مُصححة لعدم الاختفاء والشفافية) */
 .share-fallback {
-    position: absolute;
-    top: calc(100% + 0.6rem);
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed;
 
-    min-width: 190px;
-    max-height: min(280px, calc(100vh - 120px));
+    width: min(220px, calc(100vw - 32px));
+    max-height: min(280px, calc(100vh - 32px));
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
@@ -1075,14 +1072,16 @@ main > .card:first-of-type table.tariff th {
     border-radius: 12px;
     background-color: #16211d !important;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    z-index: 99;
+
+    z-index: 9999;
+    box-sizing: border-box;
 }
 
 .share-fallback[hidden] {
     display: none;
 }
 
-/* 5. خيارات المشاركة مع تحسين محاذاة الأيقونات والنص */
+/* 5. خيارات المشاركة */
 .share-option {
     width: 100%;
     padding: 0.65rem 0.75rem;
@@ -1091,7 +1090,7 @@ main > .card:first-of-type table.tariff th {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    color: #ffffff !important; /* ضمان القراءة بدون إعتام */
+    color: #ffffff !important;
     background: transparent;
     font: inherit;
     font-size: 0.88rem;
@@ -1111,20 +1110,11 @@ main > .card:first-of-type table.tariff th {
     background: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* 6. إصلاح صريح للقائمة في Light Mode */
+/* 6. Light Mode */
 [data-theme="light"] .share-fallback {
     background-color: #ffffff !important;
     border-color: rgba(0, 0, 0, 0.15);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-[data-theme="light"] .share-option {
-    color: #1c2d42 !important;
-}
-
-[data-theme="light"] .share-option:hover {
-    background: rgba(0, 0, 0, 0.05) !important;
-}
 }
 
 [data-theme="light"] .share-option {
