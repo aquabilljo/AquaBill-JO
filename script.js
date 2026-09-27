@@ -617,16 +617,25 @@ initShareLogic();
 /* ==========================================================================
    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
    ========================================================================== */
+/* ==========================================================================
+   9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
+   ========================================================================== */
+
+let deferredInstallPrompt = null;
+let isDismissedByUser = false; // تتبع ما إذا ضغط المستخدم على "لاحقاً"
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
 
-  // إظهار الإشعار بعد 6 ثوانٍ من فتح الصفحة (بشرط ألا تكون قائمة المشاركة مفتوحة)
+  // إظهار الإشعار بعد 6 ثوانٍ من فتح الصفحة
   setTimeout(() => {
     const shareFallback = document.getElementById('shareFallback');
     const isShareOpen = shareFallback && !shareFallback.hidden;
+    const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 140;
 
-    if (deferredInstallPrompt && !isShareOpen) {
+    // الظهور فقط إذا لم يتم رفضه، وليست القائمة مفتوحة، ولسنا في أسفل الصفحة
+    if (deferredInstallPrompt && !isDismissedByUser && !isShareOpen && !isAtBottom) {
       showInstallToast();
     }
   }, 6000);
@@ -642,7 +651,7 @@ function showInstallToast() {
   });
 }
 
-/** يُخفي إشعار التثبيت (عند الضغط على "لاحقاً" أو بعد بدء التثبيت) */
+/** يُخفي إشعار التثبيت */
 function hideInstallToast() {
   const toast = document.getElementById('pwaToast');
   if (!toast) return;
@@ -650,6 +659,12 @@ function hideInstallToast() {
   setTimeout(() => {
     toast.hidden = true;
   }, 400);
+}
+
+/** إلغاء الإشعار بواسطة المستخدم عند الضغط على "لاحقاً" */
+function dismissInstallToast() {
+  isDismissedByUser = true; // تسجيل أن المستخدم رفض الإشعار يدوياً
+  hideInstallToast();
 }
 
 /** يُشغّل حوار تثبيت PWA الأصلي للمتصفح عند الضغط على زر "تثبيت" */
@@ -663,6 +678,23 @@ function installApp() {
 }
 
 /* -----------------------------------------------------------------------
+   إخفاء الإشعار عند النزول لأسفل الشاشة، وإعادته عند الصعود (إذا لم يُرفض)
+   -------------------------------------------------------------------- */
+window.addEventListener('scroll', () => {
+  if (!deferredInstallPrompt || isDismissedByUser) return;
+
+  const shareFallback = document.getElementById('shareFallback');
+  const isShareOpen = shareFallback && !shareFallback.hidden;
+  const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 140;
+
+  if (isAtBottom || isShareOpen) {
+    hideInstallToast();
+  } else {
+    showInstallToast();
+  }
+}, { passive: true });
+
+/* -----------------------------------------------------------------------
    إخفاء بنر التثبيت فوراً عند الضغط على زر "شارك الأداة"
    -------------------------------------------------------------------- */
 const shareBtn = document.getElementById('shareBtn');
@@ -673,29 +705,14 @@ if (shareBtn) {
 }
 
 /* -----------------------------------------------------------------------
-   إخفاء تلقائي عند إتمام تثبيت التطبيق
+   إخفاء تلقائي عند كتم أو إتمام تثبيت التطبيق بنجاح
    -------------------------------------------------------------------- */
 window.addEventListener('appinstalled', () => {
+  isDismissedByUser = true;
   hideInstallToast();
   deferredInstallPrompt = null;
 });
-  // *******************************************************************************
-// فحص كمية الاستهلاك وإظهار التنبيه
-const consumptionInput = document.getElementById('consumption');
-const warningBadge = document.getElementById('consumption-warning');
 
-if (consumptionInput && warningBadge) {
-  consumptionInput.addEventListener('input', function () {
-    const val = parseFloat(this.value);
-    
-    // إظهار التنبيه فقط إذا كان الرقم أكبر من 500
-    if (val > 500) {
-      warningBadge.style.display = 'block';
-    } else {
-      warningBadge.style.display = 'none';
-    }
-  });
-}
 /* ==========================================================================
    10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
