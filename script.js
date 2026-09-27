@@ -452,15 +452,15 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js')
       .catch((err) => {
         console.warn('تعذر تسجيل Service Worker:', err);
-        logClientError(err.message || String(err), 'serviceWorker.register');
+        if (typeof logClientError === 'function') {
+          logClientError(err.message || String(err), 'serviceWorker.register');
+        }
       });
   });
 }
 
-
-
 /* ==========================================================================
-    // 8. SHARE FEATURE
+    8. SHARE FEATURE
     ------------------------------------------------------------------------
     → مشاركة الأداة + QR + رابط نظيف بدون معاملات التتبع
    ========================================================================== */
@@ -487,7 +487,7 @@ function initShareLogic() {
     };
 
     /* -----------------------------------------------------------------------
-       تموضع وإغلاق/فتح قائمة المشاركة
+        تموضع وإغلاق/فتح قائمة المشاركة
        -------------------------------------------------------------------- */
     const positionShareFallback = () => {
         if (shareFallback.hidden) return;
@@ -527,7 +527,7 @@ function initShareLogic() {
     };
 
     /* -----------------------------------------------------------------------
-       زر المشاركة الرئيسي
+        زر المشاركة الرئيسي
        -------------------------------------------------------------------- */
     shareBtn.addEventListener('click', () => {
         if (shareFallback.hidden) {
@@ -538,7 +538,7 @@ function initShareLogic() {
     });
 
     /* -----------------------------------------------------------------------
-       روابط WhatsApp & Facebook
+        روابط WhatsApp & Facebook
        -------------------------------------------------------------------- */
     if (shareWhatsApp) {
         shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
@@ -549,7 +549,7 @@ function initShareLogic() {
     }
 
     /* -----------------------------------------------------------------------
-       نسخ الرابط
+        نسخ الرابط
        -------------------------------------------------------------------- */
     if (copyShareLink) {
         copyShareLink.addEventListener('click', async () => {
@@ -567,7 +567,7 @@ function initShareLogic() {
     }
 
     /* -----------------------------------------------------------------------
-       QR Code Modal
+        QR Code Modal
        -------------------------------------------------------------------- */
     if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
         shareQRBtn.addEventListener('click', () => {
@@ -599,7 +599,7 @@ function initShareLogic() {
     }
 
     /* -----------------------------------------------------------------------
-       إغلاق عند الضغط خارجاً أو زر Escape
+        إغلاق عند الضغط خارجاً أو زر Escape
        -------------------------------------------------------------------- */
     document.addEventListener('click', (event) => {
         if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
@@ -628,145 +628,212 @@ function initShareLogic() {
 
 // تشغيل الوظيفة
 initShareLogic();
+
 /* ==========================================================================
-   9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
+    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
    ========================================================================== */
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
 
-  // إظهار الإشعار بعد 6 ثوانٍ من فتح الصفحة (بشرط ألا تكون قائمة المشاركة مفتوحة)
-  setTimeout(() => {
+let isDismissedByUser = false;
+let installToastTimer = null;
+
+/**
+ * هل المستخدم قريب من أسفل الصفحة؟ (الفوتر/زر المشاركة)
+ */
+function isNearPageBottom() {
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const pageHeight = document.documentElement.scrollHeight;
+    return scrollPosition >= pageHeight - 180;
+}
+
+/**
+ * هل قائمة المشاركة مفتوحة؟
+ */
+function isShareMenuOpen() {
     const shareFallback = document.getElementById('shareFallback');
-    const isShareOpen = shareFallback && !shareFallback.hidden;
+    return shareFallback && !shareFallback.hidden;
+}
 
-    if (deferredInstallPrompt && !isShareOpen) {
-      showInstallToast();
-    }
-  }, 6000);
-});
-
-/** يُظهر إشعار "ثبّتوا الأداة" العائم أسفل الشاشة */
+/**
+ * إظهار إشعار التثبيت
+ */
 function showInstallToast() {
-  const toast = document.getElementById('pwaToast');
-  if (!toast) return;
-  toast.hidden = false;
-  requestAnimationFrame(() => {
-    toast.classList.add('show');
-  });
+    const toast = document.getElementById('pwaToast');
+
+    if (
+        !toast ||
+        isDismissedByUser ||
+        !deferredInstallPrompt ||
+        isNearPageBottom() ||
+        isShareMenuOpen()
+    ) {
+        return;
+    }
+
+    toast.hidden = false;
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
 }
 
-/** يُخفي إشعار التثبيت (عند الضغط على "لاحقاً" أو بعد بدء التثبيت) */
+/**
+ * إخفاء إشعار التثبيت مؤقتًا
+ */
 function hideInstallToast() {
-  const toast = document.getElementById('pwaToast');
-  if (!toast) return;
-  toast.classList.remove('show');
-  setTimeout(() => {
-    toast.hidden = true;
-  }, 400);
+    const toast = document.getElementById('pwaToast');
+    if (!toast) return;
+
+    toast.classList.remove('show');
+    setTimeout(() => {
+        if (!toast.classList.contains('show')) {
+            toast.hidden = true;
+        }
+    }, 400);
 }
 
-/** يُشغّل حوار تثبيت PWA الأصلي للمتصفح عند الضغط على زر "تثبيت" */
-function installApp() {
-  hideInstallToast();
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.finally(() => {
-    deferredInstallPrompt = null;
-  });
-}
+/**
+ * إخفاء الإشعار نهائيًا خلال جلسة المستخدم (عند الضغط على "لاحقاً")
+ */
+function dismissInstallToast() {
+    isDismissedByUser = true;
 
-/* -----------------------------------------------------------------------
-   إخفاء بنر التثبيت فوراً عند الضغط على زر "شارك الأداة"
-   -------------------------------------------------------------------- */
-const shareBtn = document.getElementById('shareBtn');
-if (shareBtn) {
-  shareBtn.addEventListener('click', () => {
+    if (installToastTimer) {
+        window.clearTimeout(installToastTimer);
+        installToastTimer = null;
+    }
+
     hideInstallToast();
-  });
 }
 
-/* -----------------------------------------------------------------------
-   إخفاء تلقائي عند إتمام تثبيت التطبيق
-   -------------------------------------------------------------------- */
-window.addEventListener('appinstalled', () => {
-  hideInstallToast();
-  deferredInstallPrompt = null;
+/**
+ * تشغيل حوار تثبيت PWA عند الضغط على زر "تثبيت"
+ */
+function installApp() {
+    hideInstallToast();
+    if (!deferredInstallPrompt) return;
+
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.finally(() => {
+        deferredInstallPrompt = null;
+    });
+}
+
+/**
+ * استقبال طلب التثبيت والتأخير الذكي (6 ثوانٍ)
+ */
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+
+    if (installToastTimer) {
+        window.clearTimeout(installToastTimer);
+    }
+
+    installToastTimer = window.setTimeout(() => {
+        if (isDismissedByUser) return;
+
+        if (!isShareMenuOpen() && !isNearPageBottom()) {
+            showInstallToast();
+        }
+    }, 6000);
 });
 
-const dismissBtn = document.getElementById('pwaDismissBtn');
-if (dismissBtn) {
-  dismissBtn.addEventListener('click', dismissInstallToast);
+/**
+ * التعامل مع التمرير: إخفاء عند النزول للأسفل وإعادة إظهار عند الصعود
+ */
+window.addEventListener('scroll', () => {
+    if (isDismissedByUser) return;
+
+    if (isNearPageBottom() || isShareMenuOpen()) {
+        hideInstallToast();
+        return;
+    }
+
+    if (deferredInstallPrompt) {
+        showInstallToast();
+    }
+}, { passive: true });
+
+/**
+ * إخفاء تلقائي عند إتمام تثبيت التطبيق
+ */
+window.addEventListener('appinstalled', () => {
+    hideInstallToast();
+    deferredInstallPrompt = null;
+});
+
+/* -----------------------------------------------------------------------
+   ربط أزرار بنر التثبيت برمجياً وإتاحة الدوال عالمياً
+   -------------------------------------------------------------------- */
+const pwaToast = document.getElementById('pwaToast');
+if (pwaToast) {
+    const buttons = pwaToast.querySelectorAll('button');
+
+    if (buttons.length >= 1) {
+        buttons[0].addEventListener('click', installApp);
+        buttons[0].removeAttribute('onclick');
+    }
+
+    if (buttons.length >= 2) {
+        buttons[1].addEventListener('click', dismissInstallToast);
+        buttons[1].removeAttribute('onclick');
+    }
 }
+
+window.dismissInstallToast = dismissInstallToast;
+window.installApp = installApp;
 
 /* ==========================================================================
-   10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
+    10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
 
 (function initApp() {
-  // استعادة أي تعديل سابق على التعرفة كان المستخدم قد حفظه بجلسة سابقة
-  const settings = loadSettings();
-  if (Array.isArray(settings.tariffOverride) && settings.tariffOverride.length === tiers.length) {
-    settings.tariffOverride.forEach((t, i) => {
-      tiers[i].water = sanitizeNumber(t.water, tiers[i].water);
-      tiers[i].sewage = sanitizeNumber(t.sewage, tiers[i].sewage);
-    });
-  }
-  initScrollProgress();
-  initFadeInCards();
-
-  // ===== EVENT LISTENERS (مستبدلة من inline handlers) =====
-  // 1. Theme toggle button
-  const themeToggleBtn = document.getElementById('themeToggle');
-  if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', toggleTheme);
-  }
-
-  // 2. Consumption input
-  const consumptionInput = document.getElementById('consumption');
-  if (consumptionInput) {
-    consumptionInput.addEventListener('input', calcAll);
-  }
-
-  // 3. Tanker quantity input
-  const tankerQtyInput = document.getElementById('tankerQty');
-  if (tankerQtyInput) {
-    tankerQtyInput.addEventListener('input', calcAll);
-  }
-
-  // 4. Tanker price input
-  const tankerPriceInput = document.getElementById('tankerPrice');
-  if (tankerPriceInput) {
-    tankerPriceInput.addEventListener('input', calcAll);
-  }
-
- // 5 & 6. PWA toast buttons (install and dismiss)
-  const pwaToast = document.getElementById('pwaToast');
-  if (pwaToast) {
-    const buttons = pwaToast.querySelectorAll('button');
-    if (buttons.length >= 1) {
-      buttons[0].addEventListener('click', installApp);
-      buttons[0].removeAttribute('onclick');
+    // استعادة أي تعديل سابق على التعرفة كان المستخدم قد حفظه بجلسة سابقة
+    const settings = loadSettings();
+    if (Array.isArray(settings.tariffOverride) && settings.tariffOverride.length === tiers.length) {
+        settings.tariffOverride.forEach((t, i) => {
+            tiers[i].water = sanitizeNumber(t.water, tiers[i].water);
+            tiers[i].sewage = sanitizeNumber(t.sewage, tiers[i].sewage);
+        });
     }
-    if (buttons.length >= 2) {
-      // استدعاء dismissInstallToast لتثبيت خيار الإلغاء ومنع ظهوره عند التمرير
-      buttons[1].addEventListener('click', dismissInstallToast);
-      buttons[1].removeAttribute('onclick');
+    initScrollProgress();
+    initFadeInCards();
+
+    // ===== EVENT LISTENERS =====
+    // 1. Theme toggle button
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', toggleTheme);
     }
-  }
 
-  // مزامنة حالة aria-pressed لزر تبديل الوضع مع الوضع الفعلي الحالي عند التحميل
-  // (إصلاح خلل وصولية: كانت تبقى "false" افتراضياً حتى لو كان الوضع محفوظاً داكناً فعلياً)
-  if (themeToggleBtn) {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDarkNow = currentTheme ? currentTheme === 'dark' : systemPrefersDark;
-    themeToggleBtn.setAttribute('aria-pressed', String(isDarkNow));
-  }
+    // 2. Consumption input
+    const consumptionInput = document.getElementById('consumption');
+    if (consumptionInput) {
+        consumptionInput.addEventListener('input', calcAll);
+    }
 
-  // عرض رقم إصدار التطبيق بالتذييل
-  const versionEl = document.getElementById('appVersion');
-  if (versionEl) {
-    versionEl.textContent = `${APP_CONFIG.appName} — الإصدار ${APP_CONFIG.version}`;
-  }
+    // 3. Tanker quantity input
+    const tankerQtyInput = document.getElementById('tankerQty');
+    if (tankerQtyInput) {
+        tankerQtyInput.addEventListener('input', calcAll);
+    }
+
+    // 4. Tanker price input
+    const tankerPriceInput = document.getElementById('tankerPrice');
+    if (tankerPriceInput) {
+        tankerPriceInput.addEventListener('input', calcAll);
+    }
+
+    // مزامنة حالة aria-pressed لزر تبديل الوضع مع الوضع الفعلي الحالي عند التحميل
+    if (themeToggleBtn) {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDarkNow = currentTheme ? currentTheme === 'dark' : systemPrefersDark;
+        themeToggleBtn.setAttribute('aria-pressed', String(isDarkNow));
+    }
+
+    // عرض رقم إصدار التطبيق بالتذييل
+    const versionEl = document.getElementById('appVersion');
+    if (versionEl) {
+        versionEl.textContent = `${APP_CONFIG.appName} — الإصدار ${APP_CONFIG.version}`;
+    }
 })();
