@@ -679,11 +679,13 @@ if (shareBtn && shareFallback) {
             shareBtn.focus();
         }
     });
-      window.addEventListener('resize', positionShareFallback);
-
-    window.addEventListener('scroll', positionShareFallback, { passive: true
-  });
+  // التحديث عند تغيير حجم الشاشة أو الـ Scroll
+    window.addEventListener('resize', positionShareFallback);
+    window.addEventListener('scroll', positionShareFallback, { passive: true });
 }
+
+// تشغيل الوظيفة
+initShareLogic();
 /* ==========================================================================
    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" على الهاتف
    ========================================================================== */
