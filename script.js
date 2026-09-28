@@ -12,7 +12,7 @@
      5. THEME TOGGLE       → التبديل اليدوي بين الوضع الفاتح والداكن
      6. SCROLL EFFECTS     → شريط التقدم والظهور التدريجي للبطاقات
      7. SERVICE WORKER     → تسجيل العمل بدون إنترنت (PWA)
-     8. SHARE FEATURE      → مشاركة الأداة مع دمج اللوجو والعناوين الديناميكية لـ QR
+     8. SHARE FEATURE      → مشاركة الأداة وتوليد QR عالي الدقة مع اللوجو والنص
      9. PWA INSTALL PROMPT → إشعار "تثبيت التطبيق" على الهاتف
      10. INITIALIZATION    → التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
@@ -361,7 +361,7 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-   8. SHARE FEATURE — منطق المشاركة ورمز الـ QR المكتمل والآمن
+   8. SHARE FEATURE — مشاركة الأداة وتوليد الـ QR عالي الدقة مع اللوجو والنص
    ========================================================================== */
 
 function initShareLogic() {
@@ -379,7 +379,6 @@ function initShareLogic() {
 
   if (!shareBtn || !shareFallback) return;
 
-  // تعريف متغيرات النطاق لمنع أخطاء Scope
   let currentTriggerElement = null;
 
   const cleanUrl = `${window.location.origin}${window.location.pathname}`;
@@ -390,9 +389,8 @@ function initShareLogic() {
     url: cleanUrl
   };
 
-  // التحميل المسبق للشعار من مجلد images/
   const logoImg = new Image();
-  logoImg.src = new URL('images/icon-192.png', document.baseURI || window.location.href).href;
+  logoImg.src = 'images/qr-logo.png';
 
   /* تموضع وإغلاق/فتح قائمة المشاركة */
   const positionShareFallback = () => {
@@ -466,7 +464,7 @@ function initShareLogic() {
           if (copyText) copyText.textContent = 'نسخ الرابط';
           const currentIcon = document.getElementById('copyIcon');
           if (currentIcon) {
-            currentIcon.outerHTML = `<svg id="copyIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+            currentIcon.outerHTML = `<svg id="copyIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
           }
         }, 2000);
       } catch {
@@ -488,18 +486,16 @@ function initShareLogic() {
     }
   };
 
-  /* فتح نافذة الـ QR وقفل التمرير الخارجي وإخفاء شريط التثبيت */
+  /* فتح نافذة الـ QR وقفل التمرير الخارجي ورسم اللوجو الواضح والنص */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
     currentTriggerElement = triggerBtn || shareQRBtn;
 
-    // إخفاء شريط تثبيت التطبيق فوراً
     if (typeof hideInstallToast === 'function') {
       hideInstallToast();
     }
 
-    // قفل تمرير الخلفية
     document.body.style.overflow = 'hidden';
 
     const modalTitle = qrModal.querySelector('h3');
@@ -522,50 +518,80 @@ function initShareLogic() {
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      const renderLogoOnQR = () => {
-        const canvas = qrContainer.querySelector('canvas');
+      const renderEnhancedQR = () => {
+        const qrCanvas = qrContainer.querySelector('canvas');
         const img = qrContainer.querySelector('img');
 
-        if (!canvas) {
-          setTimeout(renderLogoOnQR, 40);
+        if (!qrCanvas) {
+          setTimeout(renderEnhancedQR, 40);
           return;
         }
 
-        const applyLogo = () => {
+        const applyEnhancements = () => {
           try {
-            const ctx = canvas.getContext('2d');
-            const logoSize = 46;
+            const ctx = qrCanvas.getContext('2d');
+            
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            const logoSize = 48;
             const x = (220 - logoSize) / 2;
             const y = (220 - logoSize) / 2;
+            const padding = 6;
 
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             if (ctx.roundRect) {
-              ctx.roundRect(x - 5, y - 5, logoSize + 10, logoSize + 10, 8);
+              ctx.roundRect(x - padding, y - padding, logoSize + (padding * 2), logoSize + (padding * 2), 10);
             } else {
-              ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
+              ctx.fillRect(x - padding, y - padding, logoSize + (padding * 2), logoSize + (padding * 2));
             }
             ctx.fill();
 
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
             ctx.drawImage(logoImg, x, y, logoSize, logoSize);
 
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = 220;
+            finalCanvas.height = 255;
+            const fCtx = finalCanvas.getContext('2d');
+
+            fCtx.fillStyle = '#ffffff';
+            fCtx.fillRect(0, 0, 220, 255);
+
+            fCtx.drawImage(qrCanvas, 0, 0);
+
+            fCtx.font = 'bold 12px "Tajawal", system-ui, sans-serif';
+            fCtx.fillStyle = '#0f172a';
+            fCtx.textAlign = 'center';
+            fCtx.fillText('AquaBill JO — حاسبة المياه الأردنية', 110, 242);
+
+            const finalImageData = finalCanvas.toDataURL('image/png');
             if (img) {
-              img.src = canvas.toDataURL('image/png');
+              img.src = finalImageData;
               img.style.display = 'block';
             }
+            qrContainer.dataset.downloadUrl = finalImageData;
+
           } catch (e) {
-            // يتجاهل استثناءات الرسم المباشر
+            // يتجاهل الاستثناءات غير المساندة
           }
         };
 
         if (logoImg.complete && logoImg.naturalWidth !== 0) {
-          applyLogo();
+          applyEnhancements();
         } else {
-          logoImg.onload = applyLogo;
+          logoImg.onload = applyEnhancements;
+          logoImg.onerror = () => {
+            // بقاء الـ QR الأساسي يعمل عند عدم وجود الصورة
+          };
         }
       };
 
-      setTimeout(renderLogoOnQR, 60);
+      setTimeout(renderEnhancedQR, 60);
     }
   };
 
@@ -601,22 +627,12 @@ function initShareLogic() {
     });
   }
 
-  /* تنزيل صورة الـ QR كملف PNG أوفلاين */
+  /* تنزيل صورة الـ QR المكتملة */
   if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
-      const canvas = qrContainer.querySelector('canvas');
-      const img = qrContainer.querySelector('img');
-
-      let imageSrc = '';
-      if (canvas) {
-        try {
-          imageSrc = canvas.toDataURL('image/png');
-        } catch (e) {
-          if (img && img.src) imageSrc = img.src;
-        }
-      } else if (img && img.src) {
-        imageSrc = img.src;
-      }
+      const imageSrc = qrContainer.dataset.downloadUrl || 
+                       qrContainer.querySelector('img')?.src || 
+                       qrContainer.querySelector('canvas')?.toDataURL('image/png');
 
       if (imageSrc) {
         const link = document.createElement('a');
@@ -662,6 +678,8 @@ function initShareLogic() {
     }
   }, { passive: true });
 }
+
+
 /* ==========================================================================
    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" الانسيابي المطور
    ========================================================================== */
@@ -702,7 +720,7 @@ function showInstallToast() {
         !isTimerPassed ||
         isNearPageBottom() ||
         isShareMenuOpen() ||
-        isQrModalOpen() || // حظر إظهار الشريط إذا كانت نافذة الـ QR مفتوحة
+        isQrModalOpen() ||
         isInputFocused()
     ) {
         return;
@@ -711,7 +729,7 @@ function showInstallToast() {
     if (toast.classList.contains('show')) return;
 
     toast.hidden = false;
-    void toast.offsetWidth; // إجبار الانزلاق السلس Reflow
+    void toast.offsetWidth;
     toast.classList.add('show');
 }
 
@@ -767,7 +785,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }, 7000);
 });
 
-/* التمرير الذكي: حظر الإظهار والإخفاء التلقائي عند وجود نافذة الـ QR مفتوحة */
+/* التمرير الذكي */
 window.addEventListener('scroll', () => {
     if (isDismissedByUser || !isTimerPassed) return;
 
