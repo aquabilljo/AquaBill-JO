@@ -361,7 +361,7 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-   8. SHARE FEATURE — منطق المشاركة ورمز الـ QR المكتمل والآمن (المحدث باللوجو)
+   8. SHARE FEATURE — منطق المشاركة ورمز الـ QR المكتمل والآمن
    ========================================================================== */
 
 function initShareLogic() {
@@ -379,6 +379,9 @@ function initShareLogic() {
 
   if (!shareBtn || !shareFallback) return;
 
+  // 1. تصحيح: تعريف المتغير لمنع خطأ ReferenceError عند الإغلاق والفتح
+  let currentTriggerElement = null;
+
   const cleanUrl = `${window.location.origin}${window.location.pathname}`;
 
   const shareData = {
@@ -386,6 +389,10 @@ function initShareLogic() {
     text: 'قدّر تكلفة استهلاكك الشهري للمياه بسهولة مع AquaBill JO.',
     url: cleanUrl
   };
+
+  // 2. تصحيح: توجيه المسار لمجلد images/ لمنع خطأ 404
+  const logoImg = new Image();
+  logoImg.src = new URL('images/icon-192.png', document.baseURI || window.location.href).href;
 
   /* تموضع وإغلاق/فتح قائمة المشاركة */
   const positionShareFallback = () => {
@@ -433,7 +440,7 @@ function initShareLogic() {
     }
   });
 
-  /* روابط WhatsApp & Facebook (مع مسافة فاصلة قبل الرابط) */
+  /* روابط WhatsApp & Facebook (مع مسافة فاصلة) */
   if (shareWhatsApp) {
     shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
   }
@@ -468,10 +475,7 @@ function initShareLogic() {
     });
   }
 
-/* تحميل مسبق للشعار مع حل مسار الصورة بـ GitHub Pages */
-  const logoImg = new Image();
-  logoImg.src = new URL('icon-192.png', document.baseURI || window.location.href).href;
-
+  /* فتح نافذة الـ QR بعناوين ديناميكية وشعار مدمج */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
@@ -482,6 +486,10 @@ function initShareLogic() {
 
     if (modalTitle && titleText) modalTitle.textContent = titleText;
     if (modalHint && hintText) modalHint.textContent = hintText;
+
+    closeShareFallback();
+    qrModal.hidden = false;
+    if (closeQrBtn) closeQrBtn.focus();
 
     qrContainer.innerHTML = '';
 
@@ -505,28 +513,32 @@ function initShareLogic() {
         }
 
         const applyLogo = () => {
-          const ctx = canvas.getContext('2d');
-          const logoSize = 46;
-          const x = (220 - logoSize) / 2;
-          const y = (220 - logoSize) / 2;
+          try {
+            const ctx = canvas.getContext('2d');
+            const logoSize = 46;
+            const x = (220 - logoSize) / 2;
+            const y = (220 - logoSize) / 2;
 
-          // خلفية بيضاء دائرية خلف اللوجو لبروزه وضمان المسح بالكاميرا
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          if (ctx.roundRect) {
-            ctx.roundRect(x - 5, y - 5, logoSize + 10, logoSize + 10, 8);
-          } else {
-            ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
-          }
-          ctx.fill();
+            // خلفية بيضاء دائرية خلف اللوجو لبروزه وضمان المسح بالكاميرا
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(x - 5, y - 5, logoSize + 10, logoSize + 10, 8);
+            } else {
+              ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
+            }
+            ctx.fill();
 
-          // رسم الشعار في المنتصف
-          ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+            // رسم الشعار في المنتصف
+            ctx.drawImage(logoImg, x, y, logoSize, logoSize);
 
-          // تحديث عنصر <img> المعروض للمستخدم بالصورة الجديدة المكتملة
-          if (img) {
-            img.src = canvas.toDataURL('image/png');
-            img.style.display = 'block';
+            // تحديث عنصر <img> المعروض للمستخدم بالصورة المكتملة
+            if (img) {
+              img.src = canvas.toDataURL('image/png');
+              img.style.display = 'block';
+            }
+          } catch (e) {
+            // يتجاهل أخطاء الرسم في حال حدوثها
           }
         };
 
@@ -539,10 +551,6 @@ function initShareLogic() {
 
       setTimeout(renderLogoOnQR, 60);
     }
-
-    closeShareFallback();
-    qrModal.hidden = false;
-    if (closeQrBtn) closeQrBtn.focus();
   };
 
   if (shareQRBtn) {
@@ -569,7 +577,7 @@ function initShareLogic() {
   const closeQrModal = () => {
     if (!qrModal) return;
     qrModal.hidden = true;
-    if (currentTriggerElement) {
+    if (currentTriggerElement && typeof currentTriggerElement.focus === 'function') {
       currentTriggerElement.focus();
     } else if (shareQRBtn) {
       shareQRBtn.focus();
@@ -594,7 +602,11 @@ function initShareLogic() {
 
       let imageSrc = '';
       if (canvas) {
-        imageSrc = canvas.toDataURL('image/png');
+        try {
+          imageSrc = canvas.toDataURL('image/png');
+        } catch (e) {
+          if (img && img.src) imageSrc = img.src;
+        }
       } else if (img && img.src) {
         imageSrc = img.src;
       }
