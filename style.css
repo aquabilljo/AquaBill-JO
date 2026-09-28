@@ -559,21 +559,22 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   word-break: break-word !important;
 }
 
-/* حاوية أزرار البنر */
+/* حاوية الأزرار - إجبار الظهور بجانب بعضهما أفقياً */
 .pwa-toast-buttons,
 #pwaToast .pwa-toast-buttons {
   display: flex !important;
+  flex-direction: row !important; /* يضمن بقاء الأزرار بجانب بعضها في صف واحد */
   align-items: center !important;
-  gap: 6px !important;
+  gap: 8px !important;
   flex-shrink: 0 !important;
 }
 
-/* أزرار البنر */
+/* القواعد العامة للأزرار */
 #pwaToast button,
 .pwa-toast button {
   border: none !important;
   border-radius: 8px !important;
-  padding: 0.45rem 0.75rem !important;
+  padding: 0.45rem 0.85rem !important;
   font-family: 'Tajawal', sans-serif !important;
   font-weight: 700 !important;
   font-size: 0.78rem !important;
@@ -582,18 +583,20 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   transition: all 0.2s ease !important;
 }
 
+/* زر التثبيت الأبيض الرئيسي */
 #pwaToast #pwaInstallBtn,
 .pwa-toast #pwaInstallBtn {
   background-color: #ffffff !important;
   color: #0d9488 !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* زر "لاحقاً" الشفاف والمنفصل */
 #pwaToast #pwaDismissBtn,
 .pwa-toast #pwaDismissBtn {
-  background-color: rgba(255, 255, 255, 0.18) !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
 }
 
 /* ==========================================================================
