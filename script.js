@@ -15,35 +15,19 @@
      8. SHARE FEATURE       → مشاركة الأداة عبر Web Share API مع fallback
      9. PWA INSTALL PROMPT   → إشعار "تثبيت التطبيق" على الهاتف
      10. INITIALIZATION       → التشغيل الأولي عند تحميل الصفحة
-
-
    ========================================================================== */
 
 'use strict';
 
-
 const tiers = APP_CONFIG.tiers.map((t) => ({ ...t }));
-
 let deferredInstallPrompt = null;
-
 
 /* ==========================================================================
    1. ERROR LOGGING — تسجيل أخطاء العميل محلياً
-   ------------------------------------------------------------------------
-   عند حدوث أي خطأ JavaScript غير متوقع، يُسجَّل محلياً بالمتصفح (بدون أي
-   خادم خارجي أو اتصال إنترنت)، ولا يُقاطع تجربة المستخدم إطلاقاً. يفيد هذا
-   عند تشخيص مشكلة أبلغ عنها مستخدم لاحقاً (يمكنه نسخ السجل من وحدة التحكم).
    ========================================================================== */
 
 const MAX_LOG_ENTRIES = 20;
 
-/**
- * logClientError
- * يخزّن خطأ واحد بقائمة محلية محدودة الحجم (آخر 20 خطأ فقط، لتفادي تضخم
- * التخزين المحلي بمرور الوقت).
- * @param {string} message - وصف الخطأ
- * @param {string} [context] - أين حدث الخطأ (اسم الدالة مثلاً)
- */
 function logClientError(message, context) {
   try {
     const key = APP_CONFIG.storageKeys.errorLog;
@@ -54,15 +38,13 @@ function logClientError(message, context) {
       time: new Date().toISOString(),
       version: APP_CONFIG.version,
     });
-    // الاحتفاظ بآخر MAX_LOG_ENTRIES فقط
     const trimmed = existing.slice(-MAX_LOG_ENTRIES);
     localStorage.setItem(key, JSON.stringify(trimmed));
   } catch (e) {
-    // فشل التسجيل نفسه لا يجب أن يكسر التطبيق — يُتجاهل بصمت
+    // فشل التسجيل يتجاهل بصمت
   }
 }
 
-/* التقاط أي خطأ JavaScript غير متوقع بالصفحة بالكامل، بدون مقاطعة المستخدم */
 window.addEventListener('error', (e) => {
   logClientError(e.message, e.filename ? `${e.filename}:${e.lineno}` : 'global');
 });
@@ -70,23 +52,13 @@ window.addEventListener('error', (e) => {
 
 /* ==========================================================================
    2. STORAGE — طبقة موحّدة للتخزين المحلي
-   ------------------------------------------------------------------------
-   كل إعدادات المستخدم (الوضع الفاتح/الداكن، تعديلات التعرفة إن وُجدت)
-   تُحفظ ضمن كائن واحد بمفتاح واحد (APP_CONFIG.storageKeys.settings) بدل
-   مفاتيح متفرقة، لسهولة التوسعة مستقبلاً (إعدادات إضافية) وللتصدير/الاستيراد.
    ========================================================================== */
 
 const DEFAULT_SETTINGS = {
-  theme: null,           // 'light' | 'dark' | null (يتبع نظام التشغيل)
-  tariffOverride: null,  // مصفوفة تعرفة مخصصة إن عدّلها المستخدم، وإلا null
+  theme: null,
+  tariffOverride: null,
 };
 
-/**
- * loadSettings
- * يقرأ كائن الإعدادات المحفوظ محلياً، ويدمجه مع القيم الافتراضية (بحيث لا
- * ينكسر التطبيق لو أُضيف إعداد جديد مستقبلاً ولم يكن موجوداً بنسخة قديمة محفوظة).
- * @returns {object} كائن الإعدادات الكامل
- */
 function loadSettings() {
   try {
     const raw = localStorage.getItem(APP_CONFIG.storageKeys.settings);
@@ -98,11 +70,6 @@ function loadSettings() {
   }
 }
 
-/**
- * saveSettings
- * يحفظ كائن الإعدادات كاملاً بالتخزين المحلي.
- * @param {object} settings - كائن الإعدادات المطلوب حفظه
- */
 function saveSettings(settings) {
   try {
     localStorage.setItem(APP_CONFIG.storageKeys.settings, JSON.stringify(settings));
@@ -111,12 +78,6 @@ function saveSettings(settings) {
   }
 }
 
-/**
- * updateSetting
- * يحدّث حقلاً واحداً فقط بكائن الإعدادات دون المساس بباقي الحقول.
- * @param {string} key - اسم الحقل
- * @param {*} value - القيمة الجديدة
- */
 function updateSetting(key, value) {
   const settings = loadSettings();
   settings[key] = value;
@@ -126,19 +87,8 @@ function updateSetting(key, value) {
 
 /* ==========================================================================
    3. VALIDATION — التحقق من صحة مدخلات المستخدم
-   ------------------------------------------------------------------------
-   حقول الإدخال أصلاً من نوع number بحد أدنى (min) بالـ HTML، لكن هذه
-   الدالة تحمي أيضاً من قيم سالبة أو غير رقمية قد تصل بطرق أخرى (مثل اللصق
-   اليدوي)، فتُعيد دائماً رقماً صالحاً غير سالب.
    ========================================================================== */
 
-/**
- * sanitizeNumber
- * يحوّل أي مُدخَل إلى رقم غير سالب صالح، أو يعيد قيمة افتراضية إن كان غير صالح.
- * @param {*} value - القيمة الخام من حقل الإدخال
- * @param {number} fallback - القيمة الافتراضية إن فشل التحويل
- * @returns {number}
- */
 function sanitizeNumber(value, fallback = 0) {
   const n = parseFloat(value);
   if (Number.isNaN(n) || !Number.isFinite(n) || n < 0) return fallback;
@@ -148,19 +98,8 @@ function sanitizeNumber(value, fallback = 0) {
 
 /* ==========================================================================
    4. CALCULATION ENGINE — دوال حساب الفاتورة
-   ------------------------------------------------------------------------
-   ⚠️ منطق الحساب هنا مطابق تماماً لكل النسخ السابقة ولم يُغيَّر بأي شكل.
    ========================================================================== */
 
-/**
- * costFor
- * يحسب التكلفة التراكمية (تصاعدية) لعدد أمتار "n" لحقل معين ("water" أو "sewage").
- * يمر على كل شريحة بالترتيب، ويحسب فقط الكمية الواقعة ضمن كل شريحة، مع معاملة
- * الشريحة الأولى (flat) كرسم ثابت لا يتغير بتغير الكمية ضمنها.
- * @param {number} n - إجمالي الاستهلاك بالمتر المكعب
- * @param {'water'|'sewage'} field - الحقل المطلوب حسابه
- * @returns {number} التكلفة الإجمالية لهذا الحقل بالدينار
- */
 function costFor(n, field) {
   let cost = 0;
   let prevCap = 0;
@@ -186,17 +125,13 @@ function costFor(n, field) {
   return cost;
 }
 
-
-// --- 2. دالة الحسابات الشاملة (calcAll) ---
 function calcAll() {
   const consumptionInput = document.getElementById('consumption');
   const tankerCapInput = document.getElementById('tankerQty');
   const tankerPriceInput = document.getElementById('tankerPrice');
 
-  // 1. تقييد جميع الحقول بـ 3 خانات كحد أقصى وشطب أي إشارة سالب (-) فوراً
   [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
     if (input && input.value) {
-      // منع إدخال إشارة السالب أو الأحرف غير الرقمية
       if (input.value.includes('-')) {
         input.value = input.value.replace(/-/g, '');
       }
@@ -206,10 +141,8 @@ function calcAll() {
     }
   });
 
-  // 2. قراءة المدخل
   const rawInput = consumptionInput ? consumptionInput.value.trim() : '';
 
-  // 3. حالة الحقل الفارغ (عند فتح الصفحة أو عند مسح الرقم)
   if (rawInput === '') {
     document.getElementById('waterOut').textContent = '0.00';
     document.getElementById('sewageOut').textContent = '0.00';
@@ -225,13 +158,11 @@ function calcAll() {
 
     document.getElementById('networkMarginal').textContent = '0.00';
     document.getElementById('tankerMarginal').textContent = '0.00';
-    
     return;
   }
 
   const consumptionVal = parseFloat(rawInput);
 
-  // 4. فحص الأرقام السالبة أو تجاوز الـ 500 م³
   if (isNaN(consumptionVal) || consumptionVal < 0 || consumptionVal > 500) {
     document.getElementById('waterOut').textContent = '0.00';
     document.getElementById('sewageOut').textContent = '0.00';
@@ -250,8 +181,7 @@ function calcAll() {
     return;
   }
 
-  // 5. الحسابات الطبيعية للعداد (من 0 إلى 500 م³)
-  const n = Math.max(0, sanitizeNumber(rawInput, 0)); // ضمان أن القيمة المحسوبة لا تقل عن 0
+  const n = Math.max(0, sanitizeNumber(rawInput, 0));
   const water = costFor(n, 'water');
   const sewage = costFor(n, 'sewage');
   const total = water + sewage;
@@ -272,7 +202,6 @@ function calcAll() {
   document.getElementById('marginalHint').textContent =
     `المتر القادم (رقم ${Math.ceil(n) + 1}) سيكلفك تقريباً ${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr} إضافي.`;
 
-  // 6. شارة تقييم الاستهلاك
   const badge = document.getElementById('statusBadge');
   if (badge) {
     let newHTML = '';
@@ -292,13 +221,11 @@ function calcAll() {
     badge.innerHTML = newHTML;
   }
 
-  // 7. مقارنة الصهريج
   document.getElementById('networkMarginal').textContent = `${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
 
   const rawTankerPrice = parseFloat(tankerPriceInput?.value) || 0;
   const rawTankerQty = parseFloat(tankerCapInput?.value) || 0;
 
-  // الحماية من قيم الصهريج السالبة
   const tankerPrice = Math.max(0, rawTankerPrice);
   const tankerQty = Math.max(0, rawTankerQty);
 
@@ -338,9 +265,7 @@ function calcAll() {
     if (recommendHint) recommendHint.textContent = 'أدخل سعر وسعة الصهريج للمقارنة مع العداد.';
   }
 }
-/* ==========================================================================
-   فحص كمية الاستهلاك وإظهار التنبيه عند تجاوز 500 م³
-   ========================================================================== */
+
 (function initConsumptionWarning() {
   const input = document.getElementById('consumption');
   const badge = document.getElementById('consumption-warning');
@@ -352,48 +277,31 @@ function calcAll() {
     });
   }
 })();
+
+
 /* ==========================================================================
-   5. THEME TOGGLE — التبديل اليدوي بين الوضع الفاتح والداكن
-   ------------------------------------------------------------------------
-   يُخزَّن اختيار المستخدم ضمن كائن الإعدادات الموحّد (راجع قسم STORAGE)
-   ليبقى ثابتاً بعد إغلاق الصفحة. عند عدم وجود اختيار محفوظ، تتبع الصفحة
-   تلقائياً إعداد نظام التشغيل (راجع قسم Dark Mode بـ style.css).
+   5. THEME TOGGLE — التبديل بين الوضع الفاتح والداكن
    ========================================================================== */
 
-/**
- * toggleTheme
- * يُستدعى بزر التبديل بالترويسة. يحسب الوضع الحالي الفعلي (المحفوظ، أو
- * حسب نظام التشغيل إن لم يوجد شيء محفوظ)، ثم يبدّل إلى الوضع المقابل
- * ويحفظه، حتى يبقى ثابتاً بالزيارات القادمة.
- */
-// دالة آمنة لتبديل الثيم والأيقونة دون كسر باقي الكود
 function toggleTheme() {
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   
   document.documentElement.setAttribute('data-theme', newTheme);
   updateSetting('theme', newTheme);  
-  // التحقق من وجود الزر قبل تغييره لعدم التسبب في خطأ كود
+  
   const themeBtn = document.querySelector('.btn-theme-toggle') || document.getElementById('themeToggle');
- // استبدل السطر الخاص بالأيقونة بهذا السطر فقط:
   if (themeBtn) {
-  themeBtn.textContent = newTheme === 'dark' ? '🌞' : '🌙';
+    themeBtn.textContent = newTheme === 'dark' ? '🌞' : '🌙';
+    themeBtn.setAttribute('aria-pressed', String(newTheme === 'dark'));
   }
 }
 
+
 /* ==========================================================================
-   6. SCROLL EFFECTS — شريط التقدم والظهور التدريجي للبطاقات
-   ------------------------------------------------------------------------
-   تحسين تدريجي بحت (Progressive Enhancement): لا يوجد أي منطق حسابي هنا،
-   فقط تأثيرات بصرية خفيفة. تُحترَم تفضيلات "تقليل الحركة" تلقائياً عبر
-   CSS (راجع قسم Animations بـ style.css)، ولا تعتمد عليه أي وظيفة أساسية.
+   6. SCROLL EFFECTS — شريط التقدم والظهور التدريجي
    ========================================================================== */
 
-/**
- * initScrollProgress
- * يحدّث عرض شريط التقدم أعلى الشاشة تناسبياً مع موضع التمرير الحالي،
-   بأداء مُحسَّن عبر requestAnimationFrame لتفادي إبطاء التمرير.
- */
 function initScrollProgress() {
   const bar = document.getElementById('scrollProgress');
   if (!bar) return;
@@ -415,17 +323,11 @@ function initScrollProgress() {
   update();
 }
 
-/**
- * initFadeInCards
- * يراقب بطاقات الأقسام الأربعة، ويضيف كلاس "is-visible" بمجرد دخول كل
- * بطاقة نطاق الرؤية، لإحداث ظهور تدريجي لطيف. يتحقق أولاً من دعم
- * IntersectionObserver بالمتصفح؛ وإلا تبقى البطاقات مرئية كما هي (بلا كسر).
- */
 function initFadeInCards() {
   const cards = document.querySelectorAll('.fade-in');
   if (!cards.length) return;
 
-  if (!('IntersectionObserver' in window)) return; // بدون كسر أي شيء بالمتصفحات القديمة جداً
+  if (!('IntersectionObserver' in window)) return;
 
   cards.forEach((c) => c.classList.add('fade-init'));
 
@@ -444,8 +346,6 @@ function initFadeInCards() {
 
 /* ==========================================================================
    7. SERVICE WORKER — تسجيل العمل بدون إنترنت (PWA)
-   ------------------------------------------------------------------------
-   يعمل فقط عند التصفح عبر HTTPS أو localhost (شرط أساسي من المتصفحات).
    ========================================================================== */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -459,10 +359,9 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+
 /* ==========================================================================
-    8. SHARE FEATURE
-    ------------------------------------------------------------------------
-    → مشاركة الأداة + QR + رابط نظيف بدون معاملات التتبع
+    8. SHARE FEATURE — مشاركة الأداة ونافذة الـ QR
    ========================================================================== */
 
 function initShareLogic() {
@@ -486,9 +385,6 @@ function initShareLogic() {
         url: cleanUrl
     };
 
-    /* -----------------------------------------------------------------------
-        تموضع وإغلاق/فتح قائمة المشاركة
-       -------------------------------------------------------------------- */
     const positionShareFallback = () => {
         if (shareFallback.hidden) return;
 
@@ -526,9 +422,6 @@ function initShareLogic() {
         requestAnimationFrame(positionShareFallback);
     };
 
-    /* -----------------------------------------------------------------------
-        زر المشاركة الرئيسي
-       -------------------------------------------------------------------- */
     shareBtn.addEventListener('click', () => {
         if (shareFallback.hidden) {
             openShareFallback();
@@ -537,9 +430,6 @@ function initShareLogic() {
         }
     });
 
-    /* -----------------------------------------------------------------------
-        روابط WhatsApp & Facebook
-       -------------------------------------------------------------------- */
     if (shareWhatsApp) {
         shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
     }
@@ -548,9 +438,6 @@ function initShareLogic() {
         shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`;
     }
 
-    /* -----------------------------------------------------------------------
-        نسخ الرابط
-       -------------------------------------------------------------------- */
     if (copyShareLink) {
         copyShareLink.addEventListener('click', async () => {
             try {
@@ -566,9 +453,6 @@ function initShareLogic() {
         });
     }
 
-    /* -----------------------------------------------------------------------
-        QR Code Modal
-       -------------------------------------------------------------------- */
     if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
         shareQRBtn.addEventListener('click', () => {
             qrContainer.innerHTML = '';
@@ -598,9 +482,6 @@ function initShareLogic() {
         });
     }
 
-    /* -----------------------------------------------------------------------
-        إغلاق عند الضغط خارجاً أو زر Escape
-       -------------------------------------------------------------------- */
     document.addEventListener('click', (event) => {
         if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
             closeShareFallback();
@@ -622,7 +503,6 @@ function initShareLogic() {
         }
     });
 
-  // إغلاق قائمة المشاركة تلقائياً عند التمرير (Scroll) أو تغيير حجم الشاشة
     window.addEventListener('resize', () => {
         if (!shareFallback.hidden) {
             closeShareFallback();
@@ -635,37 +515,32 @@ function initShareLogic() {
         }
     }, { passive: true });
 }
-// تشغيل الوظيفة
-initShareLogic();
+
 
 /* ==========================================================================
-    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" المطور
+    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" الانسيابي المطور
    ========================================================================== */
 
 let isDismissedByUser = false;
 let installToastTimer = null;
-let isTimerPassed = false; // راية الحماية: تمنع الظهور إطلاقاً قبل انقضاء 7 ثوانٍ
+let isTimerPassed = false;
 let lastScrollY = window.scrollY;
 
-/** هل المستخدم قريب من أسفل الصفحة؟ */
 function isNearPageBottom() {
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
     return scrollPosition >= pageHeight - 180;
 }
 
-/** هل قائمة المشاركة مفتوحة؟ */
 function isShareMenuOpen() {
     const shareFallback = document.getElementById('shareFallback');
     return shareFallback && !shareFallback.hidden;
 }
 
-/** هل الكيبورد مفتوح / المستخدم يكتب داخل مربع إدخال؟ */
 function isInputFocused() {
     return ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
 }
 
-/** إظهار إشعار التثبيت */
 function showInstallToast() {
     const toast = document.getElementById('pwaToast');
 
@@ -673,24 +548,24 @@ function showInstallToast() {
         !toast ||
         isDismissedByUser ||
         !deferredInstallPrompt ||
-        !isTimerPassed || // حظر الظهور فوراً طالما لم تنقضِ الـ 7 ثوانٍ
+        !isTimerPassed ||
         isNearPageBottom() ||
         isShareMenuOpen() ||
-        isInputFocused() // حظر الظهور أثناء التركيز على المدخلات
+        isInputFocused()
     ) {
         return;
     }
 
+    if (toast.classList.contains('show')) return;
+
     toast.hidden = false;
-    requestAnimationFrame(() => {
-        toast.classList.add('show');
-    });
+    void toast.offsetWidth; // Reflow إجبار الانزلاق السلس
+    toast.classList.add('show');
 }
 
-/** إخفاء إشعار التثبيت مؤقتًا */
 function hideInstallToast() {
     const toast = document.getElementById('pwaToast');
-    if (!toast) return;
+    if (!toast || !toast.classList.contains('show')) return;
 
     toast.classList.remove('show');
     setTimeout(() => {
@@ -700,7 +575,6 @@ function hideInstallToast() {
     }, 400);
 }
 
-/** إخفاء الإشعار نهائيًا خلال جلسة المستخدم (عند الضغط على "لاحقاً") */
 function dismissInstallToast() {
     isDismissedByUser = true;
 
@@ -712,7 +586,6 @@ function dismissInstallToast() {
     hideInstallToast();
 }
 
-/** تشغيل حوار تثبيت PWA عند الضغط على زر "تثبيت" */
 function installApp() {
     hideInstallToast();
     if (!deferredInstallPrompt) return;
@@ -723,7 +596,6 @@ function installApp() {
     });
 }
 
-/** استقبال طلب التثبيت والتأخير الذكي (7 ثوانٍ محددة) */
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
@@ -732,9 +604,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
         window.clearTimeout(installToastTimer);
     }
 
-    // انتظر 7 ثوانٍ كاملة قبل تفعيل راية السماح للبنر بالظهور
     installToastTimer = window.setTimeout(() => {
-        isTimerPassed = true; // تفعلت المهلة بنجاح
+        isTimerPassed = true;
 
         if (isDismissedByUser) return;
 
@@ -744,28 +615,32 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }, 7000);
 });
 
-/** التعامل مع التمرير: حظر مطلق إذا لم تنقضِ الـ 7 ثوانٍ */
+/* التمرير الذكي: النزول يُخفي والصعود يُظهر (فقط بعد الـ 7 ثوانٍ) */
 window.addEventListener('scroll', () => {
-    if (isDismissedByUser || !isTimerPassed) return; // حظر التمرير قبل اكتمال التايمر
+    if (isDismissedByUser || !isTimerPassed) return;
 
-    if (isNearPageBottom() || isShareMenuOpen() || isInputFocused()) {
+    const currentScrollY = window.scrollY;
+    if (Math.abs(currentScrollY - lastScrollY) < 6) return;
+
+    const isScrollingDown = currentScrollY > lastScrollY && currentScrollY > 50;
+
+    if (isNearPageBottom() || isShareMenuOpen() || isInputFocused() || isScrollingDown) {
         hideInstallToast();
-        return;
+    } else {
+        if (deferredInstallPrompt) {
+            showInstallToast();
+        }
     }
 
-    if (deferredInstallPrompt) {
-        showInstallToast();
-    }
+    lastScrollY = currentScrollY;
 }, { passive: true });
 
-/** إخفاء البنر فوراً عند الضغط داخل أي حقل إدخال (أرقام/نصوص) */
 document.addEventListener('focusin', (e) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
         hideInstallToast();
     }
 });
 
-/** إعادة الفحص عند الخروج من حقل الإدخال */
 document.addEventListener('focusout', (e) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
         if (isTimerPassed) {
@@ -774,28 +649,26 @@ document.addEventListener('focusout', (e) => {
     }
 });
 
-/** إخفاء تلقائي عند إتمام تثبيت التطبيق */
 window.addEventListener('appinstalled', () => {
     isDismissedByUser = true;
     hideInstallToast();
     deferredInstallPrompt = null;
 });
 
-/* -----------------------------------------------------------------------
-   ربط أزرار بنر التثبيت برمجياً وإتاحة الدوال عالمياً
-   -------------------------------------------------------------------- */
-const pwaToast = document.getElementById('pwaToast');
-if (pwaToast) {
-    const buttons = pwaToast.querySelectorAll('button');
+function initPwaToastEvents() {
+    const pwaToast = document.getElementById('pwaToast');
+    if (pwaToast) {
+        const buttons = pwaToast.querySelectorAll('button');
 
-    if (buttons.length >= 1) {
-        buttons[0].addEventListener('click', installApp);
-        buttons[0].removeAttribute('onclick');
-    }
+        if (buttons.length >= 1) {
+            buttons[0].addEventListener('click', installApp);
+            buttons[0].removeAttribute('onclick');
+        }
 
-    if (buttons.length >= 2) {
-        buttons[1].addEventListener('click', dismissInstallToast);
-        buttons[1].removeAttribute('onclick');
+        if (buttons.length >= 2) {
+            buttons[1].addEventListener('click', dismissInstallToast);
+            buttons[1].removeAttribute('onclick');
+        }
     }
 }
 
@@ -807,8 +680,7 @@ window.installApp = installApp;
     10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
 
-(function initApp() {
-    // استعادة أي تعديل سابق على التعرفة كان المستخدم قد حفظه بجلسة سابقة
+function initApp() {
     const settings = loadSettings();
     if (Array.isArray(settings.tariffOverride) && settings.tariffOverride.length === tiers.length) {
         settings.tariffOverride.forEach((t, i) => {
@@ -816,35 +688,36 @@ window.installApp = installApp;
             tiers[i].sewage = sanitizeNumber(t.sewage, tiers[i].sewage);
         });
     }
+
+    if (settings.theme) {
+        document.documentElement.setAttribute('data-theme', settings.theme);
+    }
+
     initScrollProgress();
     initFadeInCards();
+    initShareLogic();
+    initPwaToastEvents();
 
-    // ===== EVENT LISTE=====
-    // 1. Theme toggle button
     const themeToggleBtn = document.getElementById('themeToggle');
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', toggleTheme);
     }
 
-    // 2. Consumption input
     const consumptionInput = document.getElementById('consumption');
     if (consumptionInput) {
         consumptionInput.addEventListener('input', calcAll);
     }
 
-    // 3. Tanker quantity input
     const tankerQtyInput = document.getElementById('tankerQty');
     if (tankerQtyInput) {
         tankerQtyInput.addEventListener('input', calcAll);
     }
 
-    // 4. Tanker price input
     const tankerPriceInput = document.getElementById('tankerPrice');
     if (tankerPriceInput) {
         tankerPriceInput.addEventListener('input', calcAll);
     }
 
-    // مزامنة حالة aria-pressed لزر تبديل الوضع مع الوضع الفعلي الحالي عند التحميل
     if (themeToggleBtn) {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -852,9 +725,14 @@ window.installApp = installApp;
         themeToggleBtn.setAttribute('aria-pressed', String(isDarkNow));
     }
 
-    // عرض رقم إصدار التطبيق بالتذييل
     const versionEl = document.getElementById('appVersion');
     if (versionEl) {
         versionEl.textContent = `${APP_CONFIG.appName} — الإصدار ${APP_CONFIG.version}`;
     }
-})();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
