@@ -364,215 +364,201 @@ if ('serviceWorker' in navigator) {
     8. SHARE FEATURE — مشاركة الأداة ونافذة الـ QR
    ========================================================================== */
 
+/* ==========================================================================
+   8. SHARE FEATURE — منطق المشاركة ورمز الـ QR المكتمل والآمن
+   ========================================================================== */
+
 function initShareLogic() {
-    const shareBtn = document.getElementById('shareBtn');
-    const shareFallback = document.getElementById('shareFallback');
-    const shareWhatsApp = document.getElementById('shareWhatsApp');
-    const shareFacebook = document.getElementById('shareFacebook');
-    const copyShareLink = document.getElementById('copyShareLink');
-    const shareQRBtn = document.getElementById('shareQRBtn');
-    const qrModal = document.getElementById('qrModal');
-    const closeQrBtn = document.getElementById('closeQrBtn');
-    const qrContainer = document.getElementById('qrContainer');
+  const shareBtn = document.getElementById('shareBtn');
+  const shareFallback = document.getElementById('shareFallback');
+  const shareWhatsApp = document.getElementById('shareWhatsApp');
+  const shareFacebook = document.getElementById('shareFacebook');
+  const copyShareLink = document.getElementById('copyShareLink');
+  const shareQRBtn = document.getElementById('shareQRBtn');
+  const qrModal = document.getElementById('qrModal');
+  const closeQrBtn = document.getElementById('closeQrBtn');
+  const qrContainer = document.getElementById('qrContainer');
+  const downloadQRBtn = document.getElementById('downloadQRBtn');
 
-    if (!shareBtn || !shareFallback) return;
+  if (!shareBtn || !shareFallback) return;
 
-    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+  const cleanUrl = `${window.location.origin}${window.location.pathname}`;
 
-    const shareData = {
-        title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
-        text: 'قدّر تكلفة استهلاكك الشهري للمياه بسهولة مع AquaBill JO.',
-        url: cleanUrl
-    };
+  const shareData = {
+    title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
+    text: 'قدّر تكلفة استهلاكك الشهري للمياه بسهولة مع AquaBill JO.',
+    url: cleanUrl
+  };
 
-    const positionShareFallback = () => {
-        if (shareFallback.hidden) return;
+  /* تموضع وإغلاق/فتح قائمة المشاركة */
+  const positionShareFallback = () => {
+    if (shareFallback.hidden) return;
 
-        const buttonRect = shareBtn.getBoundingClientRect();
-        const menuRect = shareFallback.getBoundingClientRect();
-        const gap = 10;
-        const screenPadding = 16;
+    const buttonRect = shareBtn.getBoundingClientRect();
+    const menuRect = shareFallback.getBoundingClientRect();
+    const gap = 10;
+    const screenPadding = 16;
 
-        const spaceBelow = window.innerHeight - buttonRect.bottom - gap;
-        const spaceAbove = buttonRect.top - gap;
+    const spaceBelow = window.innerHeight - buttonRect.bottom - gap;
+    const spaceAbove = buttonRect.top - gap;
 
-        let top = (spaceBelow >= menuRect.height || spaceBelow >= spaceAbove)
-            ? buttonRect.bottom + gap
-            : buttonRect.top - menuRect.height - gap;
+    let top = (spaceBelow >= menuRect.height || spaceBelow >= spaceAbove)
+      ? buttonRect.bottom + gap
+      : buttonRect.top - menuRect.height - gap;
 
-        top = Math.max(screenPadding, Math.min(top, window.innerHeight - menuRect.height - screenPadding));
+    top = Math.max(screenPadding, Math.min(top, window.innerHeight - menuRect.height - screenPadding));
 
-        let left = buttonRect.left + (buttonRect.width - menuRect.width) / 2;
-        left = Math.max(screenPadding, Math.min(left, window.innerWidth - menuRect.width - screenPadding));
+    let left = buttonRect.left + (buttonRect.width - menuRect.width) / 2;
+    left = Math.max(screenPadding, Math.min(left, window.innerWidth - menuRect.width - screenPadding));
 
-        shareFallback.style.top = `${top}px`;
-        shareFallback.style.left = `${left}px`;
-    };
+    shareFallback.style.top = `${top}px`;
+    shareFallback.style.left = `${left}px`;
+  };
 
-    const closeShareFallback = () => {
-        shareFallback.hidden = true;
-        shareBtn.setAttribute('aria-expanded', 'false');
-        shareFallback.style.top = '';
-        shareFallback.style.left = '';
-    };
+  const closeShareFallback = () => {
+    shareFallback.hidden = true;
+    shareBtn.setAttribute('aria-expanded', 'false');
+    shareFallback.style.top = '';
+    shareFallback.style.left = '';
+  };
 
-    const openShareFallback = () => {
-        shareFallback.hidden = false;
-        shareBtn.setAttribute('aria-expanded', 'true');
-        requestAnimationFrame(positionShareFallback);
-    };
+  const openShareFallback = () => {
+    shareFallback.hidden = false;
+    shareBtn.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(positionShareFallback);
+  };
 
-    shareBtn.addEventListener('click', () => {
-        if (shareFallback.hidden) {
-            openShareFallback();
-        } else {
-            closeShareFallback();
-        }
-    });
-
-    if (shareWhatsApp) {
-        shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
+  shareBtn.addEventListener('click', () => {
+    if (shareFallback.hidden) {
+      openShareFallback();
+    } else {
+      closeShareFallback();
     }
+  });
 
-    if (shareFacebook) {
-        shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`;
-    }
+  /* روابط WhatsApp & Facebook */
+  if (shareWhatsApp) {
+    shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
+  }
 
-    if (copyShareLink) {
-        copyShareLink.addEventListener('click', async () => {
-            try {
-                await navigator.clipboard.writeText(shareData.url);
-                const originalText = copyShareLink.textContent;
-                copyShareLink.textContent = 'تم نسخ الرابط';
-                setTimeout(() => {
-                    copyShareLink.textContent = originalText;
-                }, 1800);
-            } catch {
-                closeShareFallback();
-            }
-        });
-    }
+  if (shareFacebook) {
+    shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`;
+  }
 
-    if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
-        shareQRBtn.addEventListener('click', () => {
-            qrContainer.innerHTML = '';
-            if (typeof QRCode !== 'undefined') {
-                new QRCode(qrContainer, {
-                    text: shareData.url,
-                    width: 220,
-                    height: 220,
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-            }
-            closeShareFallback();
-            qrModal.hidden = false;
-            closeQrBtn.focus();
-        });
+  /* نسخ الرابط مع تحويل الأيقونة لشارة صح خضراء */
+  if (copyShareLink) {
+    copyShareLink.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        const copyText = document.getElementById('copyText');
+        const copyIcon = document.getElementById('copyIcon');
 
-        closeQrBtn.addEventListener('click', () => {
-            qrModal.hidden = true;
-            shareQRBtn.focus();
-        });
-
-        qrModal.addEventListener('click', (event) => {
-            if (event.target === qrModal) {
-                qrModal.hidden = true;
-                shareQRBtn.focus();
-            }
-        });
-    }
-
-    document.addEventListener('click', (event) => {
-        if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
-            closeShareFallback();
-        }
-    });
-
-    document.addEventListener('keydown', (event) => {
-        if (event.key !== 'Escape') return;
-
-        if (qrModal && !qrModal.hidden) {
-            qrModal.hidden = true;
-            shareQRBtn.focus();
-            return;
+        if (copyText) copyText.textContent = 'تم نسخ الرابط!';
+        if (copyIcon) {
+          copyIcon.outerHTML = `<svg id="copyIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
         }
 
-        if (!shareFallback.hidden) {
-            closeShareFallback();
-            shareBtn.focus();
-        }
-    });
-
-    window.addEventListener('resize', () => {
-        if (!shareFallback.hidden) {
-            closeShareFallback();
-        }
-    });
-
-    window.addEventListener('scroll', () => {
-        if (!shareFallback.hidden) {
-            closeShareFallback();
-        }
-    }, { passive: true });
-}
-/* -----------------------------------------------------------------------
-    QR Code Modal مع زر التنزيل والنص الإرشادي
-   -------------------------------------------------------------------- */
-const downloadQRBtn = document.getElementById('downloadQRBtn');
-
-if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
-    shareQRBtn.addEventListener('click', () => {
-        qrContainer.innerHTML = '';
-        if (typeof QRCode !== 'undefined') {
-            new QRCode(qrContainer, {
-                text: shareData.url,
-                width: 220,
-                height: 220,
-                correctLevel: QRCode.CorrectLevel.M
-            });
-        }
+        setTimeout(() => {
+          if (copyText) copyText.textContent = 'نسخ الرابط';
+          const currentIcon = document.getElementById('copyIcon');
+          if (currentIcon) {
+            currentIcon.outerHTML = `<svg id="copyIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+          }
+        }, 2000);
+      } catch {
         closeShareFallback();
-        qrModal.hidden = false;
-        closeQrBtn.focus();
+      }
+    });
+  }
+
+  /* نافذة QR Code */
+  if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
+    shareQRBtn.addEventListener('click', () => {
+      qrContainer.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+          text: shareData.url,
+          width: 220,
+          height: 220,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+      closeShareFallback();
+      qrModal.hidden = false;
+      closeQrBtn.focus();
     });
 
     closeQrBtn.addEventListener('click', () => {
-        qrModal.hidden = true;
-        shareQRBtn.focus();
+      qrModal.hidden = true;
+      shareQRBtn.focus();
     });
 
     qrModal.addEventListener('click', (event) => {
-        if (event.target === qrModal) {
-            qrModal.hidden = true;
-            shareQRBtn.focus();
-        }
+      if (event.target === qrModal) {
+        qrModal.hidden = true;
+        shareQRBtn.focus();
+      }
     });
-}
+  }
 
-/* زر تنزيل صورة الـ QR كملف PNG */
-if (downloadQRBtn && qrContainer) {
+  /* تنزيل صورة الـ QR كملف PNG أوفلاين */
+  if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
-        const img = qrContainer.querySelector('img');
-        const canvas = qrContainer.querySelector('canvas');
+      const img = qrContainer.querySelector('img');
+      const canvas = qrContainer.querySelector('canvas');
 
-        let imageSrc = '';
-        if (img && img.src) {
-            imageSrc = img.src;
-        } else if (canvas) {
-            imageSrc = canvas.toDataURL('image/png');
-        }
+      let imageSrc = '';
+      if (img && img.src) {
+        imageSrc = img.src;
+      } else if (canvas) {
+        imageSrc = canvas.toDataURL('image/png');
+      }
 
-        if (imageSrc) {
-            const link = document.createElement('a');
-            link.href = imageSrc;
-            link.download = 'AquaBill-JO-QR.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+      if (imageSrc) {
+        const link = document.createElement('a');
+        link.href = imageSrc;
+        link.download = 'AquaBill-JO-QR.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     });
-}
+  }
 
+  /* إغلاق عند الضغط خارجاً أو زر Escape */
+  document.addEventListener('click', (event) => {
+    if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
+      closeShareFallback();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+
+    if (qrModal && !qrModal.hidden) {
+      qrModal.hidden = true;
+      shareQRBtn.focus();
+      return;
+    }
+
+    if (!shareFallback.hidden) {
+      closeShareFallback();
+      shareBtn.focus();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (!shareFallback.hidden) {
+      closeShareFallback();
+    }
+  });
+
+  window.addEventListener('scroll', () => {
+    if (!shareFallback.hidden) {
+      closeShareFallback();
+    }
+  }, { passive: true });
+}
 /* ==========================================================================
     9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" الانسيابي المطور
    ========================================================================== */
