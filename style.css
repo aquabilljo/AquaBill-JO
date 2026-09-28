@@ -1059,8 +1059,8 @@ body.dark-mode .share-option .qr-menu-badge {
   color: var(--qr-text-color);
   text-align: center;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border);
-  border-color: rgba(14, 165, 233, 0.6);###############################
+  border: px solid var(--border);
+  border-color: rgba(14, 165, 233, 0.6);
 
 }
 
@@ -1131,7 +1131,46 @@ button.close-qr:active {
   background: var(--accent-strong);
   color: #ffffff;
 }
+/* ==========================================================================
+   تنسيق شارة الـ QR المصغرة (طابق تام مع زر المشاركة)
+   ========================================================================== */
 
+.mini-qr-badge {
+  min-height: 44px;
+  padding: 0.65rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--ink);
+  background: var(--card);
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mini-qr-badge svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+.mini-qr-badge:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-strong);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+.mini-qr-badge:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
+}
 /* ==========================================================================
    11. UTILITIES — الشارات والتلميحات والوصولية
    ========================================================================== */
