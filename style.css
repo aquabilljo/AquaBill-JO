@@ -522,34 +522,56 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   font-size: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  justify-content: space-between;
-  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.4);
-  z-index: 9999; /* أولوية عالية لمنع اختفائه تحت العناصر الأخرى */
+}
 
-  /* حركة سلسة مع منع حجب النقرات عندما يكون مخفياً */
+/* ==========================================================================
+   9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" والأزرار الخاصة به
+   ========================================================================== */
+
+/* ضمان الإخفاء التام عند تفعيل خاصية hidden */
+#pwaToast[hidden],
+.pwa-toast[hidden] {
+  display: none !important;
+}
+
+/* الحاوية الرئيسية للبنر — خلفية زجاجية تيركوازية تتناسق مع هوية الموقع */
+.pwa-toast,
+#pwaToast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
   opacity: 0;
   pointer-events: none;
-  transform: translateY(120%);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-}
+  z-index: 9999;
 
-/* حالة الظهور */
-.pwa-toast.show {
-  opacity: 1;
-  pointer-events: auto; /* تفعيل التفاعل فور الظهور */
-  transform: translateY(0);
-}
-
-.pwa-toast-actions {
   display: flex;
-  gap: 0.4rem;
-  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: rgba(13, 148, 136, 0.92) !important; /* لون تيركوازي زجاجي مطابق للهوية */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 25px rgba(13, 148, 136, 0.3);
+  color: #ffffff;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.88rem;
+  max-width: 92%;
+  width: 420px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
-/* -----------------------------------------------------------------------
-   أزرار إشعار تثبيت PWA (تثبيت / لاحقاً)
-   -------------------------------------------------------------------- */
+/* حالة الظهور الانسيابي */
+.pwa-toast.show,
+#pwaToast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* -----------------------------------------------------------------------
    أزرار إشعار تثبيت PWA — حل مشكلة التداخل والألوان السوداء
    -------------------------------------------------------------------- */
@@ -639,7 +661,32 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+     }  gap: 1rem;
+  justify-content: space-between;
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.4);
+  z-index: 9999; /* أولوية عالية لمنع اختفائه تحت العناصر الأخرى */
+
+  /* حركة سلسة مع منع حجب النقرات عندما يكون مخفياً */
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(120%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
+
+/* حالة الظهور */
+.pwa-toast.show {
+  opacity: 1;
+  pointer-events: auto; /* تفعيل التفاعل فور الظهور */
+  transform: translateY(0);
+}
+
+.pwa-toast-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex: none;
+}
+
+
 /* ==========================================================================
    7. FORMS — حقول الإدخال والتسميات
    ========================================================================== */
