@@ -486,7 +486,7 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 :root[data-theme="dark"] .theme-toggle .icon-moon{ display:none; }
 
 /* زر مشاركة واتساب بالتذييل */
-.share{ display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+.share{ display:flex; gap: .6rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
 .share a{
   text-decoration: none;
   font-size: .82rem;
@@ -498,106 +498,96 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
 }
 
 /* ==========================================================================
-   6. PWA INSTALL — إشعار تثبيت التطبيق (متمركز ومُتجاوب)
-   ========================================================================== */
+6.PWA INSTALL PROMPT — كود نظيف بدون !important
+========================================================================== */
 
-/* إخفاء تام قسري عند تفعيل خاصية hidden */
+/* 1. إخفاء البنر */
 #pwaToast[hidden],
 .pwa-toast[hidden] {
-  display: none !important;
+  display: none;
 }
 
-/* الحاوية الرئيسية للبنر - التمركز في منتصف الشاشة دائماً */
-.pwa-toast,
-#pwaToast {
-  position: fixed !important;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
-  left: 50% !important;
-  right: auto !important;
-  width: calc(100% - 32px) !important;
-  max-width: 420px !important;
-  box-sizing: border-box !important;
+/* 2. الحاوية الرئيسية (ندمج الـ ID والـ Class لرفع الأولوية) */
+#pwaToast.pwa-toast {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  right: auto;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  box-sizing: border-box;
 
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 10px !important;
-  padding: 10px 14px !important;
-  border-radius: 14px !important;
-  background: rgba(13, 148, 136, 0.95) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
-  color: #ffffff !important;
-  font-family: 'Tajawal', sans-serif !important;
-  font-size: 0.8rem !important;
-  z-index: 9999 !important;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(13, 148, 136, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  font-family: 'Tajawal', sans-serif;
+  z-index: 9999;
 
-  /* التمركز في المنتصف مع إنزياح لأسفل أثناء الخفاء */
-  transform: translate(-50%, 120px) !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease !important;
+  transform: translate(-50%, 120px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
-/* حالة الظهور الانسيابي بالمنتصف */
-.pwa-toast.show,
-#pwaToast.show {
-  transform: translate(-50%, 0) !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
+/* حالة الظهور */
+#pwaToast.pwa-toast.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
-/* نص البنر */
-.pwa-toast span,
-#pwaToast span {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  line-height: 1.35 !important;
-  font-size: 0.78rem !important;
-  word-break: break-word !important;
+/* 3. حاوية الأزرار الدقيقة */
+#pwaToast.pwa-toast .pwa-toast-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  flex-shrink: 0;
 }
 
-/* حاوية الأزرار - إجبار الظهور بجانب بعضهما أفقياً */
-.pwa-toast-buttons,
-#pwaToast .pwa-toast-buttons {
-  display: flex !important;
-  flex-direction: row !important; /* يضمن بقاء الأزرار بجانب بعضها في صف واحد */
-  align-items: center !important;
-  gap: 8px !important;
-  flex-shrink: 0 !important;
+/* 4. الأزرار - استهداف مسار دقيق للتغلب على القواعد العامة */
+#pwaToast.pwa-toast .pwa-toast-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
 }
 
-/* القواعد العامة للأزرار */
-#pwaToast button,
-.pwa-toast button {
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 0.45rem 0.85rem !important;
-  font-family: 'Tajawal', sans-serif !important;
-  font-weight: 700 !important;
-  font-size: 0.78rem !important;
-  cursor: pointer !important;
-  white-space: nowrap !important;
-  transition: all 0.2s ease !important;
+/* زر التثبيت الأبيض */
+#pwaToast.pwa-toast .pwa-toast-buttons #pwaInstallBtn {
+  background-color: #ffffff;
+  color: #0d9488;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* زر التثبيت الأبيض الرئيسي */
-#pwaToast #pwaInstallBtn,
-.pwa-toast #pwaInstallBtn {
-  background-color: #ffffff !important;
-  color: #0d9488 !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* زر "لاحقاً" الشفاف والمنفصل */
-#pwaToast #pwaDismissBtn,
-.pwa-toast #pwaDismissBtn {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
-}
+/* زر لاحقاً الشفاف */
+#pwaToast.pwa-toast .pwa-toast-buttons #pwaDismissBtn {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+   } 
 
 /* ==========================================================================
    6.1. SETTINGS ACTIONS & ACCESSIBILITY (أزرار الإعدادات والوصولية)
