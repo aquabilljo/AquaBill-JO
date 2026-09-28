@@ -466,58 +466,137 @@ function initShareLogic() {
       }
     });
   }
+/* ==========================================================================
+     فتح نافذة الـ QR بعناوين ديناميكية حساسة للسياق ودعم الشعار المدمج
+     ========================================================================== */
+  let currentTriggerElement = null;
 
-  /* فتح نافذة QR Code (عبر خيار القائمة أو الشارة المصغرة) */
-  const openQrModal = () => {
+  const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
-    
+
+    // حفظ الزر الذي فتح النافذة لإعادة التركيز عليه عند الإغلاق
+    currentTriggerElement = triggerBtn || shareQRBtn;
+
+    // 1. تحديث النصوص الإرشادية ديناميكياً بحسب السياق
+    const modalTitle = qrModal.querySelector('h3');
+    const modalHint = qrModal.querySelector('.qr-hint');
+
+    if (modalTitle && titleText) modalTitle.textContent = titleText;
+    if (modalHint && hintText) modalHint.textContent = hintText;
+
+    // 2. تفريغ الحاوية وتوليد الـ QR بمستوى تصحيح عالي (H) ليتحمل اللوجو
     qrContainer.innerHTML = '';
+
     if (typeof QRCode !== 'undefined') {
       new QRCode(qrContainer, {
         text: shareData.url,
         width: 220,
         height: 220,
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.H
       });
+
+      // 3. رسم الشعار الرسمي (icon-192.png) بمنتصف الرمز أوفلاين عبر Canvas
+      setTimeout(() => {
+        const canvas = qrContainer.querySelector('canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const logo = new Image();
+        logo.src = 'icon-192.png';
+
+        logo.onload = () => {
+          const logoSize = 46;
+          const x = (canvas.width - logoSize) / 2;
+          const y = (canvas.height - logoSize) / 2;
+
+          // خلفية بيضاء دائرية/انسيابية خلف اللوجو لبروزه وضمان القراءة
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(x - 5, y - 5, logoSize + 10, logoSize + 10, 10);
+          } else {
+            ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
+          }
+          ctx.fill();
+
+          // رسم اللوجو
+          ctx.drawImage(logo, x, y, logoSize, logoSize);
+
+          // تحديث الصورة لتُنزّل مع اللوجو عند ضغط زر التنزيل
+          const img = qrContainer.querySelector('img');
+          if (img) {
+            img.src = canvas.toDataURL('image/png');
+          }
+        };
+
+        // تحسب في حال عدم تحميل الصورة
+        logo.onerror = () => {
+          const img = qrContainer.querySelector('img');
+          if (img && canvas) {
+            img.src = canvas.toDataURL('image/png');
+          }
+        };
+      }, 60);
     }
+
     closeShareFallback();
     qrModal.hidden = false;
     if (closeQrBtn) closeQrBtn.focus();
   };
 
+  /* ربط الأزرار بالعناوين والسياق المناسب */
   if (shareQRBtn) {
-    shareQRBtn.addEventListener('click', openQrModal);
+    shareQRBtn.addEventListener('click', () => {
+      openQrModal(
+        'شارك حاسبة المياه مع عائلتك وأصدقائك',
+        'امسح الرمز بكاميرا الهاتف أو نزّل الصورة لمشاركتها بسهولة.',
+        shareQRBtn
+      );
+    });
   }
 
   if (miniQrBadge) {
-    miniQrBadge.addEventListener('click', openQrModal);
+    miniQrBadge.addEventListener('click', () => {
+      openQrModal(
+        'افتح الأداة وتابع الحساب من هاتفك الذكي',
+        'وجّه كاميرا هاتفك نحو الرمز لفتح حاسبة المياه وتثبيتها فوراً.',
+        miniQrBadge
+      );
+    });
   }
 
+  /* إغلاق نافذة QR وإعادة التركيز */
+  const closeQrModal = () => {
+    if (!qrModal) return;
+    qrModal.hidden = true;
+    if (currentTriggerElement) {
+      currentTriggerElement.focus();
+    } else if (shareQRBtn) {
+      shareQRBtn.focus();
+    }
+  };
+
   if (closeQrBtn && qrModal) {
-    closeQrBtn.addEventListener('click', () => {
-      qrModal.hidden = true;
-      if (shareQRBtn) shareQRBtn.focus();
-    });
+    closeQrBtn.addEventListener('click', closeQrModal);
 
     qrModal.addEventListener('click', (event) => {
       if (event.target === qrModal) {
-        qrModal.hidden = true;
-        if (shareQRBtn) shareQRBtn.focus();
+        closeQrModal();
       }
     });
   }
 
-  /* تنزيل صورة الـ QR كملف PNG أوفلاين */
+  /* تنزيل صورة الـ QR كملف PNG أوفلاين (شاملة اللوجو) */
   if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
-      const img = qrContainer.querySelector('img');
       const canvas = qrContainer.querySelector('canvas');
+      const img = qrContainer.querySelector('img');
 
       let imageSrc = '';
-      if (img && img.src) {
-        imageSrc = img.src;
-      } else if (canvas) {
+      if (canvas) {
         imageSrc = canvas.toDataURL('image/png');
+      } else if (img && img.src) {
+        imageSrc = img.src;
       }
 
       if (imageSrc) {
@@ -542,8 +621,7 @@ function initShareLogic() {
     if (event.key !== 'Escape') return;
 
     if (qrModal && !qrModal.hidden) {
-      qrModal.hidden = true;
-      if (shareQRBtn) shareQRBtn.focus();
+      closeQrModal();
       return;
     }
 
@@ -564,7 +642,6 @@ function initShareLogic() {
       closeShareFallback();
     }
   }, { passive: true });
-}
 /* ==========================================================================
     9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" الانسيابي المطور
    ========================================================================== */
