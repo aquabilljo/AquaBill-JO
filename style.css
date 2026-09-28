@@ -606,7 +606,17 @@ input[type="number"]#consumption:focus {
   opacity: 0.85;
   margin-right: 4px;
 }
+/* مسافة فاصلة مريحة بأسفل حقل الاستهلاك */
+input[type="number"]#consumption {
+  margin-bottom: 1.2rem;
+}
 
+/* مسافة فاصلة بأعلى صندوق عرض النتائج */
+.result,
+.result-card,
+.result-box {
+  margin-top: 1.2rem;
+}
 
 /* ==========================================================================
    7. TABLES — جدول التعرفة
@@ -1104,32 +1114,42 @@ button.close-qr:active {
   line-height: 1.4;
 }
 
+/* إصلاح تنسيق زر تنزيل الـ QR بداخل النافذة المنبثقة */
 .download-qr-btn {
   width: 100%;
-  padding: 0.6rem 1rem;
-  font-weight: 700;
-  border-style: solid;
-  border-color: var(--border);
-  background: var(--teal-light);
-  color: var(--accent-strong);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
+  min-height: 42px;
+  padding: 0.65rem 1rem;
+  
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.55rem;
+  
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--teal-light);
+  color: var(--accent-strong);
+  
   font-family: 'Tajawal', sans-serif;
-  transition: all var(--transition-fast);
+  font-size: 0.88rem;
+  font-weight: 700;
+  white-space: nowrap; /* يمنع انقسام النص إلى سطرين */
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .download-qr-btn svg {
-  margin-inline-end: 6px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke: currentColor;
 }
 
 .download-qr-btn:hover {
   background: var(--accent-strong);
   color: #ffffff;
 }
-
 .mini-qr-badge {
   min-height: 44px;
   padding: 0.65rem 1.15rem;
