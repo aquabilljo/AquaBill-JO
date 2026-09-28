@@ -37,7 +37,7 @@
   --amber-ink: #633806;
   --red-bg: #FCEBEB;
   --red-ink: #791F1F;
-  --border: rgba(14, 165, 233, 0.6);
+  --border: rgba(11, 79, 69, 0.14)
   --accent-strong: var(--teal);
 
   /* متغيرات الحقول والعناصر */
@@ -127,7 +127,7 @@ body.dark-theme {
   --input-bg: #10201B;
   --readonly-bg: #172723;
 
-  --qr-card-bg: #1A202C;
+  --qr-card-bg: #16211d;
   --qr-text-color: #F7FAFC;
   --close-qr-bg: rgba(255, 255, 255, 0.15);
   --close-qr-hover-bg: rgba(255, 255, 255, 0.25);
@@ -970,7 +970,10 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   display: none;
 }
 
-/* 3. خيارات القائمة الداخلية (واتساب، فيسبوك، نسخ الرابط، QR) */
+/* ==========================================================================
+   3. خيارات القائمة الداخلية والشارة المضيئة (مُصحح للأيقونات)
+   ========================================================================== */
+
 .share-option {
   width: 100%;
   min-height: 40px;
@@ -996,11 +999,11 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   transition: background-color var(--transition-fast);
 }
 
+/* ضبط حجم الأيقونات بدون فرض التعبئة عليها لتناسب كافة أنواع SVG */
 .share-option svg {
   width: 18px;
   height: 18px;
   flex: 0 0 18px;
-  fill: currentColor;
 }
 
 .share-option:hover,
@@ -1008,6 +1011,28 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   background-color: var(--share-option-hover);
 }
 
+/* الشارة المضيئة بجانب خيار QR بداخل القائمة */
+.share-option .qr-menu-badge {
+  margin-inline-start: auto; /* يدفع الشارة تلقائياً لأقصى جهة اليسار باللغة العربية */
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  
+  /* ألوان متناسقة بالوضع الفاتح */
+  background: rgba(13, 148, 136, 0.12);
+  color: #0d9488;
+  border: 1px solid rgba(13, 148, 136, 0.25);
+  white-space: nowrap;
+}
+
+/* الألوان بالوضع الداكن (Dark Mode) */
+:root[data-theme="dark"] .share-option .qr-menu-badge,
+body.dark-mode .share-option .qr-menu-badge {
+  background: rgba(94, 234, 212, 0.15);
+  color: #5eead4;
+  border-color: rgba(94, 234, 212, 0.3);
+}
 /* 4. نافذة رمز QR */
 .qr-modal {
   position: fixed;
