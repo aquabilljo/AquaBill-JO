@@ -1,215 +1,175 @@
 /* ==========================================================================
-   AquaBill JO — حاسبة فاتورة المياه الأردنية — ملف الأنماط (Stylesheet)
+   AquaBill JO — حاسبة فاتورة المياه الأردنية — ملف الأنماط الموحد (Refactored)
    ------------------------------------------------------------------------
    الأقسام:
-     1. Variables    → متغيرات الألوان والمسافات (نظام تصميم مركزي)
-     2. Base         → إعادة الضبط الأساسية وخلفية الصفحة
-     3. Typography   → الخطوط والعناوين والنصوص
-     4. Layout       → الحاوية الرئيسية، الترويسة، المحتوى، التذييل
-     5. Cards        → بطاقات الأقسام الأربعة وعناوينها
-     6. Buttons      → أزرار القفل، التصدير/الاستيراد، تبديل الوضع، PWA
-     7. Forms        → حقول الإدخال والتسميات
-     8. Tables       → جدول التعرفة
-     9. Charts       → لا يوجد رسوم بيانية بهذا الإصدار (قسم محجوز للمستقبل)
-     10. Responsive  → استجابة الشاشات الأكبر (كمبيوتر/تابلت)
-     11. Dark Mode   → قيم الوضع الداكن (تلقائي حسب النظام + تبديل يدوي)
-     12. Utilities   → عناصر مساعدة عامة (تلميحات، شارات، مقارنة، وصولية)
-     13. Animations  → حركات وانتقالات خفيفة، مع احترام تفضيل تقليل الحركة
+     1. Variables          → نظام التصميم المركزي ومتغيرات السمة (Light/Dark)
+     2. Base & Reset       → إعادة الضبط الأساسية والتهيئة العامة
+     3. Typography         → الخطوط والعناوين والهيكلية النصية
+     4. Layout             → الحاوية، الترويسة، التموّج البصري، التذييل
+     5. Cards & Overrides  → بطاقات الواجهة، التأثيرات الحركية، وبوكس الخطوة الأولى
+     6. Forms & Inputs     → حقول الإدخال، التسميات، وتخصيص حقل الاستهلاك
+     7. Tables             → جداول التعرفة وحقولها
+     8. Buttons & Actions  → أزرار التحكم، التبديل، القفل، والأنماط الثانوية
+     9. PWA Toast          → بنر تثبيت التطبيق العائم والتجاوبي
+     10. Share & QR Modal  → قائمة المشاركة الاحتياطية ونافذة الـ QR
+     11. Utilities         → الشارات، التلميحات، شريط التمرير، والوصولية
+     12. Animations        → الانتقالات، الحركات، وتخفيض الحركة (Reduced Motion)
    ========================================================================== */
 
 
 /* ==========================================================================
-   1. VARIABLES — نظام الألوان المركزي (الوضع الفاتح الافتراضي)
+   1. VARIABLES — المتغيرات المركزية ودعم السمات (Light & Dark Mode)
    ========================================================================== */
-:root{
-  --bg: #F2F6F5;            /* لون خلفية الصفحة العام */
-  --card: #FFFFFF;          /* لون خلفية البطاقات */
-  --ink: #16302B;           /* لون النص الأساسي (داكن) */
-  --ink-soft: #4B6560;      /* لون النص الثانوي (رمادي مخضر) */
-  --teal: #0B4F45;          /* اللون الأساسي للعلامة التجارية (أخضر مزرق) */
-  --teal-light: #E1F0EC;    /* درجة فاتحة من التيل للخلفيات الثانوية */
-  --gold: #B98A1F;          /* لون ذهبي للتمييز (Accent) — للخلفيات والحدود فقط */
-  --gold-text: #8F6712;     /* نسخة أغمق من الذهبي عند استخدامه كنص، لضمان تباين WCAG AA (4.5:1) */
-  --gold-light: #FBF1DD;    /* درجة فاتحة من الذهبي */
-  --green-bg: #EAF3DE;  --green-ink: #27500A;  /* ألوان شارة "آمن" */
-  --amber-bg: #FAEEDA;  --amber-ink: #633806;  /* ألوان شارة "تحذير متوسط" */
-  --red-bg:   #FCEBEB;  --red-ink:   #791F1F;  /* ألوان شارة "تحذير مرتفع" */
-  --border: rgba(11, 79, 69, 0.14);            /* لون الحدود الخفيفة */
-
-  /* لون العناوين والقيم الكبيرة (الفاتورة، الأيقونات) — منفصل عن --teal
-     حتى يسهل تفتيحه بالوضع الداكن دون المساس بلون العلامة التجارية الأساسي */
+:root {
+  /* ألوان العلامة التجارية والتصميم (الوضع الفاتح) */
+  --bg: #F2F6F5;
+  --card: #FFFFFF;
+  --ink: #16302B;
+  --ink-soft: #4B6560;
+  --teal: #0B4F45;
+  --teal-light: #E1F0EC;
+  --gold: #B98A1F;
+  --gold-text: #8F6712;
+  --gold-light: #FBF1DD;
+  --green-bg: #EAF3DE;
+  --green-ink: #27500A;
+  --amber-bg: #FAEEDA;
+  --amber-ink: #633806;
+  --red-bg: #FCEBEB;
+  --red-ink: #791F1F;
+  --border: rgba(11, 79, 69, 0.14);
   --accent-strong: var(--teal);
 
-  /* قيم مشتركة لإعادة الاستخدام (نصف قطر الانحناء، الظل) */
+  /* متغيرات الحقول والعناصر */
+  --input-bg: #FBFDFC;
+  --readonly-bg: #EEF2F1;
+
+  /* متغيرات النوافذ القائمة بذاتها (QR & Share) */
+  --qr-card-bg: #FFFFFF;
+  --qr-text-color: #1A202C;
+  --close-qr-bg: rgba(0, 0, 0, 0.08);
+  --close-qr-hover-bg: rgba(0, 0, 0, 0.15);
+  --close-qr-text: #2D3748;
+
+  --share-fallback-bg: #FFFFFF;
+  --share-border: rgba(0, 0, 0, 0.15);
+  --share-option-color: #1C2D42;
+  --share-option-hover: rgba(0, 0, 0, 0.05);
+
+  --warning-bg: rgba(239, 68, 68, 0.1);
+  --warning-color: #991B1B;
+  --warning-border: rgba(239, 68, 68, 0.25);
+
+  /* قياسات موحدة */
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 10px;
   --shadow-card: 0 10px 24px -18px rgba(11, 79, 69, 0.35);
 
-  /* مقياس مسافات موحّد (Spacing Scale) لاستخدام قيم متسقة بدل أرقام عشوائية */
-  --space-xs: .35rem;
-  --space-sm: .6rem;
+  --space-xs: 0.35rem;
+  --space-sm: 0.6rem;
   --space-md: 1rem;
   --space-lg: 1.3rem;
 
-  /* مدة الانتقالات القياسية بكل الحركات الخفيفة بالواجهة */
-  --transition-fast: .15s ease;
-  --transition-base: .25s ease;
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+}
+
+/* الكشف التلقائي للوضع الداكن عبر النظام */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1613;
+    --card: #16211D;
+    --ink: #E7F1EE;
+    --ink-soft: #9FB6B0;
+    --teal-light: #1B3B34;
+    --gold: #E7C468;
+    --gold-text: #E7C468;
+    --gold-light: #2A2216;
+    --border: rgba(255, 255, 255, 0.09);
+    --accent-strong: #5EEAD4;
+
+    --input-bg: #10201B;
+    --readonly-bg: #172723;
+
+    --qr-card-bg: #1A202C;
+    --qr-text-color: #F7FAFC;
+    --close-qr-bg: rgba(255, 255, 255, 0.15);
+    --close-qr-hover-bg: rgba(255, 255, 255, 0.25);
+    --close-qr-text: #FFFFFF;
+
+    --share-fallback-bg: #16211D;
+    --share-border: rgba(255, 255, 255, 0.15);
+    --share-option-color: #FFFFFF;
+    --share-option-hover: rgba(255, 255, 255, 0.12);
+
+    --warning-bg: rgba(239, 68, 68, 0.18);
+    --warning-color: #FCA5A5;
+    --warning-border: rgba(239, 68, 68, 0.4);
+  }
+}
+
+/* التبديل اليدوي الصريح للوضع الداكن */
+:root[data-theme="dark"],
+body.dark-mode,
+body.dark-theme {
+  --bg: #0E1613;
+  --card: #16211D;
+  --ink: #E7F1EE;
+  --ink-soft: #9FB6B0;
+  --teal-light: #1B3B34;
+  --gold: #E7C468;
+  --gold-text: #E7C468;
+  --gold-light: #2A2216;
+  --border: rgba(255, 255, 255, 0.09);
+  --accent-strong: #5EEAD4;
+
+  --input-bg: #10201B;
+  --readonly-bg: #172723;
+
+  --qr-card-bg: #1A202C;
+  --qr-text-color: #F7FAFC;
+  --close-qr-bg: rgba(255, 255, 255, 0.15);
+  --close-qr-hover-bg: rgba(255, 255, 255, 0.25);
+  --close-qr-text: #FFFFFF;
+
+  --share-fallback-bg: #16211D;
+  --share-border: rgba(255, 255, 255, 0.15);
+  --share-option-color: #FFFFFF;
+  --share-option-hover: rgba(255, 255, 255, 0.12);
+
+  --warning-bg: rgba(239, 68, 68, 0.18);
+  --warning-color: #FCA5A5;
+  --warning-border: rgba(239, 68, 68, 0.4);
 }
 
 
 /* ==========================================================================
-   2. BASE — إعادة الضبط الأساسية
+   2. BASE & RESET — الضبط الأساسي
    ========================================================================== */
-*{
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body{
+[hidden] {
+  display: none;
+}
+
+body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
+  font-family: 'Tajawal', sans-serif;
   line-height: 1.7;
-  transition: background-color .25s ease, color .25s ease;
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 
 /* ==========================================================================
    3. TYPOGRAPHY — الخطوط والعناوين
    ========================================================================== */
-body{
-  font-family: 'Tajawal', sans-serif;
-}
-
-header h1{
-  font-size: 1.42rem;
-  font-weight: 900;
-  margin: 0;
-  position: relative;
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-}
-
-/* شارة "JO" الذهبية الصغيرة بجانب اسم AquaBill */
-header h1 .jo-badge{
-  font-size: .6rem;
-  font-weight: 900;
-  letter-spacing: .04em;
-  background: #DDB854;
-  color: #0B4F45;
-  padding: .15rem .4rem;
-  border-radius: 6px;
-  position: relative;
-  top: -1px;
-}
-
-/* السطر العربي الفرعي أسفل اسم العلامة التجارية */
-.brand-tagline-ar{
-  font-size: .8rem;
-  font-weight: 500;
-  color: #CFE6E0;
-  margin-top: .2rem;
-}
-
-header p{
-  font-size: .9rem;
-  color: #CFE6E0;
-  margin: .5rem 0 0;
-  max-width: 36ch;
-  position: relative;
-}
-
-/* شارات الثقة الثلاث تحت وصف الترويسة */
-.trust-badges{
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem .7rem;
-  margin: .9rem 0 0;
-  padding: 0;
-  position: relative;
-}
-.trust-badges li{
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  font-size: .72rem;
-  font-weight: 500;
-  color: #CFE6E0;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
-  padding: .3rem .65rem;
-}
-.trust-badges svg{ width: 12px; height: 12px; flex: none; color: #7FD9C4; }
-
-/* عناوين الأقسام الأربعة (خطوة 1 من 4، إلخ) */
-h2{
-  font-size: 1.02rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
-  color: var(--accent-strong);
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-}
-
-h2 .titlewrap{ display: flex; flex-direction: column; gap: .15rem; }
-h2 .eyebrow2{ font-size: .68rem; font-weight: 700; letter-spacing: .04em; color: var(--gold-text); }
-h2 .titletext{ font-size: 1.04rem; font-weight: 700; color: var(--accent-strong); }
-
-.brandtext .eyebrow{
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .03em;
-  color: #CFE6E0;
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  margin-bottom: .15rem;
-}
-
-
-/* ==========================================================================
-   4. LAYOUT — الحاوية الرئيسية، الترويسة، المحتوى، التذييل
-   ========================================================================== */
-
-/* الحاوية الرئيسية: تحدد أقصى عرض للمحتوى وتوسطه بالصفحة */
-.wrap{
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0 0 3rem;
-}
-
-/* ---------- الترويسة (Header) ---------- */
-/* ملاحظة: خلفية الترويسة ثابتة دائماً بلون العلامة التجارية الداكن،
-   بغض النظر عن الوضع الفاتح/الداكن العام للصفحة، فلا تتأثر بتبديل الوضع */
-/* ---------- الترويسة المحدثة (Header) ---------- */
-header {
-  background: linear-gradient(135deg, #083932 0%, #0B4F45 50%, #0E5D51 100%);
-  color: #fff;
-  padding: 2.2rem 1.4rem 3.4rem;
-  position: relative;
-  overflow: hidden;
-  border-bottom-left-radius: 24px;
-  border-bottom-right-radius: 24px;
-  box-shadow: 0 12px 30px -10px rgba(11, 79, 69, 0.4);
-}
-
-/* خلفية توهج جمالية ناعمة */
-header::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(circle at 85% 15%, rgba(221, 184, 84, 0.15) 0, transparent 40%),
-    radial-gradient(circle at 10% 85%, rgba(127, 217, 196, 0.12) 0, transparent 45%);
-  pointer-events: none;
-}
-
-/* تحسين بروز اسم التطبيق (AquaBill JO) */
 header h1 {
   font-size: 1.6rem;
   font-weight: 900;
@@ -222,7 +182,6 @@ header h1 {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* الشارة الذهبية الصغيرة بجانب الاسم */
 header h1 .jo-badge {
   font-size: 0.65rem;
   font-weight: 900;
@@ -234,7 +193,6 @@ header h1 .jo-badge {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* تحسين السطر الوصفي أسفل الهيدر */
 .brand-tagline-ar {
   font-size: 0.85rem;
   font-weight: 600;
@@ -250,73 +208,175 @@ header p {
   line-height: 1.6;
   position: relative;
 }
-/* الموجة الفاصلة أسفل الترويسة، تصل بصرياً مع خلفية الصفحة */
-/* ---------- شكل التموّج المستقبلي لأسفل الترويسة ---------- */
-.wave {
-  position: absolute;
-  left: 0; 
-  right: 0; 
-  bottom: -1px;
-  width: 100%; 
-  height: 24px;
-  display: block;
-  /* تأثير توهج نيون متدرج ناعم يعطي طابعاً مستقبلياً */
-  filter: drop-shadow(0 -3px 8px rgba(94, 234, 212, 0.4));
-  opacity: 0.9;
-  transition: all 0.3s ease;
-}
 
-/* لون الموجة يتكيف ناعماً مع خلفية الصفحة */
-.wave path {
-  fill: var(--bg);
-}
-
-.brandrow{
+/* عناوين الأقسام الرئيسية */
+h2 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: var(--accent-strong);
   display: flex;
   align-items: center;
-  gap: .7rem;
-  position: relative;
-  margin-bottom: 1.5rem;
+  gap: 0.7rem;
 }
 
-.logomark{ width: 46px; height: 46px; flex: none; border-radius: 50%; overflow: hidden; background-color: #ffffff; }
-
-#flatFeeHint {
-  display: none;
-  font-size: 0.8em;
-  opacity: 0.85;
-  margin-right: 4px;
+h2 .titlewrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
-.brandtext .eyebrow .flagchip{
+h2 .eyebrow2 {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold-text);
+}
+
+h2 .titletext {
+  font-size: 1.04rem;
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+
+.brandtext .eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #CFE6E0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.15rem;
+}
+
+.brandtext .eyebrow .flagchip {
   display: inline-flex;
-  width: 16px; height: 11px;
+  width: 16px;
+  height: 11px;
   border-radius: 2px;
   overflow: hidden;
   border: 0.5px solid rgba(255, 255, 255, 0.4);
   flex: none;
 }
-.brandtext .eyebrow .flagchip span{ flex: 1; }
 
-/* ---------- المحتوى الرئيسي (Main) ---------- */
-main{ padding: 0 1.1rem; }
+.brandtext .eyebrow .flagchip span {
+  flex: 1;
+}
 
-/* ---------- التذييل (Footer) ---------- */
-footer{
+
+/* ==========================================================================
+   4. LAYOUT — الترويسة، التنسيق العام، والتذييل
+   ========================================================================== */
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 0 3rem;
+}
+
+header {
+  background: linear-gradient(135deg, #083932 0%, #0B4F45 50%, #0E5D51 100%);
+  color: #fff;
+  padding: 2.2rem 1.4rem 3.4rem;
+  position: relative;
+  overflow: hidden;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  box-shadow: 0 12px 30px -10px rgba(11, 79, 69, 0.4);
+}
+
+header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(221, 184, 84, 0.15) 0, transparent 40%),
+    radial-gradient(circle at 10% 85%, rgba(127, 217, 196, 0.12) 0, transparent 45%);
+  pointer-events: none;
+}
+
+.wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 24px;
+  display: block;
+  filter: drop-shadow(0 -3px 8px rgba(94, 234, 212, 0.4));
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+.wave path {
+  fill: var(--bg);
+}
+
+.brandrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.logomark {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.trust-badges {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  position: relative;
+}
+
+.trust-badges li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #CFE6E0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 0.3rem 0.65rem;
+}
+
+.trust-badges svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: #7FD9C4;
+}
+
+main {
+  padding: 0 1.1rem;
+}
+
+footer {
   text-align: center;
-  font-size: .78rem;
+  font-size: 0.78rem;
   color: var(--ink-soft);
   padding: 1.6rem 1.25rem 0;
 }
-footer a{ color: var(--accent-strong); }
+
+footer a {
+  color: var(--accent-strong);
+}
 
 
 /* ==========================================================================
-   5. CARDS — بطاقات الأقسام الأربعة
-   ========================================================================== */
-
-/* ==========================================================================
-   قسم البطاقات (Cards)
+   5. CARDS & OVERRIDES — بطاقات الأقسام والتأثيرات البصرية
    ========================================================================== */
 .card {
   background: var(--card);
@@ -327,23 +387,66 @@ footer a{ color: var(--accent-strong); }
   position: relative;
   z-index: 2;
   will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
 }
 
-/* تراكب البطاقة الأولى فقط مع الترويسة */
+.card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.18);
+  border-color: rgba(14, 165, 233, 0.6);
+}
+
+.card:active {
+  transform: translateY(-2px) scale(0.998);
+}
+
 .card:first-of-type {
   margin-top: 1.4rem;
 }
 
-/* التباعد بين البطاقات التالية */
 .card + .card {
   margin-top: 1.1rem;
 }
 
-/* أيقونة دائرية داخل عنوان كل بطاقة */
+/* تخصيص كرت الخطوة الأولى بأعلى الصفحة */
+main > .card:first-of-type {
+  background: var(--card);
+  border: 1px solid rgba(11, 79, 69, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.3rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 16px 35px -12px rgba(11, 79, 69, 0.22);
+}
+
+main > .card:first-of-type::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--teal), var(--gold), transparent);
+  border-radius: 3px;
+  opacity: 0.85;
+}
+
+/* بطاقة قسم "عني" المحاذية */
+.card#about {
+  width: 95%;
+  max-width: 608px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+}
+
+/* أيقونات الأناوين داخل البطاقات */
 h2 .icn {
   background: var(--teal-light);
   color: var(--accent-strong);
-  width: 36px; 
+  width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
   display: inline-flex;
@@ -351,18 +454,18 @@ h2 .icn {
   justify-content: center;
   flex: none;
 }
-h2 .icn svg { 
-  width: 18px; 
-  height: 18px; 
+
+h2 .icn svg {
+  width: 18px;
+  height: 18px;
 }
 
-/* أيقونة خطوة النصائح بلون ذهبي */
 h2 .icn-tip {
   background: var(--gold-light);
   color: var(--gold);
 }
 
-/* بطاقة النتيجة (الخطوة 2) */
+/* نتائج الفاتورة (الخطوة 2) */
 .result {
   background: var(--teal-light);
   border: 1px solid rgba(11, 79, 69, 0.12);
@@ -371,99 +474,218 @@ h2 .icn-tip {
   margin-top: 1rem;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
 }
+
 .result .line {
   display: flex;
   justify-content: space-between;
-  font-size: .92rem;
-  padding: .3rem 0;
+  font-size: 0.92rem;
+  padding: 0.3rem 0;
   color: var(--ink-soft);
 }
+
 .result .total {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   border-top: 1.5px dashed rgba(11, 79, 69, 0.2);
-  margin-top: .6rem;
-  padding-top: .75rem;
+  margin-top: 0.6rem;
+  padding-top: 0.75rem;
 }
-.result .total span:first-child { 
-  font-weight: 700; 
-  font-size: 1rem; 
-  color: var(--accent-strong); 
+
+.result .total span:first-child {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent-strong);
 }
-.result .total span:last-child { 
-  font-weight: 900; 
-  font-size: 1.75rem; 
-  color: var(--accent-strong); 
+
+.result .total span:last-child {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--accent-strong);
   letter-spacing: -0.5px;
 }
 
-/* صناديق مقارنة العداد بالصهريج (الخطوة 3) */
+/* صناديق المقارنة (الخطوة 3) */
 .compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: .8rem;
+  gap: 0.8rem;
   margin-top: 1rem;
 }
+
 .compare .box {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: .8rem;
+  padding: 0.8rem;
   text-align: center;
-  transition: all .2s ease;
+  transition: all 0.2s ease;
 }
-.compare .box .lbl { 
-  font-size: .78rem; 
-  color: var(--ink-soft); 
-}
-.compare .box .val { 
-  font-size: 1.25rem; 
-  font-weight: 900; 
-  color: var(--accent-strong); 
-  margin-top: .3rem; 
-}
-.compare .box.win { 
-  border-color: var(--gold); 
-  background: var(--gold-light); 
-}
-.compare .box.win .val { 
-  color: var(--gold-text); 
-}
-/* هذا الكود سيستهدف فقط قسم "عني" بناءً على الـ ID الخاص به */
-#about {
-    width: 95% !important;
-    max-width: 608px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    padding-left: 1.1rem !important;
-    padding-right: 1.1rem !important;
-    box-sizing: border-box;
-}
-/* ==========================================================================
-   6. BUTTONS — أزرار القفل، تبديل الوضع، المشاركة، وتثبيت PWA
-   ========================================================================== */
 
-/* زر قفل/فتح تعديل جدول التعرفة */
-h2 .lockbtn{
+.compare .box .lbl {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.compare .box .val {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--accent-strong);
+  margin-top: 0.3rem;
+}
+
+.compare .box.win {
+  border-color: var(--gold);
+  background: var(--gold-light);
+}
+
+.compare .box.win .val {
+  color: var(--gold-text);
+}
+
+
+/* ==========================================================================
+   6. FORMS & INPUTS — حقول الإدخال والتسميات
+   ========================================================================== */
+label {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+input[type=number] {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  background: var(--input-bg);
+  color: var(--ink);
+}
+
+input[type=number]:focus {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 1px;
+}
+
+/* حقل الاستهلاك الرئيسي المميز */
+input[type=number]#consumption {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  transition: all var(--transition-base);
+}
+
+input[type=number]#consumption:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 4px rgba(11, 79, 69, 0.15);
+}
+
+.row {
+  display: flex;
+  gap: 0.7rem;
+  margin-bottom: 0.8rem;
+}
+
+.row > div {
+  flex: 1;
+}
+
+#flatFeeHint {
+  display: none;
+  font-size: 0.8em;
+  opacity: 0.85;
+  margin-right: 4px;
+}
+
+
+/* ==========================================================================
+   7. TABLES — جدول التعرفة
+   ========================================================================== */
+table.tariff {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+table.tariff th {
+  background: var(--teal-light);
+  color: var(--accent-strong);
+  font-weight: 700;
+  padding: 0.45rem 0.3rem;
+  text-align: center;
+}
+
+main > .card:first-of-type table.tariff {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+main > .card:first-of-type table.tariff th {
+  font-weight: 800;
+  padding: 0.6rem 0.4rem;
+}
+
+table.tariff td {
+  padding: 0.3rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+table.tariff input {
+  width: 64px;
+  padding: 0.3rem;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+table.tariff input[readonly] {
+  background: var(--readonly-bg);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+
+/* ==========================================================================
+   8. BUTTONS & ACTIONS — الأزرار وأدوات التحكم
+   ========================================================================== */
+h2 .lockbtn {
   margin-inline-start: auto;
   background: none;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: .3rem .6rem;
-  font-size: .75rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--ink-soft);
   font-family: 'Tajawal', sans-serif;
   cursor: pointer;
   flex: none;
 }
-h2 .lockbtn:hover{ background: var(--teal-light); }
-.lockbtn-icon{ width: 13px; height: 13px; vertical-align: -2px; margin-inline-end: 4px; }
 
-/* زر تبديل الوضع الفاتح/الداكن (دائري، أعلى الترويسة) */
-.theme-toggle{
+h2 .lockbtn:hover {
+  background: var(--teal-light);
+}
+
+.lockbtn-icon {
+  width: 13px;
+  height: 13px;
+  vertical-align: -2px;
+  margin-inline-end: 4px;
+}
+
+/* زر تبديل السمة العلوي (Theme Toggle) */
+.theme-toggle {
   margin-inline-start: auto;
-  width: 38px; height: 38px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.1);
@@ -476,38 +698,103 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   position: relative;
   z-index: 1;
 }
-.theme-toggle:hover{ background: rgba(255, 255, 255, 0.18); }
-.theme-toggle svg{ width: 18px; height: 18px; }
-/* افتراضياً (وضع فاتح): تظهر أيقونة القمر (اضغط للتحويل لليل) */
-.theme-toggle .icon-sun{ display: none; }
-.theme-toggle .icon-moon{ display: block; }
-/* عند الوضع الداكن: تظهر أيقونة الشمس (اضغط للرجوع للفاتح) */
-:root[data-theme="dark"] .theme-toggle .icon-sun{ display:block; }
-:root[data-theme="dark"] .theme-toggle .icon-moon{ display:none; }
 
-/* زر مشاركة واتساب بالتذييل */
-.share{ display:flex; gap: .6rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
-.share a{
-  text-decoration: none;
-  font-size: .82rem;
-  font-weight: 700;
-  color: var(--accent-strong);
-  border: 1px solid var(--accent-strong);
-  border-radius: 20px;
-  padding: .45rem 1rem;
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+
+:root[data-theme="dark"] .theme-toggle .icon-sun,
+body.dark-mode .theme-toggle .icon-sun { display: block; }
+
+:root[data-theme="dark"] .theme-toggle .icon-moon,
+body.dark-mode .theme-toggle .icon-moon { display: none; }
+
+/* زر التبديل العائم الدائري */
+.btn-theme-toggle {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.08);
+}
+
+.btn-theme-toggle:active {
+  transform: scale(0.92);
+}
+
+/* أزرار Ghost & Settings Actions */
+.settings-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.ghost-btn:hover {
+  background: var(--teal-light);
+  border-color: var(--accent-strong);
+  color: var(--accent-strong);
+}
+
+.sr-only-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 
 /* ==========================================================================
-6.PWA INSTALL PROMPT — كود نظيف بدون !important
-========================================================================== */
-
-/* 1. إخفاء البنر */
-#pwaToast[hidden],
-.pwa-toast[hidden] {
-  display: none;
-}
-
-/* 2. الحاوية الرئيسية (ندمج الـ ID والـ Class لرفع الأولوية) */
+   9. PWA TOAST — بنر تثبيت التطبيق
+   ========================================================================== */
 #pwaToast.pwa-toast {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
@@ -539,15 +826,14 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
-/* حالة الظهور */
 #pwaToast.pwa-toast.show {
   transform: translate(-50%, 0);
   opacity: 1;
   pointer-events: auto;
 }
 
-/* 3. حاوية الأزرار الدقيقة */
-#pwaToast.pwa-toast .pwa-toast-buttons {
+#pwaToast.pwa-toast .pwa-toast-buttons,
+#pwaToast.pwa-toast .pwa-toast-actions {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -557,8 +843,7 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   flex-shrink: 0;
 }
 
-/* 4. الأزرار - استهداف مسار دقيق للتغلب على القواعد العامة */
-#pwaToast.pwa-toast .pwa-toast-buttons button {
+#pwaToast.pwa-toast button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -572,246 +857,229 @@ h2 .lockbtn:hover{ background: var(--teal-light); }
   white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box;
+  transition: all var(--transition-fast);
 }
 
-/* زر التثبيت الأبيض */
-#pwaToast.pwa-toast .pwa-toast-buttons #pwaInstallBtn {
+#pwaToast.pwa-toast #pwaInstallBtn {
   background-color: #ffffff;
   color: #0d9488;
   border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* زر لاحقاً الشفاف */
-#pwaToast.pwa-toast .pwa-toast-buttons #pwaDismissBtn {
+#pwaToast.pwa-toast #pwaInstallBtn:hover {
+  background-color: #f0fdf4;
+}
+
+#pwaToast.pwa-toast #pwaDismissBtn {
   background-color: rgba(255, 255, 255, 0.18);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.35);
-   } 
+}
+
+#pwaToast.pwa-toast #pwaDismissBtn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
 
 /* ==========================================================================
-   6.1. SETTINGS ACTIONS & ACCESSIBILITY (أزرار الإعدادات والوصولية)
+   10. SHARE & QR MODAL — المشاركة ورمز الـ QR
    ========================================================================== */
-
-.settings-actions {
+.share {
   display: flex;
-  gap: var(--space-sm);
-  margin-top: var(--space-md);
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1rem;
   flex-wrap: wrap;
 }
 
-.ghost-btn {
+.share-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.share-btn {
+  min-height: 44px;
+  padding: 0.65rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  padding: 0.4rem 0.8rem;
-  font-family: 'Tajawal', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--ink-soft);
+  gap: 0.5rem;
+  color: var(--ink);
+  background: var(--card);
   cursor: pointer;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  font: inherit;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.ghost-btn:hover {
-  background: var(--teal-light);
+.share-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.share-btn:hover {
+  transform: translateY(-2px);
   border-color: var(--accent-strong);
-  color: var(--accent-strong);
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
 }
 
-/* إخفاء بصري لحقل اختيار الملف مع إبقائه قابلاً للوصول */
-.sr-only-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+.share-fallback {
+  position: fixed;
+  width: min(220px, calc(100vw - 32px));
+  max-height: min(280px, calc(100vh - 32px));
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+
+  padding: 0.5rem;
+  border: 1px solid var(--share-border);
+  border-radius: 12px;
+  background-color: var(--share-fallback-bg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+.share-option {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.75rem;
   border: 0;
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--share-option-color);
+  background: transparent;
+
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: right;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color var(--transition-fast);
 }
 
-
-
-/* ==========================================================================
-   7. FORMS — حقول الإدخال والتسميات
-   ========================================================================== */
-label{
-  font-size: .85rem;
-  color: var(--ink-soft);
-  display: block;
-  margin-bottom: .3rem;
+.share-option svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  fill: currentColor;
 }
 
-input[type=number]{
-  width: 100%;
-  padding: .6rem .7rem;
-  border-radius: var(--radius-sm);
+.share-option:hover,
+.share-option:focus-visible {
+  background-color: var(--share-option-hover);
+}
+
+/* نافذة رمز QR */
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.qr-modal-content {
+  position: relative;
+  width: min(90vw, 360px);
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--qr-card-bg);
+  color: var(--qr-text-color);
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border);
-  font-family: 'Tajawal', sans-serif;
-  font-size: 1rem;
-  background: #fbfdfc;
-  color: var(--ink);
-}
-input[type=number]:focus{
-  outline: 2px solid var(--accent-strong);
-  outline-offset: 1px;
 }
 
-/* صف حقلين جنباً إلى جنب (سعر الصهريج + الكمية) */
-.row{ display: flex; gap: .7rem; margin-bottom: .8rem; }
-.row > div{ flex: 1; }
+.qr-modal-content h3 {
+  margin: 0 0 20px;
+  color: inherit;
+}
+
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.qr-container img,
+.qr-container canvas {
+  display: block;
+  width: 220px;
+  height: 220px;
+  max-width: 100%;
+}
+
+.qr-modal-content p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+  color: inherit;
+}
+
+button.close-qr {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: none;
+  background: var(--close-qr-bg);
+  color: var(--close-qr-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  z-index: 10;
+}
+
+button.close-qr:hover {
+  background: var(--close-qr-hover-bg);
+}
+
+button.close-qr:active {
+  transform: scale(0.92);
+}
 
 
 /* ==========================================================================
-   8. TABLES — جدول التعرفة
+   11. UTILITIES — الشارات والتلميحات والوصولية
    ========================================================================== */
-table.tariff{
-  width: 100%;
-  border-collapse: collapse;
-  font-size: .85rem;
-  margin-top: .4rem;
-}
-table.tariff th{
-  background: var(--teal-light);
-  color: var(--accent-strong);
-  font-weight: 700;
-  padding: .45rem .3rem;
-  text-align: center;
-}
-table.tariff td{
-  padding: .3rem;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-}
-table.tariff input{
-  width: 64px;
-  padding: .3rem;
-  text-align: center;
-  font-size: .85rem;
-}
-/* مظهر حقول التعرفة عندما تكون مقفلة (readonly) */
-table.tariff input[readonly]{
-  background: #eef2f1;
+.hint {
+  font-size: 0.78rem;
   color: var(--ink-soft);
-  cursor: not-allowed;
+  margin: 0.5rem 0 0;
 }
 
-
-/* ==========================================================================
-   9. CHARTS — لا يوجد رسوم بيانية بهذا الإصدار
-   ------------------------------------------------------------------------
-   هذا القسم محجوز فقط لاتساق هيكلة الملف. لا تحتوي AquaBill JO حالياً على
-   أي رسم بياني (chart)، فلا توجد قواعد مطلوبة هنا. إن أُضيف مستقبلاً رسم
-   بياني (مثلاً: مخطط تطور الاستهلاك الشهري)، تُضاف أنماطه بهذا القسم تحديداً.
-   ========================================================================== */
-
-
-/* ==========================================================================
-   10. RESPONSIVE — استجابة الشاشات الأكبر (كمبيوتر/تابلت)
-   ========================================================================== */
-@media (min-width: 720px){
-  .wrap{ padding-top: 2rem; }
-  header{ border-radius: 20px; }
-  .card{ margin-top: 1.1rem; }
-  .card:first-of-type{ margin-top: 1.1rem; }
-}
-
-
-/* ==========================================================================
-   11. DARK MODE — قيم الوضع الداكن
-   ------------------------------------------------------------------------
-   مساران لتفعيل الوضع الداكن:
-   أ) تلقائياً حسب إعداد نظام تشغيل الزائر (prefers-color-scheme)، ما لم
-      يكن قد اختار المستخدم يدوياً "فاتح" من زر التبديل (data-theme="light").
-   ب) يدوياً عبر زر التبديل بالترويسة، الذي يضبط data-theme="dark" على
-      عنصر <html> ويُخزَّن الاختيار محلياً (localStorage) ليبقى بعد إغلاق الصفحة.
-
-   ⚠️ التصحيح المهم بهذا الإصدار: تم فصل لون "--accent-strong" (العناوين،
-   القيم الكبيرة كالفاتورة، الأيقونات) عن بقية النصوص، وتفتيحه هنا خصيصاً
-   بالوضع الداكن، لأن اللون الأصلي (تيل داكن) كان يبدو باهتاً وضعيف التباين
-   فوق خلفية داكنة. لا تغيير على الوضع الفاتح إطلاقاً.
-   ========================================================================== */
-
-/* أ) الكشف التلقائي حسب نظام التشغيل */
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg: #0E1613;
-    --card: #16211D;
-    --ink: #E7F1EE;
-    --ink-soft: #9FB6B0;
-    --teal-light: #1B3B34;
-    --gold: #E7C468;
-    --gold-text: #E7C468;
-    --gold-light: #2A2216;
-    --border: rgba(255, 255, 255, 0.09);
-    --accent-strong: #5EEAD4;
-  }
-
-  :root:not([data-theme="light"]) input[type=number]{
-    background: #10201B;
-    color: var(--ink);
-  }
-
-  :root:not([data-theme="light"]) table.tariff input[readonly]{
-    background: #172723;
-  }
-}
-
-/* ب) التبديل اليدوي الصريح (له الأولوية دائماً، بصرف النظر عن إعداد النظام) */
-:root[data-theme="dark"]{
-  --bg: #0E1613;
-  --card: #16211D;
-  --ink: #E7F1EE;
-  --ink-soft: #9FB6B0;
-  --teal-light: #1B3B34;
-  --gold: #E7C468;
-  --gold-text: #E7C468;
-  --gold-light: #2A2216;
-  --border: rgba(255, 255, 255, 0.09);
-  --accent-strong: #5EEAD4;
-}
-
-:root[data-theme="dark"] input[type=number]{
-  background: #10201B;
-  color: var(--ink);
-}
-
-:root[data-theme="dark"] table.tariff input[readonly]{
-  background: #172723;
-}
-/* --- ضبط الشارّة الحرجة للوضع الداكن (Dark Mode) --- */
-body.dark-mode .badge.critical,
-[data-theme="dark"] .badge.critical {
-  background-color: rgba(255, 77, 79, 0.15); /* خلفية حمراء شفافة تتناسب مع السمة الداكنة */
-  color: #ff7875;                             /* أحمر ممتد وواضح جداً في الظلام */
-  border-color: #ff4d4f;
-  animation: redGlowPulseDark 1.8s infinite alternate;
-}
-
-/* حركة الشعاع المضيء الخاصة بالوضع الداكن (توهج أقوى) */
-@keyframes redGlowPulseDark {
-  0% {
-    box-shadow: 0 0 6px rgba(255, 77, 79, 0.4);
-    border-color: #ff4d4f;
-  }
-  100% {
-    box-shadow: 0 0 20px rgba(255, 77, 79, 0.9), 0 0 30px rgba(255, 77, 79, 0.4);
-    border-color: #ff7875;
-  }
-}
-
-/* ==========================================================================
-   12. UTILITIES — عناصر مساعدة عامة
-   ========================================================================== */
-
-/* نص تلميح صغير أسفل الحقول أو الجداول */
-.hint{ font-size: .78rem; color: var(--ink-soft); margin: .5rem 0 0; }
-/* صندوق التلميح الإرشادي لآلية الحساب */
 .hint-box {
   background: var(--teal-light);
   border-right: 3px solid var(--accent-strong);
@@ -832,585 +1100,184 @@ body.dark-mode .badge.critical,
   color: var(--ink-soft);
   line-height: 1.5;
 }
-/* شارات حالة الاستهلاك (آمن / تحذير متوسط / تحذير مرتفع) */
-.badge{
+
+.badge {
   display: inline-block;
-  margin-top: .7rem;
-  padding: .4rem .8rem;
+  margin-top: 0.7rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 8px;
-  font-size: .82rem;
+  font-size: 0.82rem;
   font-weight: 700;
-}
-.badge.ok{ background: var(--green-bg); color: var(--green-ink); }
-.badge.warn{ background: var(--amber-bg); color: var(--amber-ink); }
-.badge.bad{ background: var(--red-bg); color: var(--red-ink); }
-
-/* قائمة النصائح (الخطوة 4) */
-ul.tips{ margin: .4rem 0 0; padding-inline-start: 1.2rem; font-size: .9rem; }
-ul.tips li{ margin-bottom: .55rem; }
-
-
-/* شعار SVG الصغير أعلى التذييل */
-.footer-logo{ margin-bottom: .6rem; }
-
-/* رابط "تخطَّ إلى المحتوى الرئيسي" — مخفي بصرياً، يظهر فقط عند التركيز عليه
-   بلوحة المفاتيح (Tab)، ليساعد مستخدمي قارئ الشاشة ولوحة المفاتيح على
-   تجاوز الترويسة مباشرة إلى المحتوى */
-.skip-link{
-  position: absolute;
-  right: 1rem;
-  top: -100px;
-  background: var(--teal);
-  color: #fff;
-  padding: .6rem 1rem;
-  border-radius: var(--radius-sm);
-  font-size: .85rem;
-  font-weight: 700;
-  text-decoration: none;
-  z-index: 100;
-  transition: top var(--transition-fast);
-}
-.skip-link:focus{ top: 1rem; }
-
-/* رقم إصدار التطبيق بأسفل التذييل */
-.app-version{
-  font-size: .7rem;
-  color: var(--ink-soft);
-  opacity: .7;
-  margin-top: 1rem;
+  animation: badge-in var(--transition-base);
 }
 
+.badge.ok { background: var(--green-bg); color: var(--green-ink); }
+.badge.warn { background: var(--amber-bg); color: var(--amber-ink); }
+.badge.bad { background: var(--red-bg); color: var(--red-ink); }
 
-/* ==========================================================================
-   13. ANIMATIONS — حركات وانتقالات خفيفة
-   ------------------------------------------------------------------------
-   حركات بسيطة وغير مبالغ فيها لتحسين الإحساس بالاستجابة (مثل ظهور شارة
-   الحالة، ونبضة صندوق "الأوفر" بالمقارنة)، مع احترام كامل لتفضيل المستخدم
-   "تقليل الحركة" (prefers-reduced-motion) لأسباب صحية ووصولية.
-   ========================================================================== */
-
-/* شريط تقدّم التمرير الرفيع أعلى الشاشة (يتحدّث بالسكربت مع التمرير) */
-.scroll-progress{
-  position: fixed;
-  top: 0; right: 0; left: 0;
-  height: 3px;
-  width: 0%;
-  background: linear-gradient(90deg, var(--gold), #7FD9C4);
-  z-index: 200;
-  transition: width .1s linear;
-}
-
-/* ظهور تدريجي خفيف للبطاقات عند دخولها الشاشة أثناء التمرير.
-   ملاحظة: العناصر مرئية بشكل افتراضي دائماً؛ فقط عندما يضيف script.js كلاس
-   "fade-init" (أي أن الجافاسكربت يعمل فعلاً) تصبح مخفية مبدئياً تمهيداً
-   لإظهارها بحركة لطيفة — بهذا لا تختفي البطاقات أبداً لو تعطّل الجافاسكربت. */
-.fade-in.fade-init{
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity .5s ease, transform .5s ease;
-}
-.fade-in.is-visible{
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* حالة تركيز واضحة وموحّدة لكل العناصر القابلة للتفاعل (لوحة المفاتيح) */
-a:focus-visible,
-button:focus-visible,
-input:focus-visible{
-  outline: 2px solid var(--accent-strong);
-  outline-offset: 2px;
-}
-
-/* إصلاح وصولية: حقل استيراد الملف مخفي بصرياً (.sr-only-input)، فإطار التركيز
-   العادي عليه غير مرئي. بدلاً من ذلك، نُظهر إطار التركيز على تسميته المرئية
-   (label) عند تركيز لوحة المفاتيح على الحقل الفعلي (ملاحظة: الحقل يسبق
-   تسميته بترتيب الـ HTML خصيصاً لتفعيل محدد "+" التالي هذا). */
-#importFile:focus-visible + label{
-  outline: 2px solid var(--accent-strong);
-  outline-offset: 2px;
-}
-
-@keyframes badge-in{
-  from{ opacity: 0; transform: translateY(-3px); }
-  to{ opacity: 1; transform: translateY(0); }
-}
-.badge{ animation: badge-in var(--transition-base); }
-
-@keyframes box-win-pulse{
-  0%{ box-shadow: 0 0 0 0 rgba(185, 138, 31, 0.35); }
-  100%{ box-shadow: 0 0 0 8px rgba(185, 138, 31, 0); }
-}
-.compare .box.win{ animation: box-win-pulse .6s ease-out; }
-
-/* احترام تفضيل "تقليل الحركة" بنظام التشغيل: تعطيل كل الحركات والانتقالات */
-@media (prefers-reduced-motion: reduce){
-  *{
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
-/* الشارّة الحرجة فوق 50 م³ (أنقذ، أوضح، وغير قاتمة) */
+/* الشارة الحرجة (فوق 50 م³) */
 .badge.critical {
-  background-color: #fff1f0; /* خلفية وردية فاتحة جداً مريحة للعين */
-  color: #cf1322;            /* أحمر واضح للعين غير قاتم */
-  border: 1px solid #ffa39e;  /* حدود حمراء ناعمة */
+  background-color: #fff1f0;
+  color: #cf1322;
+  border: 1px solid #ffa39e;
   font-weight: bold;
   padding: 4px 12px;
   border-radius: 6px;
-  display: inline-block;
-  /* تأثير الشعاع المضيء المتحرك */
   animation: redGlowPulse 1.8s infinite alternate;
 }
 
-/* حركة الشعاع المضيء */
-@keyframes redGlowPulse {
-  0% {
-    box-shadow: 0 0 3px rgba(207, 19, 34, 0.2);
-    border-color: #ffa39e;
-  }
-  100% {
-    box-shadow: 0 0 12px rgba(207, 19, 34, 0.6);
-    border-color: #ff4d4f;
-  }
-}
-/* --- تجميل وتكبير حقل إدخال الاستهلاك والنتيجة --- */
-#consumption {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
-  text-align: center !important;
-  padding: 0.75rem !important;
-  border: 2px solid var(--border) !important;
-  border-radius: var(--radius-md) !important;
-  background: var(--bg) !important;
-  transition: all 0.25s ease !important;
+:root[data-theme="dark"] .badge.critical,
+body.dark-mode .badge.critical {
+  background-color: rgba(255, 77, 79, 0.15);
+  color: #ff7875;
+  border-color: #ff4d4f;
+  animation: redGlowPulseDark 1.8s infinite alternate;
 }
 
-#consumption:focus {
-  border-color: var(--teal) !important;
-  box-shadow: 0 0 0 4px rgba(11, 79, 69, 0.15) !important;
-}
-
-/* تجميل خط إجمالي المبلغ بالنتيجة */
-.result .total span:last-child {
-  font-size: 1.8rem !important;
-  font-weight: 900 !important;
-  color: var(--accent-strong) !important;
-  letter-spacing: -0.5px !important;
-}
-/* --- تجميل وتطوير البوكس الأول أفقياً في أعلى الصفحة (الخطوة 1: جدول التعرفة) --- */
-main > .card:first-of-type {
-  background: var(--card);
-  border: 1px solid rgba(11, 79, 69, 0.2);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem 1.3rem;
-  margin-top: 1.5rem; /* زيادة التداخل مع هيدر الصفحة لإعطاء عمق بصري */
-  box-shadow: 0 16px 35px -12px rgba(11, 79, 69, 0.22);
-  position: relative;
-  z-index: 2;
-  transition: all 0.25s ease;
-}
-
-/* خط إضاءة متدرج ناعم يعلو البوكس الأول */
-main > .card:first-of-type::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 1.5rem;
-  right: 1.5rem;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--teal), var(--gold), transparent);
-  border-radius: 3px;
-  opacity: 0.85;
-}
-
-/* تحسين المظهر الداخلي لجدول التعرفة بالبوكس الأول */
-main > .card:first-of-type table.tariff {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-main > .card:first-of-type table.tariff th {
-  background: var(--teal-light);
-  color: var(--accent-strong);
-  font-weight: 800;
-  padding: 0.6rem 0.4rem;
-}
-
-/* دعم البوكس الأول في الوضع الداكن (Dark Mode) */
-:root[data-theme="dark"] main > .card:first-of-type {
-  border-color: rgba(94, 234, 212, 0.25);
-  box-shadow: 0 16px 35px -10px rgba(0, 0, 0, 0.5);
-}
-
-
-/* زر مشاركة الأداة */
-.share-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
-}
-
-/* 1. التنسيق الأساسي لزر المشاركة */
-.share-btn {
-    min-height: 44px;
-    padding: 0.65rem 1.15rem;
-    border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: var(--text-main, #1a202c);
-    background: var(--card, #ffffff);
-    cursor: pointer;
-    font: inherit;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition:
-        transform 0.2s ease,
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.share-btn svg {
-    width: 20px;
-    height: 20px;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    flex-shrink: 0;
-}
-
-.share-btn:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent-strong, #2563eb);
-    background: var(--surface-hover, rgba(0, 0, 0, 0.04));
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
-}
-
-.share-btn:focus-visible {
-    outline: 2px solid var(--accent-strong, #2563eb);
-    outline-offset: 3px;
-}
-
-/* 2. تخصيص الوضع الفاتح (Light Mode) */
-[data-theme="light"] .share-btn {
-    color: var(--text-main, #1c2d42);
-    background: var(--card, #ffffff);
-    border-color: rgba(0, 0, 0, 0.18);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-}
-
-[data-theme="light"] .share-btn:hover {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: var(--accent-strong, #1f4068);
-}
-
-/* 3. تخصيص الوضع الداكن (Dark Mode) */
-[data-theme="dark"] .share-btn {
-    color: var(--text-main, #f0f4f8);
-    background: var(--card, rgba(255, 255, 255, 0.06));
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] .share-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-/* 4. قائمة المشاركة الاحتياطية (مُصححة لعدم الاختفاء والشفافية) */
-/* 4. قائمة المشاركة */
-.share-fallback {
-    position: fixed;
-
-    width: min(220px, calc(100vw - 32px));
-    max-height: min(280px, calc(100vh - 32px));
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
-
-    padding: 0.5rem;
-    border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
-    border-radius: 12px;
-    background-color: #16211d !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-
-    z-index: 9999;
-    box-sizing: border-box;
-}
-
-.share-fallback[hidden] {
-    display: none;
-}
-
-/* 5. خيارات المشاركة */
-.share-option {
-    width: 100%;
-    min-height: 44px;
-    padding: 0.65rem 0.75rem;
-
-    border: 0;
-    border-radius: 8px;
-
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    color: #ffffff !important;
-    background: transparent;
-
-    font: inherit;
-    font-size: 0.88rem;
-    text-align: right;
-    text-decoration: none;
-
-    cursor: pointer;
-    box-sizing: border-box;
-}
-
-.share-option svg {
-    width: 20px;
-    height: 20px;
-    flex: 0 0 20px;
-    fill: currentColor;
-}
-
-.share-option:hover,
-.share-option:focus-visible {
-    background: rgba(255, 255, 255, 0.12) !important;
-}
-
-/* 6. Light Mode */
-[data-theme="light"] .share-fallback {
-    background-color: #ffffff !important;
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-[data-theme="light"] .share-option {
-    color: #1c2d42 !important;
-}
-
-[data-theme="light"] .share-option:hover,
-[data-theme="light"] .share-option:focus-visible {
-    background: rgba(0, 0, 0, 0.05) !important;
-}
-
-/* ===================== Reduced Motion ===================== */
-@media (prefers-reduced-motion: reduce) {
-    .share-btn {
-        transition: none;
-    }
-
-    .share-btn:hover {
-        transform: none;
-    }
-
-    .share-fallback.open-up {
-        top: auto;
-        bottom: calc(100% + 0.6rem);
-    }
-}
-
-/* ===================== نافذة QR (دعم كامل للوضع الداكن والأجهزة) ===================== */
-
-.qr-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(4px); /* تأثير ضبابي خفيف للخلفية */
-}
-
-.qr-modal[hidden] {
-    display: none !important;
-}
-
-/* الكرت الرئيسي للنافذة — يتكيف تلقائياً مع متغيرات الوضع الداكن/الفاتح */
-.qr-modal-content {
-    position: relative;
-    width: min(90vw, 360px);
-    padding: 24px;
-    border-radius: 18px;
-    background: var(--card-bg, #ffffff);
-    color: var(--text-color, #1a202c);
-    text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color, transparent);
-}
-
-.qr-modal-content h3 {
-    margin: 0 0 20px;
-    color: inherit;
-}
-
-/* حاوية رمز QR — تبقى بيضاء دائماً لضمان قراءة ماسح الهاتف */
-.qr-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 220px;
-    margin-bottom: 16px;
-    background: #ffffff !important;
-    padding: 12px;
-    border-radius: 14px;
-}
-
-.qr-container img,
-.qr-container canvas {
-    display: block;
-    width: 220px;
-    height: 220px;
-    max-width: 100%;
-}
-
-.qr-modal-content p {
-    margin: 0;
-    font-size: 14px;
-    opacity: 0.8;
-    color: inherit;
-}
-
-/* زر الإغلاق المحدث — معزول عن ألوان الفوتر ومحاذى بدقة */
-button.close-qr {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    border: none !important;
-    
-    /* ألوان مستقلة لمنع التداخل */
-    background: rgba(0, 0, 0, 0.08) !important;
-    color: #2d3748 !important;
-    
-    cursor: pointer;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    z-index: 10;
-}
-
-button.close-qr:hover {
-    background: rgba(0, 0, 0, 0.15) !important;
-}
-
-button.close-qr:active {
-    transform: scale(0.92);
-}
-
-/* -----------------------------------------------------------------------
-   دعم الوضع الداكن (Dark Mode)
-   -------------------------------------------------------------------- */
-[data-theme="dark"] .qr-modal-content {
-    background: var(--card-bg, #1a202c);
-    color: var(--text-color, #f7fafc);
-}
-
-[data-theme="dark"] button.close-qr {
-    background: rgba(255, 255, 255, 0.15) !important;
-    color: #ffffff !important;
-}
-
-[data-theme="dark"] button.close-qr:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
-}
-/* --- تطبيق الثيم العصري الموحد على كافة بطاقات التطبيق --- */
-/* ==========================================================================
-   تنسيق البطاقات الأساسي والحركة (مُوحّد وسلس)
-   ========================================================================== */
-.card {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 0.3s ease, 
-              border-color 0.3s ease;
-  will-change: transform;
-}
-
-/* حركة الماوس الانسيابية عند التمرير (Hover) */
-.card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.18);
-  border-color: rgba(14, 165, 233, 0.6) !important;
-}
-
-/* تفاعل الضغط بالماوس (Active) */
-.card:active {
-  transform: translateY(-2px) scale(0.998);
-}
-
-/* --- دعم الوضع الداكن (Dark Mode) --- */
-:root[data-theme="dark"] .card {
-  border-color: rgba(94, 234, 212, 0.2);
-  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.45);
-}
-
-:root[data-theme="dark"] .card::before {
-  background: linear-gradient(90deg, transparent, var(--accent-strong), var(--gold), transparent);
-  opacity: 0.9;
-}
-/* زر تبديل الوضع الداكن/الفاتح الدائري */
-.btn-theme-toggle {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.25s ease-in-out;
-  z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.btn-theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: scale(1.08);
-}
-
-.btn-theme-toggle:active {
-  transform: scale(0.92);
-}
-/* شارة التنبيه أسفل الحقول */
 .warning-badge {
   display: none;
   margin-top: 10px;
   padding: 6px 12px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #991b1b;
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: var(--warning-color);
+  background-color: var(--warning-bg);
+  border: 1px solid var(--warning-border);
   border-radius: 8px;
   text-align: right;
   line-height: 1.4;
 }
 
-:root[data-theme="dark"] .warning-badge,
-body.dark-theme .warning-badge {
-  color: #fca5a5 !important;
-  background-color: rgba(239, 68, 68, 0.18) !important;
-  border-color: rgba(239, 68, 68, 0.4) !important;
+ul.tips {
+  margin: 0.4rem 0 0;
+  padding-inline-start: 1.2rem;
+  font-size: 0.9rem;
+}
+
+ul.tips li {
+  margin-bottom: 0.55rem;
+}
+
+.footer-logo {
+  margin-bottom: 0.6rem;
+}
+
+.skip-link {
+  position: absolute;
+  right: 1rem;
+  top: -100px;
+  background: var(--teal);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 100;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.app-version {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  opacity: 0.7;
+  margin-top: 1rem;
+}
+
+
+/* ==========================================================================
+   12. ANIMATIONS & RESPONSIVE — الحركات، الاستجابة، وتقليل الحركة
+   ========================================================================== */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), #7FD9C4);
+  z-index: 200;
+  transition: width 0.1s linear;
+}
+
+.fade-in.fade-init {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* التركيز بالواجهة (Accessibility Focus) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+.share-btn:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
+}
+
+#importFile:focus-visible + label {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+/* Keyframes */
+@keyframes badge-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes box-win-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(185, 138, 31, 0.35); }
+  100% { box-shadow: 0 0 0 8px rgba(185, 138, 31, 0); }
+}
+
+.compare .box.win {
+  animation: box-win-pulse 0.6s ease-out;
+}
+
+@keyframes redGlowPulse {
+  0% { box-shadow: 0 0 3px rgba(207, 19, 34, 0.2); border-color: #ffa39e; }
+  100% { box-shadow: 0 0 12px rgba(207, 19, 34, 0.6); border-color: #ff4d4f; }
+}
+
+@keyframes redGlowPulseDark {
+  0% { box-shadow: 0 0 6px rgba(255, 77, 79, 0.4); border-color: #ff4d4f; }
+  100% { box-shadow: 0 0 20px rgba(255, 77, 79, 0.9), 0 0 30px rgba(255, 77, 79, 0.4); border-color: #ff7875; }
+}
+
+/* استجابة الشاشات الكبيرة */
+@media (min-width: 720px) {
+  .wrap { padding-top: 2rem; }
+  header { border-radius: 20px; }
+  .card { margin-top: 1.1rem; }
+  .card:first-of-type { margin-top: 1.1rem; }
+}
+
+/* احترام تفضيل تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
+  }
+
+  .share-btn { transition: none; }
+  .share-btn:hover { transform: none; }
+  .share-fallback.open-up { top: auto; bottom: calc(100% + 0.6rem); }
 }
