@@ -793,29 +793,31 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
 
 
 /* ==========================================================================
-   9. PWA TOAST — بنر تثبيت التطبيق
+   9. PWA TOAST — إشعار تثبيت التطبيق (بعرض 500px لمطابقة البطاقات)
    ========================================================================== */
+
 #pwaToast.pwa-toast {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   right: auto;
   width: calc(100% - 32px);
-  max-width: 420px;
+  max-width: 500px; /* العرض المثالي المتناسق مع بطاقات الواجهة */
   box-sizing: border-box;
 
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 14px;
   border-radius: 14px;
+  
   background: rgba(13, 148, 136, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
   color: #ffffff;
   font-family: 'Tajawal', sans-serif;
   z-index: 9999;
@@ -823,172 +825,78 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   transform: translate(-50%, 120px);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
 
+/* حالة الظهور في منتصف الشاشة */
 #pwaToast.pwa-toast.show {
   transform: translate(-50%, 0);
   opacity: 1;
   pointer-events: auto;
 }
 
+/* النص المكتوب داخل الكرت */
+#pwaToast.pwa-toast span,
+#pwaToast.pwa-toast p {
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* حاوية الأزرار */
 #pwaToast.pwa-toast .pwa-toast-buttons,
 #pwaToast.pwa-toast .pwa-toast-actions {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
   align-items: center;
   gap: 6px;
-  width: auto;
   flex-shrink: 0;
 }
 
+/* تنسيق الأزرار */
 #pwaToast.pwa-toast button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  margin: 0;
-  padding: 0.45rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
   font-family: 'Tajawal', sans-serif;
   font-weight: 700;
-  font-size: 0.75rem;
-  border-radius: 8px;
+  font-size: 0.78rem;
   white-space: nowrap;
   cursor: pointer;
-  box-sizing: border-box;
   transition: all var(--transition-fast);
 }
 
+/* زر التثبيت الأبيض */
 #pwaToast.pwa-toast #pwaInstallBtn {
   background-color: #ffffff;
   color: #0d9488;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 #pwaToast.pwa-toast #pwaInstallBtn:hover {
   background-color: #f0fdf4;
 }
 
+/* زر "لاحقاً" الزجاجي */
 #pwaToast.pwa-toast #pwaDismissBtn {
   background-color: rgba(255, 255, 255, 0.18);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 #pwaToast.pwa-toast #pwaDismissBtn:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.28);
 }
-
 
 /* ==========================================================================
-   10. SHARE & QR MODAL — المشاركة ورمز الـ QR
+   10. SHARE & QR MODAL — نافذة الـ QR المحدثة
    ========================================================================== */
-.share {
-  display: flex;
-  gap: 0.6rem;
-  justify-content: center;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-}
 
-.share-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-.share-btn {
-  min-height: 44px;
-  padding: 0.65rem 1.15rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: var(--ink);
-  background: var(--card);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.share-btn svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex-shrink: 0;
-}
-
-.share-btn:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent-strong);
-  background: rgba(0, 0, 0, 0.04);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
-}
-
-.share-fallback {
-  position: fixed;
-  width: min(220px, calc(100vw - 32px));
-  max-height: min(280px, calc(100vh - 32px));
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-
-  padding: 0.5rem;
-  border: 1px solid var(--share-border);
-  border-radius: 12px;
-  background-color: var(--share-fallback-bg);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-
-  z-index: 9999;
-  box-sizing: border-box;
-}
-
-.share-option {
-  width: 100%;
-  min-height: 44px;
-  padding: 0.65rem 0.75rem;
-  border: 0;
-  border-radius: 8px;
-
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--share-option-color);
-  background: transparent;
-
-  font: inherit;
-  font-size: 0.88rem;
-  text-align: right;
-  text-decoration: none;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: background-color var(--transition-fast);
-}
-
-.share-option svg {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 20px;
-  fill: currentColor;
-}
-
-.share-option:hover,
-.share-option:focus-visible {
-  background-color: var(--share-option-hover);
-}
-
-/* نافذة رمز QR */
+/* 1. الحاوية الرئيسية لنافذة QR */
 .qr-modal {
   position: fixed;
   inset: 0;
@@ -999,6 +907,11 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   padding: 20px;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
+}
+
+/* 2. إخفاء النافذة فوراً عندما تحتوي على خاصية hidden (أسبقية أعلى بدون important) */
+.qr-modal[hidden] {
+  display: none;
 }
 
 .qr-modal-content {
@@ -1069,8 +982,6 @@ button.close-qr:hover {
 button.close-qr:active {
   transform: scale(0.92);
 }
-
-
 /* ==========================================================================
    11. UTILITIES — الشارات والتلميحات والوصولية
    ========================================================================== */
