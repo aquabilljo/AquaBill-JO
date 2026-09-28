@@ -359,11 +359,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-
-/* ==========================================================================
-    8. SHARE FEATURE — مشاركة الأداة ونافذة الـ QR
-   ========================================================================== */
-
 /* ==========================================================================
    8. SHARE FEATURE — منطق المشاركة ورمز الـ QR المكتمل والآمن
    ========================================================================== */
@@ -375,6 +370,7 @@ function initShareLogic() {
   const shareFacebook = document.getElementById('shareFacebook');
   const copyShareLink = document.getElementById('copyShareLink');
   const shareQRBtn = document.getElementById('shareQRBtn');
+  const miniQrBadge = document.getElementById('miniQrBadge');
   const qrModal = document.getElementById('qrModal');
   const closeQrBtn = document.getElementById('closeQrBtn');
   const qrContainer = document.getElementById('qrContainer');
@@ -436,7 +432,7 @@ function initShareLogic() {
     }
   });
 
-  /* روابط WhatsApp & Facebook */
+  /* روابط WhatsApp & Facebook (مع مسافة فاصلة قبل الرابط) */
   if (shareWhatsApp) {
     shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
   }
@@ -471,32 +467,42 @@ function initShareLogic() {
     });
   }
 
-  /* نافذة QR Code */
-  if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
-    shareQRBtn.addEventListener('click', () => {
-      qrContainer.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(qrContainer, {
-          text: shareData.url,
-          width: 220,
-          height: 220,
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
-      closeShareFallback();
-      qrModal.hidden = false;
-      closeQrBtn.focus();
-    });
+  /* فتح نافذة QR Code (عبر خيار القائمة أو الشارة المصغرة) */
+  const openQrModal = () => {
+    if (!qrModal || !qrContainer) return;
+    
+    qrContainer.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      new QRCode(qrContainer, {
+        text: shareData.url,
+        width: 220,
+        height: 220,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+    closeShareFallback();
+    qrModal.hidden = false;
+    if (closeQrBtn) closeQrBtn.focus();
+  };
 
+  if (shareQRBtn) {
+    shareQRBtn.addEventListener('click', openQrModal);
+  }
+
+  if (miniQrBadge) {
+    miniQrBadge.addEventListener('click', openQrModal);
+  }
+
+  if (closeQrBtn && qrModal) {
     closeQrBtn.addEventListener('click', () => {
       qrModal.hidden = true;
-      shareQRBtn.focus();
+      if (shareQRBtn) shareQRBtn.focus();
     });
 
     qrModal.addEventListener('click', (event) => {
       if (event.target === qrModal) {
         qrModal.hidden = true;
-        shareQRBtn.focus();
+        if (shareQRBtn) shareQRBtn.focus();
       }
     });
   }
@@ -537,7 +543,7 @@ function initShareLogic() {
 
     if (qrModal && !qrModal.hidden) {
       qrModal.hidden = true;
-      shareQRBtn.focus();
+      if (shareQRBtn) shareQRBtn.focus();
       return;
     }
 
