@@ -485,6 +485,7 @@ function initShareLogic() {
     qrContainer.innerHTML = '';
 
     if (typeof QRCode !== 'undefined') {
+      // 1. توليد الـ QR بمستوى تصحيح عالي (H)
       new QRCode(qrContainer, {
         text: shareData.url,
         width: 220,
