@@ -468,8 +468,9 @@ function initShareLogic() {
     });
   }
 
-  /* فتح نافذة الـ QR بعناوين ديناميكية حساسة للسياق ودعم الشعار المدمج */
-  let currentTriggerElement = null;
+/* تحميل مسبق للشعار مع حل مسار الصورة بـ GitHub Pages */
+  const logoImg = new Image();
+  logoImg.src = new URL('icon-192.png', document.baseURI || window.location.href).href;
 
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
@@ -485,7 +486,7 @@ function initShareLogic() {
     qrContainer.innerHTML = '';
 
     if (typeof QRCode !== 'undefined') {
-      // 1. توليد الـ QR بمستوى تصحيح عالي (H)
+      // 1. إنشاء الـ QR بمستوى تصحيح عالي (H)
       new QRCode(qrContainer, {
         text: shareData.url,
         width: 220,
@@ -493,44 +494,50 @@ function initShareLogic() {
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      // رسم الشعار الرسمي (icon-192.png) بمنتصف الرمز أوفلاين عبر Canvas
-      setTimeout(() => {
+      // 2. دالة دمج الشعار وتحديث عنصر الصورة المرئي <img>
+      const renderLogoOnQR = () => {
         const canvas = qrContainer.querySelector('canvas');
-        if (!canvas) return;
+        const img = qrContainer.querySelector('img');
 
-        const ctx = canvas.getContext('2d');
-        const logo = new Image();
-        logo.src = 'icon-192.png';
+        if (!canvas) {
+          setTimeout(renderLogoOnQR, 40);
+          return;
+        }
 
-        logo.onload = () => {
+        const applyLogo = () => {
+          const ctx = canvas.getContext('2d');
           const logoSize = 46;
-          const x = (canvas.width - logoSize) / 2;
-          const y = (canvas.height - logoSize) / 2;
+          const x = (220 - logoSize) / 2;
+          const y = (220 - logoSize) / 2;
 
+          // خلفية بيضاء دائرية خلف اللوجو لبروزه وضمان المسح بالكاميرا
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
           if (ctx.roundRect) {
-            ctx.roundRect(x - 5, y - 5, logoSize + 10, logoSize + 10, 10);
+            ctx.roundRect(x - 5, y - 5, logoSize + 10, logoSize + 10, 8);
           } else {
             ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
           }
           ctx.fill();
 
-          ctx.drawImage(logo, x, y, logoSize, logoSize);
+          // رسم الشعار في المنتصف
+          ctx.drawImage(logoImg, x, y, logoSize, logoSize);
 
-          const img = qrContainer.querySelector('img');
+          // تحديث عنصر <img> المعروض للمستخدم بالصورة الجديدة المكتملة
           if (img) {
             img.src = canvas.toDataURL('image/png');
+            img.style.display = 'block';
           }
         };
 
-        logo.onerror = () => {
-          const img = qrContainer.querySelector('img');
-          if (img && canvas) {
-            img.src = canvas.toDataURL('image/png');
-          }
-        };
-      }, 60);
+        if (logoImg.complete && logoImg.naturalWidth !== 0) {
+          applyLogo();
+        } else {
+          logoImg.onload = applyLogo;
+        }
+      };
+
+      setTimeout(renderLogoOnQR, 60);
     }
 
     closeShareFallback();
