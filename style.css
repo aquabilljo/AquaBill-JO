@@ -2,12 +2,12 @@
    AquaBill JO — حاسبة فاتورة المياه الأردنية — ملف الأنماط الموحد (Refactored)
    ------------------------------------------------------------------------
    الأقسام:
-     1. Variables          → نظام التصميم المركزي ومتغيرات السمة (Light/Dark)
+     1. Variables         → نظام التصميم المركزي ومتغيرات السمة (Light/Dark)
      2. Base & Reset       → إعادة الضبط الأساسية والتهيئة العامة
      3. Typography         → الخطوط والعناوين والهيكلية النصية
      4. Layout             → الحاوية، الترويسة، التموّج البصري، التذييل
      5. Cards & Overrides  → بطاقات الواجهة، التأثيرات الحركية، وبوكس الخطوة الأولى
-     6. Forms & Inputs     → حقول الإدخال، التسميات، وتخصيص حقل الاستهلاك
+     6. Forms & Inputs     → حقول الإدخال، التسميات، وتوحيد خلفيات الحقول والنتائج
      7. Tables             → جداول التعرفة وحقولها
      8. Buttons & Actions  → أزرار التحكم، التبديل، القفل، والأنماط الثانوية
      9. PWA Toast          → بنر تثبيت التطبيق العائم والتجاوبي
@@ -37,11 +37,12 @@
   --amber-ink: #633806;
   --red-bg: #FCEBEB;
   --red-ink: #791F1F;
-  --border: rgba(11, 79, 69, 0.14)
+  --border: rgba(11, 79, 69, 0.14); /* تم إصلاح الفاصلة المنقوطة */
   --accent-strong: var(--teal);
 
   /* متغيرات الحقول والعناصر */
-  --input-bg: #FBFDFC;
+  --input-bg: #F2F6F5;
+  --border-radius: var(--radius-md);
   --readonly-bg: #EEF2F1;
 
   /* متغيرات النوافذ القائمة بذاتها (QR & Share) */
@@ -86,13 +87,13 @@
     --gold: #E7C468;
     --gold-text: #E7C468;
     --gold-light: #2A2216;
-    --border: rgba(255, 255, 255, 0.09);
+    --border: rgba(255, 255, 255, 0.12);
     --accent-strong: #5EEAD4;
 
     --input-bg: #10201B;
     --readonly-bg: #172723;
 
-    --qr-card-bg: #16211d;
+    --qr-card-bg: #16211D;
     --qr-text-color: #F7FAFC;
     --close-qr-bg: rgba(255, 255, 255, 0.15);
     --close-qr-hover-bg: rgba(255, 255, 255, 0.25);
@@ -121,13 +122,13 @@ body.dark-theme {
   --gold: #E7C468;
   --gold-text: #E7C468;
   --gold-light: #2A2216;
-  --border: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 255, 255, 0.12);
   --accent-strong: #5EEAD4;
 
   --input-bg: #10201B;
   --readonly-bg: #172723;
 
-  --qr-card-bg: #16211d;
+  --qr-card-bg: #16211D;
   --qr-text-color: #F7FAFC;
   --close-qr-bg: rgba(255, 255, 255, 0.15);
   --close-qr-hover-bg: rgba(255, 255, 255, 0.25);
@@ -413,7 +414,7 @@ footer a {
 /* تخصيص كرت الخطوة الأولى بأعلى الصفحة */
 main > .card:first-of-type {
   background: var(--card);
-  border: 1px solid rgba(11, 79, 69, 0.2);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem 1.3rem;
   margin-top: 1.5rem;
@@ -442,7 +443,7 @@ main > .card:first-of-type::before {
   padding-right: 1.1rem;
 }
 
-/* أيقونات الأناوين داخل البطاقات */
+/* أيقونات العناوين داخل البطاقات */
 h2 .icn {
   background: var(--teal-light);
   color: var(--accent-strong);
@@ -465,16 +466,64 @@ h2 .icn-tip {
   color: var(--gold);
 }
 
-/* نتائج الفاتورة (الخطوة 2) */
-.result {
-  background: var(--teal-light);
-  border: 1px solid rgba(11, 79, 69, 0.12);
-  border-radius: var(--radius-md);
-  padding: 1.1rem 1.25rem;
-  margin-top: 1rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+
+/* ==========================================================================
+   6. FORMS & INPUTS — حقول الإدخال وصناديق عرض النتائج المتناسقة
+   ========================================================================== */
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  display: block;
+  margin-bottom: 0.35rem;
 }
 
+/* 1. الحقول الافتراضية وصناديق النتائج والمقارنة (تنسيق موحد) */
+input[type="number"],
+select,
+.result,
+.compare .box,
+.result-card,
+.result-box,
+.result-item {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--input-bg);
+  color: var(--ink);
+  box-sizing: border-box;
+  transition: border-color var(--transition-base), background-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+/* حالة التركيز عند الكتابة والتأثير التفاعلي */
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+}
+
+/* 2. تخصيص حقل الاستهلاك الرئيسي المميز (#consumption) */
+input[type="number"]#consumption {
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.75rem;
+  border: 2px solid var(--border);
+  background: var(--input-bg);
+  transition: all var(--transition-base);
+}
+
+input[type="number"]#consumption:focus {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.22);
+}
+
+/* 3. نتائج الفاتورة (الخطوة 2) */
 .result .line {
   display: flex;
   justify-content: space-between;
@@ -487,7 +536,7 @@ h2 .icn-tip {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-top: 1.5px dashed rgba(11, 79, 69, 0.2);
+  border-top: 1.5px dashed var(--border);
   margin-top: 0.6rem;
   padding-top: 0.75rem;
 }
@@ -505,7 +554,7 @@ h2 .icn-tip {
   letter-spacing: -0.5px;
 }
 
-/* صناديق المقارنة (الخطوة 3) */
+/* 4. صناديق المقارنة (الخطوة 3) */
 .compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -514,11 +563,9 @@ h2 .icn-tip {
 }
 
 .compare .box {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
   padding: 0.8rem;
   text-align: center;
-  transition: all 0.2s ease;
+  margin-top: 0;
 }
 
 .compare .box .lbl {
@@ -533,6 +580,7 @@ h2 .icn-tip {
   margin-top: 0.3rem;
 }
 
+/* تمييز الخيار الأفضل باللون الذهبي/الأصفر كـ Win state */
 .compare .box.win {
   border-color: var(--gold);
   background: var(--gold-light);
@@ -540,50 +588,6 @@ h2 .icn-tip {
 
 .compare .box.win .val {
   color: var(--gold-text);
-}
-
-
-/* ==========================================================================
-   6. FORMS & INPUTS — حقول الإدخال والتسميات
-   ========================================================================== */
-label {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  display: block;
-  margin-bottom: 0.3rem;
-}
-
-input[type=number] {
-  width: 100%;
-  padding: 0.6rem 0.7rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  font-family: 'Tajawal', sans-serif;
-  font-size: 1rem;
-  background: var(--input-bg);
-  color: var(--ink);
-}
-
-input[type=number]:focus {
-  outline: 2px solid var(--accent-strong);
-  outline-offset: 1px;
-}
-
-/* حقل الاستهلاك الرئيسي المميز */
-input[type=number]#consumption {
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-align: center;
-  padding: 0.75rem;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--bg);
-  transition: all var(--transition-base);
-}
-
-input[type=number]#consumption:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 4px rgba(11, 79, 69, 0.15);
 }
 
 .row {
@@ -793,7 +797,7 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
 
 
 /* ==========================================================================
-   9. PWA TOAST — إشعار تثبيت التطبيق (بعرض 500px لمطابقة البطاقات)
+   9. PWA TOAST — إشعار تثبيت التطبيق 
    ========================================================================== */
 
 #pwaToast.pwa-toast {
@@ -802,7 +806,7 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   left: 50%;
   right: auto;
   width: calc(100% - 32px);
-  max-width: 600px; /* العرض المثالي المتناسق مع بطاقات الواجهة */
+  max-width: 600px;
   box-sizing: border-box;
 
   display: flex;
@@ -828,14 +832,12 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
 
-/* حالة الظهور في منتصف الشاشة */
 #pwaToast.pwa-toast.show {
   transform: translate(-50%, 0);
   opacity: 1;
   pointer-events: auto;
 }
 
-/* النص المكتوب داخل الكرت */
 #pwaToast.pwa-toast span,
 #pwaToast.pwa-toast p {
   font-size: 0.82rem;
@@ -844,7 +846,6 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   margin: 0;
 }
 
-/* حاوية الأزرار */
 #pwaToast.pwa-toast .pwa-toast-buttons,
 #pwaToast.pwa-toast .pwa-toast-actions {
   display: flex;
@@ -854,7 +855,6 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   flex-shrink: 0;
 }
 
-/* تنسيق الأزرار */
 #pwaToast.pwa-toast button {
   display: inline-flex;
   align-items: center;
@@ -870,7 +870,6 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   transition: all var(--transition-fast);
 }
 
-/* زر التثبيت الأبيض */
 #pwaToast.pwa-toast #pwaInstallBtn {
   background-color: #ffffff;
   color: #0d9488;
@@ -881,7 +880,6 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   background-color: #f0fdf4;
 }
 
-/* زر "لاحقاً" الزجاجي */
 #pwaToast.pwa-toast #pwaDismissBtn {
   background-color: rgba(255, 255, 255, 0.18);
   color: #ffffff;
@@ -891,6 +889,7 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
 #pwaToast.pwa-toast #pwaDismissBtn:hover {
   background-color: rgba(255, 255, 255, 0.28);
 }
+
 
 /* ==========================================================================
    10. SHARE & QR MODAL — زر وقائمة المشاركة ورمز الـ QR
@@ -902,12 +901,11 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.75rem; /* مسافة فاصلة أنيقة ومريحة بين الزرين */
-  flex-wrap: wrap; /* التكيّف التلقائي عند صغر الشاشة */
+  gap: 0.75rem;
+  flex-wrap: wrap;
   margin-top: 1.2rem;
 }
 
-/* 1. التنسيق الأنيق لزر المشاركة الرئيسي */
 .share-btn {
   min-height: 44px;
   padding: 0.65rem 1.25rem;
@@ -943,7 +941,6 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
 }
 
-/* 2. قائمة المشاركة المنبثقة (ترتيب عمودي وإخفاء تلقائي) */
 .share-fallback {
   position: fixed;
   width: min(220px, calc(100vw - 32px));
@@ -958,7 +955,6 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   background-color: var(--share-fallback-bg);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 
-  /* ترتيب العناصر عمودياً داخل القائمة */
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -967,14 +963,9 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   box-sizing: border-box;
 }
 
-/* إخفاء القائمة تماماً عندما تحتوي على خاصية hidden */
 .share-fallback[hidden] {
   display: none;
 }
-
-/* ==========================================================================
-   3. خيارات القائمة الداخلية والشارة المضيئة (مُصحح للأيقونات)
-   ========================================================================== */
 
 .share-option {
   width: 100%;
@@ -1001,7 +992,6 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   transition: background-color var(--transition-fast);
 }
 
-/* ضبط حجم الأيقونات بدون فرض التعبئة عليها لتناسب كافة أنواع SVG */
 .share-option svg {
   width: 18px;
   height: 18px;
@@ -1013,29 +1003,26 @@ body.dark-mode .theme-toggle .icon-moon { display: none; }
   background-color: var(--share-option-hover);
 }
 
-/* الشارة المضيئة بجانب خيار QR بداخل القائمة */
 .share-option .qr-menu-badge {
-  margin-inline-start: auto; /* يدفع الشارة تلقائياً لأقصى جهة اليسار باللغة العربية */
+  margin-inline-start: auto;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 0.15rem 0.45rem;
   border-radius: 6px;
-  
-  /* ألوان متناسقة بالوضع الفاتح */
   background: rgba(13, 148, 136, 0.12);
   color: #0d9488;
   border: 1px solid rgba(13, 148, 136, 0.25);
   white-space: nowrap;
 }
 
-/* الألوان بالوضع الداكن (Dark Mode) */
 :root[data-theme="dark"] .share-option .qr-menu-badge,
 body.dark-mode .share-option .qr-menu-badge {
   background: rgba(94, 234, 212, 0.15);
   color: #5eead4;
   border-color: rgba(94, 234, 212, 0.3);
 }
-/* 4. نافذة رمز QR */
+
+/* نافذة رمز QR */
 .qr-modal {
   position: fixed;
   inset: 0;
@@ -1061,9 +1048,8 @@ body.dark-mode .share-option .qr-menu-badge {
   color: var(--qr-text-color);
   text-align: center;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  border: px solid var(--border);
+  border: 1px solid var(--border); /* تم إصلاح قيمة border المفقودة */
   border-color: rgba(14, 165, 233, 0.6);
-
 }
 
 .qr-container {
@@ -1110,7 +1096,7 @@ button.close-qr:hover {
 button.close-qr:active {
   transform: scale(0.92);
 }
-/* النص الإرشادي أسفل الـ QR */
+
 .qr-hint {
   font-size: 0.82rem;
   color: var(--ink-soft);
@@ -1118,7 +1104,6 @@ button.close-qr:active {
   line-height: 1.4;
 }
 
-/* زر تنزيل الـ QR */
 .download-qr-btn {
   width: 100%;
   padding: 0.6rem 1rem;
@@ -1127,15 +1112,23 @@ button.close-qr:active {
   border-color: var(--border);
   background: var(--teal-light);
   color: var(--accent-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Tajawal', sans-serif;
+  transition: all var(--transition-fast);
+}
+
+.download-qr-btn svg {
+  margin-inline-end: 6px;
 }
 
 .download-qr-btn:hover {
   background: var(--accent-strong);
   color: #ffffff;
 }
-/* ==========================================================================
-   تنسيق شارة الـ QR المصغرة (طابق تام مع زر المشاركة)
-   ========================================================================== */
 
 .mini-qr-badge {
   min-height: 44px;
@@ -1173,6 +1166,8 @@ button.close-qr:active {
   outline: 2px solid var(--accent-strong);
   outline-offset: 3px;
 }
+
+
 /* ==========================================================================
    11. UTILITIES — الشارات والتلميحات والوصولية
    ========================================================================== */
@@ -1373,10 +1368,10 @@ input:focus-visible {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-    transition-duration: 0.01ms;
-    scroll-behavior: auto;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
   .share-btn { transition: none; }
