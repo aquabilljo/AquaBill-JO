@@ -534,24 +534,23 @@ function initShareLogic() {
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            const logoSize = 48;
+          // أ. ضبط حجم اللوجو والهامش
+            const logoSize = 56; // تكبير حجم الشعار ليملأ المنتصف
             const x = (220 - logoSize) / 2;
             const y = (220 - logoSize) / 2;
-            const padding = 6;
+            const padding = 2; // تقليل الهامش الأبيض الجانبي
 
+            // خلفية بيضاء ناعمة لتفريغ مسح الـ QR فقط
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             if (ctx.roundRect) {
-              ctx.roundRect(x - padding, y - padding, logoSize + (padding * 2), logoSize + (padding * 2), 10);
+              ctx.roundRect(x - padding, y - padding, logoSize + (padding * 2), logoSize + (padding * 2), 8);
             } else {
               ctx.fillRect(x - padding, y - padding, logoSize + (padding * 2), logoSize + (padding * 2));
             }
             ctx.fill();
 
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
+            // رسم الشعار بحجم أضخم وأوضح بمنتصف الرمز
             ctx.drawImage(logoImg, x, y, logoSize, logoSize);
 
             const finalCanvas = document.createElement('canvas');
