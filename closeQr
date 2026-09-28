@@ -379,7 +379,7 @@ function initShareLogic() {
 
   if (!shareBtn || !shareFallback) return;
 
-  // 1. تصحيح: تعريف المتغير لمنع خطأ ReferenceError عند الإغلاق والفتح
+  // تعريف متغيرات النطاق لمنع أخطاء Scope
   let currentTriggerElement = null;
 
   const cleanUrl = `${window.location.origin}${window.location.pathname}`;
@@ -390,7 +390,7 @@ function initShareLogic() {
     url: cleanUrl
   };
 
-  // 2. تصحيح: توجيه المسار لمجلد images/ لمنع خطأ 404
+  // التحميل المسبق للشعار من مجلد images/
   const logoImg = new Image();
   logoImg.src = new URL('images/icon-192.png', document.baseURI || window.location.href).href;
 
@@ -440,7 +440,7 @@ function initShareLogic() {
     }
   });
 
-  /* روابط WhatsApp & Facebook (مع مسافة فاصلة) */
+  /* روابط WhatsApp & Facebook */
   if (shareWhatsApp) {
     shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareData.text}${shareData.url}`)}`;
   }
@@ -466,7 +466,7 @@ function initShareLogic() {
           if (copyText) copyText.textContent = 'نسخ الرابط';
           const currentIcon = document.getElementById('copyIcon');
           if (currentIcon) {
-            currentIcon.outerHTML = `<svg id="copyIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+            currentIcon.outerHTML = `<svg id="copyIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
           }
         }, 2000);
       } catch {
@@ -475,11 +475,32 @@ function initShareLogic() {
     });
   }
 
-  /* فتح نافذة الـ QR بعناوين ديناميكية وشعار مدمج */
+  /* إغلاق نافذة الـ QR وإعادة التمرير والتركيز للزر المُفعل */
+  const closeQrModal = () => {
+    if (!qrModal) return;
+    qrModal.hidden = true;
+    document.body.style.overflow = '';
+
+    if (currentTriggerElement && typeof currentTriggerElement.focus === 'function') {
+      currentTriggerElement.focus();
+    } else if (shareQRBtn) {
+      shareQRBtn.focus();
+    }
+  };
+
+  /* فتح نافذة الـ QR وقفل التمرير الخارجي وإخفاء شريط التثبيت */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
     currentTriggerElement = triggerBtn || shareQRBtn;
+
+    // إخفاء شريط تثبيت التطبيق فوراً
+    if (typeof hideInstallToast === 'function') {
+      hideInstallToast();
+    }
+
+    // قفل تمرير الخلفية
+    document.body.style.overflow = 'hidden';
 
     const modalTitle = qrModal.querySelector('h3');
     const modalHint = qrModal.querySelector('.qr-hint');
@@ -494,7 +515,6 @@ function initShareLogic() {
     qrContainer.innerHTML = '';
 
     if (typeof QRCode !== 'undefined') {
-      // 1. إنشاء الـ QR بمستوى تصحيح عالي (H)
       new QRCode(qrContainer, {
         text: shareData.url,
         width: 220,
@@ -502,7 +522,6 @@ function initShareLogic() {
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      // 2. دالة دمج الشعار وتحديث عنصر الصورة المرئي <img>
       const renderLogoOnQR = () => {
         const canvas = qrContainer.querySelector('canvas');
         const img = qrContainer.querySelector('img');
@@ -519,7 +538,6 @@ function initShareLogic() {
             const x = (220 - logoSize) / 2;
             const y = (220 - logoSize) / 2;
 
-            // خلفية بيضاء دائرية خلف اللوجو لبروزه وضمان المسح بالكاميرا
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             if (ctx.roundRect) {
@@ -529,16 +547,14 @@ function initShareLogic() {
             }
             ctx.fill();
 
-            // رسم الشعار في المنتصف
             ctx.drawImage(logoImg, x, y, logoSize, logoSize);
 
-            // تحديث عنصر <img> المعروض للمستخدم بالصورة المكتملة
             if (img) {
               img.src = canvas.toDataURL('image/png');
               img.style.display = 'block';
             }
           } catch (e) {
-            // يتجاهل أخطاء الرسم في حال حدوثها
+            // يتجاهل استثناءات الرسم المباشر
           }
         };
 
@@ -553,6 +569,7 @@ function initShareLogic() {
     }
   };
 
+  /* ربط أزرار فتح الـ QR */
   if (shareQRBtn) {
     shareQRBtn.addEventListener('click', () => {
       openQrModal(
@@ -573,17 +590,7 @@ function initShareLogic() {
     });
   }
 
-  /* إغلاق نافذة QR وإعادة التركيز للزر المصدر */
-  const closeQrModal = () => {
-    if (!qrModal) return;
-    qrModal.hidden = true;
-    if (currentTriggerElement && typeof currentTriggerElement.focus === 'function') {
-      currentTriggerElement.focus();
-    } else if (shareQRBtn) {
-      shareQRBtn.focus();
-    }
-  };
-
+  /* أحداث إغلاق النافذة المنبثقة */
   if (closeQrBtn && qrModal) {
     closeQrBtn.addEventListener('click', closeQrModal);
 
@@ -594,7 +601,7 @@ function initShareLogic() {
     });
   }
 
-  /* تنزيل صورة الـ QR كملف PNG أوفلاين (شاملة اللوجو المدمج) */
+  /* تنزيل صورة الـ QR كملف PNG أوفلاين */
   if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
       const canvas = qrContainer.querySelector('canvas');
@@ -655,8 +662,6 @@ function initShareLogic() {
     }
   }, { passive: true });
 }
-
-
 /* ==========================================================================
    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" الانسيابي المطور
    ========================================================================== */
@@ -677,6 +682,12 @@ function isShareMenuOpen() {
     return shareFallback && !shareFallback.hidden;
 }
 
+/* فحص ما إذا كانت نافذة الـ QR مفتوحة حالياً */
+function isQrModalOpen() {
+    const qrModal = document.getElementById('qrModal');
+    return qrModal && !qrModal.hidden;
+}
+
 function isInputFocused() {
     return ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
 }
@@ -691,6 +702,7 @@ function showInstallToast() {
         !isTimerPassed ||
         isNearPageBottom() ||
         isShareMenuOpen() ||
+        isQrModalOpen() || // حظر إظهار الشريط إذا كانت نافذة الـ QR مفتوحة
         isInputFocused()
     ) {
         return;
@@ -749,13 +761,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
         if (isDismissedByUser) return;
 
-        if (!isShareMenuOpen() && !isNearPageBottom() && !isInputFocused()) {
+        if (!isShareMenuOpen() && !isQrModalOpen() && !isNearPageBottom() && !isInputFocused()) {
             showInstallToast();
         }
     }, 7000);
 });
 
-/* التمرير الذكي: النزول يُخفي والصعود يُظهر (فقط بعد الـ 7 ثوانٍ) */
+/* التمرير الذكي: حظر الإظهار والإخفاء التلقائي عند وجود نافذة الـ QR مفتوحة */
 window.addEventListener('scroll', () => {
     if (isDismissedByUser || !isTimerPassed) return;
 
@@ -764,7 +776,7 @@ window.addEventListener('scroll', () => {
 
     const isScrollingDown = currentScrollY > lastScrollY && currentScrollY > 50;
 
-    if (isNearPageBottom() || isShareMenuOpen() || isInputFocused() || isScrollingDown) {
+    if (isNearPageBottom() || isShareMenuOpen() || isQrModalOpen() || isInputFocused() || isScrollingDown) {
         hideInstallToast();
     } else {
         if (deferredInstallPrompt) {
@@ -783,7 +795,7 @@ document.addEventListener('focusin', (e) => {
 
 document.addEventListener('focusout', (e) => {
     if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
-        if (isTimerPassed) {
+        if (isTimerPassed && !isQrModalOpen()) {
             setTimeout(showInstallToast, 300);
         }
     }
