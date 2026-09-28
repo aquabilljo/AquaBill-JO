@@ -515,7 +515,63 @@ function initShareLogic() {
         }
     }, { passive: true });
 }
+/* -----------------------------------------------------------------------
+    QR Code Modal مع زر التنزيل والنص الإرشادي
+   -------------------------------------------------------------------- */
+const downloadQRBtn = document.getElementById('downloadQRBtn');
 
+if (shareQRBtn && qrModal && closeQrBtn && qrContainer) {
+    shareQRBtn.addEventListener('click', () => {
+        qrContainer.innerHTML = '';
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrContainer, {
+                text: shareData.url,
+                width: 220,
+                height: 220,
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+        closeShareFallback();
+        qrModal.hidden = false;
+        closeQrBtn.focus();
+    });
+
+    closeQrBtn.addEventListener('click', () => {
+        qrModal.hidden = true;
+        shareQRBtn.focus();
+    });
+
+    qrModal.addEventListener('click', (event) => {
+        if (event.target === qrModal) {
+            qrModal.hidden = true;
+            shareQRBtn.focus();
+        }
+    });
+}
+
+/* زر تنزيل صورة الـ QR كملف PNG */
+if (downloadQRBtn && qrContainer) {
+    downloadQRBtn.addEventListener('click', () => {
+        const img = qrContainer.querySelector('img');
+        const canvas = qrContainer.querySelector('canvas');
+
+        let imageSrc = '';
+        if (img && img.src) {
+            imageSrc = img.src;
+        } else if (canvas) {
+            imageSrc = canvas.toDataURL('image/png');
+        }
+
+        if (imageSrc) {
+            const link = document.createElement('a');
+            link.href = imageSrc;
+            link.download = 'AquaBill-JO-QR.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    });
+}
 
 /* ==========================================================================
     9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" الانسيابي المطور
