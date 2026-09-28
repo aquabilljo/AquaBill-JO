@@ -467,46 +467,84 @@ function initShareLogic() {
     });
   }
 
-  /* فتح نافذة QR Code (عبر خيار القائمة أو الشارة المصغرة) */
-  const openQrModal = () => {
+
+/* فتح نافذة الـ QR بعناوين ديناميكية حساسة للسياق ودعم الشعار المدمج المضمون */
+  let currentTriggerElement = null;
+
+  const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
-    
+
+    currentTriggerElement = triggerBtn || shareQRBtn;
+
+    const modalTitle = qrModal.querySelector('h3');
+    const modalHint = qrModal.querySelector('.qr-hint');
+
+    if (modalTitle && titleText) modalTitle.textContent = titleText;
+    if (modalHint && hintText) modalHint.textContent = hintText;
+
     qrContainer.innerHTML = '';
+
     if (typeof QRCode !== 'undefined') {
+      // 1. توليد الـ QR بمستوى تصحيح عالي (H)
       new QRCode(qrContainer, {
         text: shareData.url,
         width: 220,
         height: 220,
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.H
       });
+
+      // 2. دالة رسم الشعار وتحديث عنصر الصورة <img>
+      const attachLogoToQR = () => {
+        const canvas = qrContainer.querySelector('canvas');
+        const img = qrContainer.querySelector('img');
+
+        if (!canvas) {
+          setTimeout(attachLogoToQR, 50);
+          return;
+        }
+
+        const ctx = canvas.getContext('2d');
+        const logo = new Image();
+        logo.src = './icon-192.png'; // مسار الشعار المحلي المعتمد
+
+        logo.onload = () => {
+          const logoSize = 48; // حجم الشعار المناسب لقطر 220px
+          const x = (canvas.width - logoSize) / 2;
+          const y = (canvas.height - logoSize) / 2;
+
+          // خلفية بيضاء دائرية خلف اللوجو لبروزه وضمان القراءة بالكاميرا
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(x - 5, y - 5, logoSize + 10, logoSize + 10, 10);
+          } else {
+            ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
+          }
+          ctx.fill();
+
+          // رسم الشعار في المنتصف
+          ctx.drawImage(logo, x, y, logoSize, logoSize);
+
+          // تحديث عنصر <img> الموازي بالصورة الجديدة المدمجة باللوجو
+          if (img) {
+            img.src = canvas.toDataURL('image/png');
+            img.style.display = 'block';
+          }
+        };
+
+        logo.onerror = (err) => {
+          console.warn('تعذر تحميل الشعار icon-192.png:', err);
+        };
+      };
+
+      setTimeout(attachLogoToQR, 80);
     }
+
     closeShareFallback();
     qrModal.hidden = false;
     if (closeQrBtn) closeQrBtn.focus();
   };
-
-  if (shareQRBtn) {
-    shareQRBtn.addEventListener('click', openQrModal);
-  }
-
-  if (miniQrBadge) {
-    miniQrBadge.addEventListener('click', openQrModal);
-  }
-
-  if (closeQrBtn && qrModal) {
-    closeQrBtn.addEventListener('click', () => {
-      qrModal.hidden = true;
-      if (shareQRBtn) shareQRBtn.focus();
-    });
-
-    qrModal.addEventListener('click', (event) => {
-      if (event.target === qrModal) {
-        qrModal.hidden = true;
-        if (shareQRBtn) shareQRBtn.focus();
-      }
-    });
-  }
-
+   
   /* تنزيل صورة الـ QR كملف PNG أوفلاين */
   if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
