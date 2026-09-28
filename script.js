@@ -639,34 +639,33 @@ function initShareLogic() {
 initShareLogic();
 
 /* ==========================================================================
-    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" مع الحركة الانسيابية
+    9. PWA INSTALL PROMPT — إشعار "تثبيت التطبيق" المطور
    ========================================================================== */
 
 let isDismissedByUser = false;
 let installToastTimer = null;
-let isTimerPassed = false; // يمنع التمرير من إظهار البنر قبل 6 ثوانٍ
+let isTimerPassed = false; // راية الحماية: تمنع الظهور إطلاقاً قبل انقضاء 7 ثوانٍ
 let lastScrollY = window.scrollY;
 
-/**
- * هل المستخدم قريب من أسفل الصفحة؟
- */
+/** هل المستخدم قريب من أسفل الصفحة؟ */
 function isNearPageBottom() {
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
     return scrollPosition >= pageHeight - 180;
 }
 
-/**
- * هل قائمة المشاركة مفتوحة؟
- */
+/** هل قائمة المشاركة مفتوحة؟ */
 function isShareMenuOpen() {
     const shareFallback = document.getElementById('shareFallback');
     return shareFallback && !shareFallback.hidden;
 }
 
-/**
- * إظهار إشعار التثبيت
- */
+/** هل الكيبورد مفتوح / المستخدم يكتب داخل مربع إدخال؟ */
+function isInputFocused() {
+    return ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+}
+
+/** إظهار إشعار التثبيت */
 function showInstallToast() {
     const toast = document.getElementById('pwaToast');
 
@@ -674,8 +673,10 @@ function showInstallToast() {
         !toast ||
         isDismissedByUser ||
         !deferredInstallPrompt ||
+        !isTimerPassed || // حظر الظهور فوراً طالما لم تنقضِ الـ 7 ثوانٍ
         isNearPageBottom() ||
-        isShareMenuOpen()
+        isShareMenuOpen() ||
+        isInputFocused() // حظر الظهور أثناء التركيز على المدخلات
     ) {
         return;
     }
@@ -686,9 +687,7 @@ function showInstallToast() {
     });
 }
 
-/**
- * إخفاء إشعار التثبيت مؤقتًا
- */
+/** إخفاء إشعار التثبيت مؤقتًا */
 function hideInstallToast() {
     const toast = document.getElementById('pwaToast');
     if (!toast) return;
@@ -701,9 +700,7 @@ function hideInstallToast() {
     }, 400);
 }
 
-/**
- * إخفاء الإشعار نهائيًا خلال جلسة المستخدم (عند الضغط على "لاحقاً")
- */
+/** إخفاء الإشعار نهائيًا خلال جلسة المستخدم (عند الضغط على "لاحقاً") */
 function dismissInstallToast() {
     isDismissedByUser = true;
 
@@ -715,9 +712,7 @@ function dismissInstallToast() {
     hideInstallToast();
 }
 
-/**
- * تشغيل حوار تثبيت PWA عند الضغط على زر "تثبيت"
- */
+/** تشغيل حوار تثبيت PWA عند الضغط على زر "تثبيت" */
 function installApp() {
     hideInstallToast();
     if (!deferredInstallPrompt) return;
@@ -728,9 +723,7 @@ function installApp() {
     });
 }
 
-/**
- * استقبال طلب التثبيت والتأخير الذكي (6 ثوانٍ)
- */
+/** استقبال طلب التثبيت والتأخير الذكي (7 ثوانٍ محددة) */
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
@@ -739,22 +732,23 @@ window.addEventListener('beforeinstallprompt', (e) => {
         window.clearTimeout(installToastTimer);
     }
 
+    // انتظر 7 ثوانٍ كاملة قبل تفعيل راية السماح للبنر بالظهور
     installToastTimer = window.setTimeout(() => {
+        isTimerPassed = true; // تفعلت المهلة بنجاح
+
         if (isDismissedByUser) return;
 
-        if (!isShareMenuOpen() && !isNearPageBottom()) {
+        if (!isShareMenuOpen() && !isNearPageBottom() && !isInputFocused()) {
             showInstallToast();
         }
-    }, 6000);
+    }, 7000);
 });
 
-/**
- * التعامل مع التمرير: إخفاء عند النزول للأسفل وإعادة إظهار عند الصعود
- */
+/** التعامل مع التمرير: حظر مطلق إذا لم تنقضِ الـ 7 ثوانٍ */
 window.addEventListener('scroll', () => {
-    if (isDismissedByUser) return;
+    if (isDismissedByUser || !isTimerPassed) return; // حظر التمرير قبل اكتمال التايمر
 
-    if (isNearPageBottom() || isShareMenuOpen()) {
+    if (isNearPageBottom() || isShareMenuOpen() || isInputFocused()) {
         hideInstallToast();
         return;
     }
@@ -764,10 +758,25 @@ window.addEventListener('scroll', () => {
     }
 }, { passive: true });
 
-/**
- * إخفاء تلقائي عند إتمام تثبيت التطبيق
- */
+/** إخفاء البنر فوراً عند الضغط داخل أي حقل إدخال (أرقام/نصوص) */
+document.addEventListener('focusin', (e) => {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+        hideInstallToast();
+    }
+});
+
+/** إعادة الفحص عند الخروج من حقل الإدخال */
+document.addEventListener('focusout', (e) => {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
+        if (isTimerPassed) {
+            setTimeout(showInstallToast, 300);
+        }
+    }
+});
+
+/** إخفاء تلقائي عند إتمام تثبيت التطبيق */
 window.addEventListener('appinstalled', () => {
+    isDismissedByUser = true;
     hideInstallToast();
     deferredInstallPrompt = null;
 });
@@ -793,6 +802,7 @@ if (pwaToast) {
 window.dismissInstallToast = dismissInstallToast;
 window.installApp = installApp;
 
+
 /* ==========================================================================
     10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
@@ -809,7 +819,7 @@ window.installApp = installApp;
     initScrollProgress();
     initFadeInCards();
 
-    // ===== EVENT LISTENERS =====
+    // ===== EVENT LISTE=====
     // 1. Theme toggle button
     const themeToggleBtn = document.getElementById('themeToggle');
     if (themeToggleBtn) {
