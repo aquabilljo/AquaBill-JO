@@ -486,7 +486,7 @@ function initShareLogic() {
     }
   };
 
-  /* فتح نافذة الـ QR وقفل التمرير الخارجي ورسم اللوجو الواضح والنص */
+/* فتح نافذة الـ QR وقفل التمرير ورسم الرمز بدقة HD عالية الاحترافية */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
@@ -511,127 +511,111 @@ function initShareLogic() {
     qrContainer.innerHTML = '';
 
     if (typeof QRCode !== 'undefined') {
+      // أبعاد بدقة فائقة 800px لضمان عدم وجود أي بكسلة
+      const hdSize = 800;
+
       new QRCode(qrContainer, {
         text: shareData.url,
-        width: 220,
-        height: 220,
+        width: hdSize,
+        height: hdSize,
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      const renderEnhancedQR = () => {
+      const renderHDQR = () => {
         const qrCanvas = qrContainer.querySelector('canvas');
         const img = qrContainer.querySelector('img');
 
         if (!qrCanvas) {
-          setTimeout(renderEnhancedQR, 40);
+          setTimeout(renderHDQR, 40);
           return;
         }
 
-        const applyEnhancements = () => {
+        const applyHDEnhancements = () => {
           try {
-            const ctx = qrCanvas.getContext('2d');
-            
+            // 1. إنشاء لوحة مركبة عالية الدقة HD (800x940 بكسل)
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = hdSize;
+            finalCanvas.height = hdSize + 140; // مساحة احترافية للنص السفلي
+            const ctx = finalCanvas.getContext('2d');
+
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-          // أ. ضبط حجم اللوجو والهامش
-            const logoSize = 56; // تكبير حجم الشعار ليملأ المنتصف
-            const x = (220 - logoSize) / 2;
-            const y = (220 - logoSize) / 2;
-            const padding = 2; // تقليل الهامش الأبيض الجانبي
+            // خلفية بيضاء ناصعة للبطاقة بالكامل
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-            // خلفية بيضاء ناعمة لتفريغ مسح الـ QR فقط
+            // 2. رسم الرمز الأساسي بدقة HD
+            ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
+
+            // 3. تكبير الشعار وتوسيطه بدقة دون فراغات زائدة
+            const logoBoxSize = 180; // حجم المربع الأبيض في منتصف الرمز
+            const logoImgSize = 160; // حجم اللوجو المباشر (كبير وواضح)
+            const boxX = (hdSize - logoBoxSize) / 2;
+            const boxY = (hdSize - logoBoxSize) / 2;
+            const logoX = (hdSize - logoImgSize) / 2;
+            const logoY = (hdSize - logoImgSize) / 2;
+
+            // رسم مربع بيضاوي ناعم خلف الشعار
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
             if (ctx.roundRect) {
-              ctx.roundRect(x - padding, y - padding, logoSize + (padding * 2), logoSize + (padding * 2), 8);
+              ctx.roundRect(boxX, boxY, logoBoxSize, logoBoxSize, 24);
             } else {
-              ctx.fillRect(x - padding, y - padding, logoSize + (padding * 2), logoSize + (padding * 2));
+              ctx.fillRect(boxX, boxY, logoBoxSize, logoBoxSize);
             }
             ctx.fill();
 
-            // رسم الشعار بحجم أضخم وأوضح بمنتصف الرمز
-            ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+            // رسم الشعار نفسه بحجم بارز وكبير
+            ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
 
-            const finalCanvas = document.createElement('canvas');
-            finalCanvas.width = 220;
-            finalCanvas.height = 255;
-            const fCtx = finalCanvas.getContext('2d');
+            // 4. إضافة النص السفلي بخط عريض، داكن، وحاد
+            ctx.font = 'bold 30px "Tajawal", system-ui, -apple-system, sans-serif';
+            ctx.fillStyle = '#0f172a';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('AquaBill JO — حاسبة المياه الأردنية', hdSize / 2, hdSize + 70);
 
-            fCtx.fillStyle = '#ffffff';
-            fCtx.fillRect(0, 0, 220, 255);
+            // 5. تحويل اللوحة لصورة عالية الجودة وتحديث العرض
+            const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
-            fCtx.drawImage(qrCanvas, 0, 0);
-
-            fCtx.font = 'bold 12px "Tajawal", system-ui, sans-serif';
-            fCtx.fillStyle = '#0f172a';
-            fCtx.textAlign = 'center';
-            fCtx.fillText('AquaBill JO — حاسبة المياه الأردنية', 110, 242);
-
-            const finalImageData = finalCanvas.toDataURL('image/png');
             if (img) {
               img.src = finalImageData;
+              img.style.width = '100%';
+              img.style.height = 'auto';
+              img.style.maxHeight = '280px'; // ضبط العرض داخل النافذة دون إفقاد الدقة للتحميل
               img.style.display = 'block';
+              img.style.margin = '0 auto';
             }
+
+            // إخفاء الـ canvas الأصلي الصغير
+            qrCanvas.style.display = 'none';
             qrContainer.dataset.downloadUrl = finalImageData;
 
           } catch (e) {
-            // يتجاهل الاستثناءات غير المساندة
+            console.warn('تنبيه معالجة الـ QR:', e);
           }
         };
 
         if (logoImg.complete && logoImg.naturalWidth !== 0) {
-          applyEnhancements();
+          applyHDEnhancements();
         } else {
-          logoImg.onload = applyEnhancements;
+          logoImg.onload = applyHDEnhancements;
           logoImg.onerror = () => {
-            // بقاء الـ QR الأساسي يعمل عند عدم وجود الصورة
+            // بقاء الرمز يعمل بمرونة في حال تعذر تحميل الشعار
           };
         }
       };
 
-      setTimeout(renderEnhancedQR, 60);
+      setTimeout(renderHDQR, 60);
     }
   };
 
-  /* ربط أزرار فتح الـ QR */
-  if (shareQRBtn) {
-    shareQRBtn.addEventListener('click', () => {
-      openQrModal(
-        'شارك حاسبة المياه مع عائلتك وأصدقائك',
-        'امسح الرمز بكاميرا الهاتف أو نزّل الصورة لمشاركتها بسهولة.',
-        shareQRBtn
-      );
-    });
-  }
-
-  if (miniQrBadge) {
-    miniQrBadge.addEventListener('click', () => {
-      openQrModal(
-        'افتح الأداة وتابع الحساب من هاتفك الذكي',
-        'وجّه كاميرا هاتفك نحو الرمز لفتح حاسبة المياه وتثبيتها فوراً.',
-        miniQrBadge
-      );
-    });
-  }
-
-  /* أحداث إغلاق النافذة المنبثقة */
-  if (closeQrBtn && qrModal) {
-    closeQrBtn.addEventListener('click', closeQrModal);
-
-    qrModal.addEventListener('click', (event) => {
-      if (event.target === qrModal) {
-        closeQrModal();
-      }
-    });
-  }
-
-  /* تنزيل صورة الـ QR المكتملة */
+  /* تنزيل صورة الـ QR عالية الدقة HD */
   if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
       const imageSrc = qrContainer.dataset.downloadUrl || 
-                       qrContainer.querySelector('img')?.src || 
-                       qrContainer.querySelector('canvas')?.toDataURL('image/png');
+                       qrContainer.querySelector('img')?.src;
 
       if (imageSrc) {
         const link = document.createElement('a');
@@ -643,7 +627,6 @@ function initShareLogic() {
       }
     });
   }
-
   /* إغلاق عند الضغط خارجاً أو زر Escape */
   document.addEventListener('click', (event) => {
     if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
