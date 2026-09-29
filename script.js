@@ -487,65 +487,74 @@ function initShareLogic() {
   }
 
   /* فتح نافذة الـ QR وقفل التمرير ورسم الرمز واللوجو بأبعاد متناسقة */
-  function openQrModal(titleText, hintText, triggerBtn) {
-    if (!qrModal || !qrContainer) return;
+   function openQrModal(titleText, hintText, triggerBtn) {
+  if (!qrModal || !qrContainer) return;
 
-    currentTriggerElement = triggerBtn || shareQRBtn;
+  currentTriggerElement = triggerBtn || shareQRBtn;
 
-    if (typeof hideInstallToast === 'function') {
-      hideInstallToast();
-    }
+  if (typeof hideInstallToast === 'function') {
+    hideInstallToast();
+  }
 
-    document.body.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
 
-    const modalTitle = qrModal.querySelector('h3');
-    const modalHint = qrModal.querySelector('.qr-hint');
+  const modalTitle = qrModal.querySelector('h3');
+  const modalHint = qrModal.querySelector('.qr-hint');
 
-    if (modalTitle && titleText) modalTitle.textContent = titleText;
-    if (modalHint && hintText) modalHint.textContent = hintText;
+  if (modalTitle && titleText) modalTitle.textContent = titleText;
+  if (modalHint && hintText) modalHint.textContent = hintText;
 
-    closeShareFallback();
-    qrModal.hidden = false;
-    if (closeQrBtn) closeQrBtn.focus();
+  closeShareFallback();
+  qrModal.hidden = false;
+  if (closeQrBtn) closeQrBtn.focus();
 
-    qrContainer.innerHTML = '';
+  qrContainer.innerHTML = '';
 
-    if (typeof QRCode !== 'undefined') {
-      const hdSize = 800;
+  if (typeof QRCode !== 'undefined') {
+    const hdSize = 800;
 
-      new QRCode(qrContainer, {
-        text: shareData.url,
-        width: hdSize,
-        height: hdSize,
-        correctLevel: QRCode.CorrectLevel.H
-      });
+    // 1. إنشاء الـ QR الأساسي أولاً
+    new QRCode(qrContainer, {
+      text: shareData.url,
+      width: hdSize,
+      height: hdSize,
+      correctLevel: QRCode.CorrectLevel.H
+    });
 
-      const renderHDQR = () => {
-        const qrCanvas = qrContainer.querySelector('canvas');
-        const img = qrContainer.querySelector('img');
+    let retries = 0;
 
-        if (!qrCanvas) {
+    const renderHDQR = () => {
+      const qrCanvas = qrContainer.querySelector('canvas');
+
+      // محاولة البحث عن الـ Canvas بحد أقصى 15 مرة لتجنب التكرار اللانهائي
+      if (!qrCanvas) {
+        if (retries < 15) {
+          retries++;
           setTimeout(renderHDQR, 40);
-          return;
         }
+        return;
+      }
 
-        const applyHDEnhancements = () => {
-          try {
-            const extraHeight = 110;
-            const finalCanvas = document.createElement('canvas');
-            finalCanvas.width = hdSize;
-            finalCanvas.height = hdSize + extraHeight;
-            const ctx = finalCanvas.getContext('2d');
+      const applyHDEnhancements = () => {
+        try {
+          const extraHeight = 110;
+          const finalCanvas = document.createElement('canvas');
+          finalCanvas.width = hdSize;
+          finalCanvas.height = hdSize + extraHeight;
+          const ctx = finalCanvas.getContext('2d');
 
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
 
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-            ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
+          // رسم الـ QR الأصلي
+          ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-            if (logoImg.complete && logoImg.naturalWidth !== 0) {
+          // رسم اللوجو بحماية خاصة لعدم إيقاف الشفرة في حال تعثره
+          if (typeof logoImg !== 'undefined' && logoImg.complete && logoImg.naturalWidth !== 0) {
+            try {
               const logoBoxSize = 170;
               const logoImgSize = 150;
               const boxX = (hdSize - logoBoxSize) / 2;
@@ -563,49 +572,64 @@ function initShareLogic() {
               ctx.fill();
 
               ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
+            } catch (errLogo) {
+              console.warn('تم تجاوز رسم اللوجو لعدم توافقه مع الكانفاس:', errLogo);
             }
-
-            ctx.direction = 'ltr';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            const centerX = hdSize / 2;
-
-            ctx.font = 'bold 26px "Tajawal", system-ui, -apple-system, sans-serif';
-            ctx.fillStyle = '#0f172a';
-            ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', centerX, hdSize + 36);
-
-            ctx.font = '600 18px "Tajawal", system-ui, -apple-system, sans-serif';
-            ctx.fillStyle = '#475569';
-            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', centerX, hdSize + 76);
-
-            const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
-
-if (img) {
-  img.src = finalImageData;
-  /* اعتمدنا على الأبعاد المحجوزة مسبقاً في style.css لمنع قفزة القياس */
-       }
-
-            qrCanvas.style.display = 'none';
-            qrContainer.dataset.downloadUrl = finalImageData;
-
-          } catch (e) {
-            console.warn('تنبيه معالجة الـ QR:', e);
           }
-        };
 
-        if (logoImg.complete) {
-          applyHDEnhancements();
-        } else {
-          logoImg.onload = applyHDEnhancements;
-          logoImg.onerror = applyHDEnhancements;
+          // كتابة النصوص
+          ctx.direction = 'ltr';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          const centerX = hdSize / 2;
+
+          ctx.font = 'bold 26px "Tajawal", system-ui, -apple-system, sans-serif';
+          ctx.fillStyle = '#0f172a';
+          ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', centerX, hdSize + 36);
+
+          ctx.font = '600 18px "Tajawal", system-ui, -apple-system, sans-serif';
+          ctx.fillStyle = '#475569';
+          ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', centerX, hdSize + 76);
+
+          const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
+
+          // إنشاء عنصر <img> مخصص
+          let img = qrContainer.querySelector('img.hd-qr-img');
+          if (!img) {
+            img = document.createElement('img');
+            img.className = 'hd-qr-img';
+            img.alt = 'رمز QR حاسبة المياه الأردنية';
+            qrContainer.appendChild(img);
+          }
+
+          img.src = finalImageData;
+
+          // الآن فقط نضمن إخفاء الـ Canvas والعناصر القديمة بعد نجاح التوليد
+          qrCanvas.style.display = 'none';
+          const oldLibImg = qrContainer.querySelector('img:not(.hd-qr-img)');
+          if (oldLibImg) oldLibImg.style.display = 'none';
+
+          qrContainer.dataset.downloadUrl = finalImageData;
+
+        } catch (e) {
+          console.warn('تنبيه: تعذر تطبيق معالجة HD، إظهار الـ QR العادي كبديل:', e);
+          // في حال حدوث أي خطأ نضمن بقاء الـ QR الأساسي ظاهراً للمستخدم
+          if (qrCanvas) qrCanvas.style.display = 'block';
         }
       };
 
-      renderHDQR();
-    }
-  }
+      if (typeof logoImg !== 'undefined' && !logoImg.complete) {
+        logoImg.onload = applyHDEnhancements;
+        logoImg.onerror = applyHDEnhancements;
+      } else {
+        applyHDEnhancements();
+      }
+    };
 
+    setTimeout(renderHDQR, 50);
+  }
+   }
   /* ربط أزرار فتح الـ QR */
   if (shareQRBtn) {
     shareQRBtn.addEventListener('click', () => {
