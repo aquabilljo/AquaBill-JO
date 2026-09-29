@@ -1305,6 +1305,91 @@ ul.tips li {
   margin-top: 1rem;
 }
 
+/* ==========================================================================
+   تنسيقات تذييل الصفحة وإخلاء المسؤولية
+   ========================================================================== */
+
+footer.app-footer {
+  padding: 32px 16px 24px;
+  margin-top: 40px;
+  background-color: transparent;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.footer-container {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-logo {
+  display: block;
+  margin: 0 auto 16px auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+}
+
+.disclaimer-box {
+  text-align: right;
+  direction: rtl;
+  background-color: var(--card-bg, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin: 16px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.disclaimer-title {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #0f172a);
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+
+.disclaimer-list {
+  list-style-type: disc;
+  padding-right: 20px;
+  margin: 0;
+}
+
+.disclaimer-list li {
+  font-size: 0.85rem;
+  color: var(--text-muted, #475569);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.disclaimer-list li:last-child {
+  margin-bottom: 0;
+}
+
+.copyright-text {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 16px;
+  margin-bottom: 0;
+}
+
+/* التكيف مع الوضع الداكن (Dark Mode) */
+[data-theme="dark"] .disclaimer-box {
+  background-color: rgba(30, 41, 59, 0.5);
+  border-color: #334155;
+}
+
+[data-theme="dark"] .disclaimer-title {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .disclaimer-list li {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .copyright-text {
+  color: #64748b;
+}
 
 /* ==========================================================================
    12. ANIMATIONS & RESPONSIVE — الحركات، الاستجابة، وتقليل الحركة
