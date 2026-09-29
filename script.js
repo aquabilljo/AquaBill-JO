@@ -581,15 +581,10 @@ function initShareLogic() {
 
             const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
-            if (img) {
-              img.src = finalImageData;
-              img.style.width = '100%';
-              img.style.maxWidth = '280px';
-              img.style.height = 'auto';
-              img.style.display = 'block';
-              img.style.margin = '0 auto';
-              img.style.borderRadius = '12px';
-            }
+if (img) {
+  img.src = finalImageData;
+  /* اعتمدنا على الأبعاد المحجوزة مسبقاً في style.css لمنع قفزة القياس */
+       }
 
             qrCanvas.style.display = 'none';
             qrContainer.dataset.downloadUrl = finalImageData;
@@ -607,7 +602,7 @@ function initShareLogic() {
         }
       };
 
-      setTimeout(renderHDQR, 60);
+      renderHDQR();
     }
   }
 
