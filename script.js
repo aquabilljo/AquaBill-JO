@@ -508,14 +508,16 @@ function openQrModal(titleText, hintText, triggerBtn) {
   qrModal.hidden = false;
   if (closeQrBtn) closeQrBtn.focus();
 
-  // إخفاء الحاوية مؤقتاً أثناء التوليد لتجنب الومضة المبدئية
-  qrContainer.style.opacity = '0';
+  // تفريغ الحاوية تماماً من أي عناصر سابقة
   qrContainer.innerHTML = '';
 
   if (typeof QRCode !== 'undefined') {
     const hdSize = 800;
 
-    new QRCode(qrContainer, {
+    // إنشاء حاوية مؤقتة في الذاكرة فقط لتوليد الـ QR الأول دون إظهاره للمستخدم
+    const tempDiv = document.createElement('div');
+
+    new QRCode(tempDiv, {
       text: shareData.url,
       width: hdSize,
       height: hdSize,
@@ -525,14 +527,12 @@ function openQrModal(titleText, hintText, triggerBtn) {
     let retries = 0;
 
     const renderHDQR = () => {
-      const qrCanvas = qrContainer.querySelector('canvas');
+      const qrCanvas = tempDiv.querySelector('canvas');
 
       if (!qrCanvas) {
         if (retries < 20) {
           retries++;
           setTimeout(renderHDQR, 30);
-        } else {
-          qrContainer.style.opacity = '1';
         }
         return;
       }
@@ -551,10 +551,10 @@ function openQrModal(titleText, hintText, triggerBtn) {
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-          // رسم الـ QR
+          // 1. رسم الـ QR الأساسي
           ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-          // رسم اللوجو
+          // 2. رسم خلفية اللوجو واللوجو في المنتصف
           if (typeof logoImg !== 'undefined' && logoImg.complete && logoImg.naturalWidth !== 0) {
             try {
               const logoBoxSize = 170;
@@ -579,7 +579,7 @@ function openQrModal(titleText, hintText, triggerBtn) {
             }
           }
 
-          // رسم النصوص بسطر واحد ثابت
+          // 3. كتابة النصوص المدمجة أسفل الـ QR
           ctx.direction = 'ltr';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -596,30 +596,22 @@ function openQrModal(titleText, hintText, triggerBtn) {
 
           const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
-          let img = qrContainer.querySelector('img.hd-qr-img');
-          if (!img) {
-            img = document.createElement('img');
-            img.className = 'hd-qr-img';
-            img.alt = 'رمز QR حاسبة المياه الأردنية';
-            qrContainer.appendChild(img);
-          }
-
+          // 4. إدراج الصورة النهائية المكتملة فقط داخل الحاوية
+          qrContainer.innerHTML = '';
+          const img = document.createElement('img');
+          img.className = 'hd-qr-img';
+          img.alt = 'رمز QR حاسبة المياه الأردنية';
           img.src = finalImageData;
-
-          // إخفاء عناصر الرسم القديمة
-          qrCanvas.style.display = 'none';
-          const oldLibImg = qrContainer.querySelector('img:not(.hd-qr-img)');
-          if (oldLibImg) oldLibImg.style.display = 'none';
+          qrContainer.appendChild(img);
 
           qrContainer.dataset.downloadUrl = finalImageData;
 
-          // إظهار النافذة فور اكتمال الجاهزية
-          qrContainer.style.opacity = '1';
-
         } catch (e) {
           console.warn('تنبيه معالجة الـ QR:', e);
-          if (qrCanvas) qrCanvas.style.display = 'block';
-          qrContainer.style.opacity = '1';
+          if (qrCanvas) {
+            qrContainer.innerHTML = '';
+            qrContainer.appendChild(qrCanvas);
+          }
         }
       };
 
