@@ -8,11 +8,11 @@
      1. ERROR LOGGING     → تسجيل أخطاء العميل محلياً دون أي خادم خارجي
      2. STORAGE            → طبقة موحّدة للقراءة/الكتابة بالتخزين المحلي
      3. VALIDATION         → التحقق من صحة مدخلات المستخدم
-     4. CALCULATION ENGINE → دوال حساب الفاتورة (لم تتغيّر نتائجها إطلاقاً)
+     4. CALCULATION ENGINE → دوال حساب الفاتورة
      5. THEME TOGGLE       → التبديل اليدوي بين الوضع الفاتح والداكن
      6. SCROLL EFFECTS     → شريط التقدم والظهور التدريجي للبطاقات
      7. SERVICE WORKER     → تسجيل العمل بدون إنترنت (PWA)
-     8. SHARE FEATURE      → مشاركة الأداة وتوليد QR عالي الدقة مع اللوجو والنص
+     8. SHARE FEATURE      → مشاركة الأداة وتوليد QR عالي الدقة (HD)
      9. PWA INSTALL PROMPT → إشعار "تثبيت التطبيق" على الهاتف
      10. INITIALIZATION    → التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
@@ -41,7 +41,7 @@ function logClientError(message, context) {
     const trimmed = existing.slice(-MAX_LOG_ENTRIES);
     localStorage.setItem(key, JSON.stringify(trimmed));
   } catch (e) {
-    // فشل التسجيل يتجاهل بصمت
+    // يتجاهل الأخطاء بصمت
   }
 }
 
@@ -361,7 +361,7 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-   8. SHARE FEATURE — مشاركة الأداة وتوليد الـ QR عالي الدقة مع اللوجو والنص
+   8. SHARE FEATURE — مشاركة الأداة وتوليد الـ QR عالي الدقة الاحترافي
    ========================================================================== */
 
 function initShareLogic() {
@@ -486,7 +486,7 @@ function initShareLogic() {
     }
   };
 
-/* فتح نافذة الـ QR وقفل التمرير ورسم الرمز واللوجو والنص التوضيحي بدقة HD وبمحاذاة دقيقة */
+  /* فتح نافذة الـ QR وقفل التمرير الخارجي ورسم الرمز بدقة HD */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
@@ -533,7 +533,7 @@ function initShareLogic() {
           try {
             const finalCanvas = document.createElement('canvas');
             finalCanvas.width = hdSize;
-            finalCanvas.height = hdSize + 180;
+            finalCanvas.height = hdSize + 140;
             const ctx = finalCanvas.getContext('2d');
 
             ctx.imageSmoothingEnabled = true;
@@ -544,7 +544,7 @@ function initShareLogic() {
 
             ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-            // رسم اللوجو في منتصف الرمز
+            // رسم اللوجو بمنتصف الرمز فقط إذا كان محملاً بنجاح
             if (logoImg.complete && logoImg.naturalWidth !== 0) {
               const logoBoxSize = 180;
               const logoImgSize = 160;
@@ -565,20 +565,15 @@ function initShareLogic() {
               ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
             }
 
-            // ضبط اتجاه المحاذاة من اليمين لليسار لمنع قص النصوص المزدوجة
-            ctx.direction = 'rtl';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            // 1. السطر الأول: الاسم الرئيسي
-            ctx.font = 'bold 26px "Tajawal", system-ui, -apple-system, sans-serif';
+            // كتابة النص التعريفي المباشر بدقة HD وحجم بارز
+            ctx.font = 'bold 30px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#0f172a';
-            ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', hdSize / 2, hdSize + 55);
+            ctx.fillText('AquaBill JO — حاسبة المياه الأردنية', hdSize / 2, hdSize + 55);
 
-            // 2. السطر الثاني: نص إخلاء المسؤولية
-            ctx.font = '500 18px "Tajawal", system-ui, -apple-system, sans-serif';
+            // 2. السطر الثاني: نص الاستقلالية وإخلاء المسؤولية
+            ctx.font = '500 20px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#64748b';
-            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', hdSize / 2, hdSize + 110);
+            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', hdSize / 2, hdSize + 115);
 
             const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
@@ -586,8 +581,7 @@ function initShareLogic() {
               img.src = finalImageData;
               img.style.width = '100%';
               img.style.height = 'auto';
-              img.style.maxHeight = '320px';
-              img.style.objectFit = 'contain';
+              img.style.maxHeight = '280px';
               img.style.display = 'block';
               img.style.margin = '0 auto';
             }
@@ -604,14 +598,47 @@ function initShareLogic() {
           applyHDEnhancements();
         } else {
           logoImg.onload = applyHDEnhancements;
-          logoImg.onerror = applyHDEnhancements;
+          logoImg.onerror = applyHDEnhancements; // الاستمرار في العرض دائماً حتى لو تعذر تحميل صورة اللوجو
         }
       };
 
       setTimeout(renderHDQR, 60);
     }
   };
-  /* تنزيل صورة الـ QR عالية الدقة HD */
+
+  /* ربط أزرار فتح الـ QR */
+  if (shareQRBtn) {
+    shareQRBtn.addEventListener('click', () => {
+      openQrModal(
+        'شارك حاسبة المياه مع عائلتك وأصدقائك',
+        'امسح الرمز بكاميرا الهاتف أو نزّل الصورة لمشاركتها بسهولة.',
+        shareQRBtn
+      );
+    });
+  }
+
+  if (miniQrBadge) {
+    miniQrBadge.addEventListener('click', () => {
+      openQrModal(
+        'افتح الأداة وتابع الحساب من هاتفك الذكي',
+        'وجّه كاميرا هاتفك نحو الرمز لفتح حاسبة المياه وتثبيتها فوراً.',
+        miniQrBadge
+      );
+    });
+  }
+
+  /* أحداث إغلاق النافذة المنبثقة */
+  if (closeQrBtn && qrModal) {
+    closeQrBtn.addEventListener('click', closeQrModal);
+
+    qrModal.addEventListener('click', (event) => {
+      if (event.target === qrModal) {
+        closeQrModal();
+      }
+    });
+  }
+
+  /* تنزيل صورة الـ QR المكتملة */
   if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
       const imageSrc = qrContainer.dataset.downloadUrl || 
@@ -627,6 +654,7 @@ function initShareLogic() {
       }
     });
   }
+
   /* إغلاق عند الضغط خارجاً أو زر Escape */
   document.addEventListener('click', (event) => {
     if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
@@ -682,7 +710,6 @@ function isShareMenuOpen() {
     return shareFallback && !shareFallback.hidden;
 }
 
-/* فحص ما إذا كانت نافذة الـ QR مفتوحة حالياً */
 function isQrModalOpen() {
     const qrModal = document.getElementById('qrModal');
     return qrModal && !qrModal.hidden;
