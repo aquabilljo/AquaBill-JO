@@ -378,13 +378,7 @@ footer a {
 /* ==========================================================================
    تأثيرات البطاقات (Card Hover & Active )
    ========================================================================== */
-/* ==========================================================================
-   تنسيق وتأثيرات جميع بطاقات المشروع (حل تعارض fade-in الخالي من !important)
-   ========================================================================== */
-
-/* 1. القواعد الأساسية لكل البطاقات */
-.card,
-.disclaimer-box {
+.card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -392,12 +386,24 @@ footer a {
   box-shadow: var(--shadow-card);
   position: relative;
   z-index: 2;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
   will-change: transform;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.3s ease,
               border-color 0.3s ease;
+}
+
+/* 🟢 التعديل الأول هنا: إضافة :not(.no-hover) لمنع الحركة عند التمرير */
+.card:not(.no-hover):hover,
+.card.is-visible:not(.no-hover):hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.18);
+  border-color: rgba(14, 165, 233, 0.6);
+}
+
+/* 🟢 التعديل الثاني هنا: إضافة :not(.no-hover) لمنع الحركة عند الضغط */
+.card:not(.no-hover):active,
+.card.is-visible:not(.no-hover):active {
+  transform: translateY(-2px) scale(0.998);
 }
 
 .card:first-of-type {
@@ -408,8 +414,11 @@ footer a {
   margin-top: 1.1rem;
 }
 
-/* 2. التخصيصات الهيكلية للبطاقات المخصصة */
+/* تخصيص كرت الخطوة الأولى بأعلى الصفحة */
 main > .card:first-of-type {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 1.5rem 1.3rem;
   margin-top: 1.5rem;
   box-shadow: 0 16px 35px -12px rgba(11, 79, 69, 0.22);
@@ -427,6 +436,7 @@ main > .card:first-of-type::before {
   opacity: 0.85;
 }
 
+/* بطاقة قسم "عني" المحاذية */
 .card#about {
   width: 95%;
   max-width: 608px;
@@ -434,27 +444,6 @@ main > .card:first-of-type::before {
   margin-right: auto;
   padding-left: 1.1rem;
   padding-right: 1.1rem;
-}
-
-/* 3. تأثير التمرير (Hover) - تم دمج .is-visible لتصبح قوة التحديد (0,2,1) وتتغلب على الأنيميشن */
-.card:hover,
-.card.is-visible:hover,
-main > .card:first-of-type:hover,
-.card#about:hover,
-.disclaimer-box:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.22);
-  border-color: rgba(14, 165, 233, 0.6);
-}
-
-/* 4. تأثير الضغط (Active) - تفعيل التأثير على كافة البطاقات أثناء النقر/اللمس */
-.card:active,
-.card.is-visible:active,
-main > .card:first-of-type:active,
-.card#about:active,
-.disclaimer-box:active {
-  transform: translateY(-2px) scale(0.998);
-  transition-duration: 0.08s;
 }
 /* أيقونات العناوين داخل البطاقات */
 h2 .icn {
