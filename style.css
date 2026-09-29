@@ -392,18 +392,25 @@ footer a {
               border-color 0.3s ease;
 }
 
-/* 🟢 التعديل الأول هنا: إضافة :not(.no-hover) لمنع الحركة عند التمرير */
+/* ==========================================================================
+   توحيد السلاسة السريعة (Cubic-Bezier) على كافة البطاقات عند Hover
+   ========================================================================== */
+
 .card:not(.no-hover):hover,
 .card.is-visible:not(.no-hover):hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.18);
   border-color: rgba(14, 165, 233, 0.6);
+  /* إعادة تعيين توقيت الحركة الفائق السلاسة ليطبق على الجميع بنفس السرعة */
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
 }
 
-/* 🟢 التعديل الثاني هنا: إضافة :not(.no-hover) لمنع الحركة عند الضغط */
 .card:not(.no-hover):active,
 .card.is-visible:not(.no-hover):active {
   transform: translateY(-2px) scale(0.998);
+  transition: transform 0.08s ease;
 }
 
 .card:first-of-type {
