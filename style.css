@@ -1074,22 +1074,21 @@ body.dark-mode .share-option .qr-menu-badge {
 }
 
 /* حاوية الـ QR - حفظ العرض الكامل وحجز مساحة الارتفاع لمنع القفزات والتداخل */
+/* حاوية الـ QR - تضمن احتواء الصورة المكتملة بنسب الأبعاد الصحيحة دون أي بروز */
 #qrContainer,
 .qr-container {
   width: 100%;
-  max-width: 280px; /* العرض الأصلي الممتاز الذي يضمن وضوح الخط */
-  aspect-ratio: 800 / 910; /* نسبة الأبعاد الدقيقة شاملة النص السفلي */
+  max-width: 280px;
+  aspect-ratio: 800 / 910;
   margin: 0 auto 1rem auto;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  opacity: 0; /* يبدأ مخفياً حتى تكتمل المعالجة */
-  transition: opacity 0.2s ease-in-out;
+  overflow: hidden;
 }
 
-#qrContainer img,
-#qrContainer canvas {
+#qrContainer img {
   width: 100%;
   height: 100%;
   object-fit: contain;
