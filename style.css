@@ -375,10 +375,10 @@ footer a {
   color: var(--accent-strong);
 }
 
-
 /* ==========================================================================
-   5. CARDS & OVERRIDES — بطاقات الأقسام والتأثيرات البصرية
+   تأثيرات البطاقات (Card Hover & Active )
    ========================================================================== */
+
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -393,13 +393,21 @@ footer a {
               border-color 0.3s ease;
 }
 
-.card:hover {
+/* رفع أولوية الـ Hover لتشمل البطاقة الأولى وقسم عني وكافة البطاقات */
+.card:hover,
+main > .card:first-of-type:hover,
+.card#about:hover,
+.disclaimer-box:hover {
   transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.18);
-  border-color: rgba(14, 165, 233, 0.6);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.22) !important;
+  border-color: rgba(14, 165, 233, 0.6) !important;
 }
 
-.card:active {
+/* تأثير الضغط على الهاتف والحاسوب */
+.card:active,
+main > .card:first-of-type:active,
+.card#about:active,
+.disclaimer-box:active {
   transform: translateY(-2px) scale(0.998);
 }
 
@@ -442,7 +450,6 @@ main > .card:first-of-type::before {
   padding-left: 1.1rem;
   padding-right: 1.1rem;
 }
-
 /* أيقونات العناوين داخل البطاقات */
 h2 .icn {
   background: var(--teal-light);
