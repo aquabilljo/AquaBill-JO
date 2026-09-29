@@ -487,7 +487,7 @@ function initShareLogic() {
   }
 
   /* فتح نافذة الـ QR وقفل التمرير ورسم الرمز واللوجو بأبعاد متناسقة */
-   function openQrModal(titleText, hintText, triggerBtn) {
+function openQrModal(titleText, hintText, triggerBtn) {
   if (!qrModal || !qrContainer) return;
 
   currentTriggerElement = triggerBtn || shareQRBtn;
@@ -508,12 +508,13 @@ function initShareLogic() {
   qrModal.hidden = false;
   if (closeQrBtn) closeQrBtn.focus();
 
+  // إخفاء الحاوية مؤقتاً أثناء التوليد لتجنب الومضة المبدئية
+  qrContainer.style.opacity = '0';
   qrContainer.innerHTML = '';
 
   if (typeof QRCode !== 'undefined') {
     const hdSize = 800;
 
-    // 1. إنشاء الـ QR الأساسي أولاً
     new QRCode(qrContainer, {
       text: shareData.url,
       width: hdSize,
@@ -526,11 +527,12 @@ function initShareLogic() {
     const renderHDQR = () => {
       const qrCanvas = qrContainer.querySelector('canvas');
 
-      // محاولة البحث عن الـ Canvas بحد أقصى 15 مرة لتجنب التكرار اللانهائي
       if (!qrCanvas) {
-        if (retries < 15) {
+        if (retries < 20) {
           retries++;
-          setTimeout(renderHDQR, 40);
+          setTimeout(renderHDQR, 30);
+        } else {
+          qrContainer.style.opacity = '1';
         }
         return;
       }
@@ -549,10 +551,10 @@ function initShareLogic() {
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-          // رسم الـ QR الأصلي
+          // رسم الـ QR
           ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-          // رسم اللوجو بحماية خاصة لعدم إيقاف الشفرة في حال تعثره
+          // رسم اللوجو
           if (typeof logoImg !== 'undefined' && logoImg.complete && logoImg.naturalWidth !== 0) {
             try {
               const logoBoxSize = 170;
@@ -573,11 +575,11 @@ function initShareLogic() {
 
               ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
             } catch (errLogo) {
-              console.warn('تم تجاوز رسم اللوجو لعدم توافقه مع الكانفاس:', errLogo);
+              console.warn('تجاوز اللوجو:', errLogo);
             }
           }
 
-          // كتابة النصوص
+          // رسم النصوص بسطر واحد ثابت
           ctx.direction = 'ltr';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -594,7 +596,6 @@ function initShareLogic() {
 
           const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
-          // إنشاء عنصر <img> مخصص
           let img = qrContainer.querySelector('img.hd-qr-img');
           if (!img) {
             img = document.createElement('img');
@@ -605,17 +606,20 @@ function initShareLogic() {
 
           img.src = finalImageData;
 
-          // الآن فقط نضمن إخفاء الـ Canvas والعناصر القديمة بعد نجاح التوليد
+          // إخفاء عناصر الرسم القديمة
           qrCanvas.style.display = 'none';
           const oldLibImg = qrContainer.querySelector('img:not(.hd-qr-img)');
           if (oldLibImg) oldLibImg.style.display = 'none';
 
           qrContainer.dataset.downloadUrl = finalImageData;
 
+          // إظهار النافذة فور اكتمال الجاهزية
+          qrContainer.style.opacity = '1';
+
         } catch (e) {
-          console.warn('تنبيه: تعذر تطبيق معالجة HD، إظهار الـ QR العادي كبديل:', e);
-          // في حال حدوث أي خطأ نضمن بقاء الـ QR الأساسي ظاهراً للمستخدم
+          console.warn('تنبيه معالجة الـ QR:', e);
           if (qrCanvas) qrCanvas.style.display = 'block';
+          qrContainer.style.opacity = '1';
         }
       };
 
@@ -627,9 +631,9 @@ function initShareLogic() {
       }
     };
 
-    setTimeout(renderHDQR, 50);
+    renderHDQR();
   }
-   }
+}
   /* ربط أزرار فتح الـ QR */
   if (shareQRBtn) {
     shareQRBtn.addEventListener('click', () => {
