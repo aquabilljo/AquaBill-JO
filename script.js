@@ -568,9 +568,12 @@ function initShareLogic() {
             // كتابة النص التعريفي المباشر بدقة HD وحجم بارز
             ctx.font = 'bold 30px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#0f172a';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('AquaBill JO — حاسبة المياه الأردنية', hdSize / 2, hdSize + 70);
+            ctx.fillText('AquaBill JO — حاسبة المياه الأردنية', hdSize / 2, hdSize + 55);
+
+            // 2. السطر الثاني: نص الاستقلالية وإخلاء المسؤولية
+            ctx.font = '500 20px "Tajawal", system-ui, -apple-system, sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', hdSize / 2, hdSize + 115);
 
             const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
