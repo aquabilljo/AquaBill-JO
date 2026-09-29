@@ -486,7 +486,7 @@ function initShareLogic() {
     }
   };
 
-  /* فتح نافذة الـ QR وقفل التمرير الخارجي ورسم الرمز بدقة HD */
+ /* فتح نافذة الـ QR وقفل التمرير ورسم الرمز واللوجو والنص التوضيحي بتوسيط مضمون 100% */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
@@ -533,18 +533,20 @@ function initShareLogic() {
           try {
             const finalCanvas = document.createElement('canvas');
             finalCanvas.width = hdSize;
-            finalCanvas.height = hdSize + 140;
+            finalCanvas.height = hdSize + 170;
             const ctx = finalCanvas.getContext('2d');
 
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
+            // خلفية بيضاء للبطاقة
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
+            // رسم رمز الـ QR
             ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-            // رسم اللوجو بمنتصف الرمز فقط إذا كان محملاً بنجاح
+            // رسم اللوجو في منتصف الرمز
             if (logoImg.complete && logoImg.naturalWidth !== 0) {
               const logoBoxSize = 180;
               const logoImgSize = 160;
@@ -565,15 +567,22 @@ function initShareLogic() {
               ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
             }
 
-            // كتابة النص التعريفي المباشر بدقة HD وحجم بارز
-            ctx.font = 'bold 30px "Tajawal", system-ui, -apple-system, sans-serif';
-            ctx.fillStyle = '#0f172a';
-            ctx.fillText('AquaBill JO — حاسبة المياه الأردنية', hdSize / 2, hdSize + 55);
+            // ضبط المحاذاة القياسية لتوسيط النص بدقة بالغة (x = 400)
+            ctx.direction = 'ltr'; // حمايتها من خلل BIDI في كروم
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
 
-            // 2. السطر الثاني: نص الاستقلالية وإخلاء المسؤولية
-            ctx.font = '500 20px "Tajawal", system-ui, -apple-system, sans-serif';
+            const centerX = hdSize / 2; // منتصف اللوحة (400px)
+
+            // 1. السطر الأول: الاسم الرئيسي
+            ctx.font = 'bold 25px "Tajawal", system-ui, -apple-system, sans-serif';
+            ctx.fillStyle = '#0f172a';
+            ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', centerX, hdSize + 50);
+
+            // 2. السطر الثاني: نص إخلاء المسؤولية
+            ctx.font = '500 17px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#64748b';
-            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', hdSize / 2, hdSize + 115);
+            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', centerX, hdSize + 105);
 
             const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
@@ -581,7 +590,8 @@ function initShareLogic() {
               img.src = finalImageData;
               img.style.width = '100%';
               img.style.height = 'auto';
-              img.style.maxHeight = '280px';
+              img.style.maxHeight = '320px';
+              img.style.objectFit = 'contain';
               img.style.display = 'block';
               img.style.margin = '0 auto';
             }
@@ -598,7 +608,7 @@ function initShareLogic() {
           applyHDEnhancements();
         } else {
           logoImg.onload = applyHDEnhancements;
-          logoImg.onerror = applyHDEnhancements; // الاستمرار في العرض دائماً حتى لو تعذر تحميل صورة اللوجو
+          logoImg.onerror = applyHDEnhancements;
         }
       };
 
