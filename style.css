@@ -378,9 +378,6 @@ footer a {
 /* ==========================================================================
    تأثيرات البطاقات (Card Hover & Active )
    ========================================================================== */
-/* ==========================================================================
-   تنسيق وتأثيرات بطاقات المشروع (سلسة وبدون غباش)
-   ========================================================================== */
 
 .card {
   background: var(--card);
@@ -1076,23 +1073,30 @@ body.dark-mode .share-option .qr-menu-badge {
     border-color: rgb(0 0 0 / 60%);
 }
 
+/* حاوية الـ QR Code - حجز المساحة مسبقاً */
+#qrContainer,
 .qr-container {
+  width: 100%;
+  max-width: 280px;
+  min-height: 280px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 220px;
-  margin-bottom: 16px;
-  background: #ffffff;
-  padding: 12px;
-  border-radius: 14px;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
-.qr-container img,
-.qr-container canvas {
+/* تنسيق ثوابت الصورة والـ Canvas */
+#qrContainer img,
+#qrContainer canvas {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
   display: block;
-  width: 220px;
-  height: 220px;
-  max-width: 100%;
+  margin: 0 auto;
+  border-radius: 12px;
+  object-fit: contain;
 }
 
 button.close-qr {
