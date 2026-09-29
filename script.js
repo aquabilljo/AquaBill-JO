@@ -486,7 +486,7 @@ function initShareLogic() {
     }
   };
 
- /* فتح نافذة الـ QR وقفل التمرير ورسم الرمز واللوجو والنص التوضيحي بتوسيط مضمون 100% */
+ /* فتح نافذة الـ QR وقفل التمرير ورسم الرمز بأبعاد متناسقة غير مستطيلة */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
@@ -531,25 +531,25 @@ function initShareLogic() {
 
         const applyHDEnhancements = () => {
           try {
+            // تقليل الارتفاع الزائد لتبقى الصورة مربعة تقريباً ومتناسقة بداخل النافذة
+            const extraHeight = 90;
             const finalCanvas = document.createElement('canvas');
             finalCanvas.width = hdSize;
-            finalCanvas.height = hdSize + 170;
+            finalCanvas.height = hdSize + extraHeight;
             const ctx = finalCanvas.getContext('2d');
 
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            // خلفية بيضاء للبطاقة
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-            // رسم رمز الـ QR
             ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-            // رسم اللوجو في منتصف الرمز
+            // رسم اللوجو بالمنتصف
             if (logoImg.complete && logoImg.naturalWidth !== 0) {
-              const logoBoxSize = 180;
-              const logoImgSize = 160;
+              const logoBoxSize = 170;
+              const logoImgSize = 150;
               const boxX = (hdSize - logoBoxSize) / 2;
               const boxY = (hdSize - logoBoxSize) / 2;
               const logoX = (hdSize - logoImgSize) / 2;
@@ -558,7 +558,7 @@ function initShareLogic() {
               ctx.fillStyle = '#ffffff';
               ctx.beginPath();
               if (ctx.roundRect) {
-                ctx.roundRect(boxX, boxY, logoBoxSize, logoBoxSize, 24);
+                ctx.roundRect(boxX, boxY, logoBoxSize, logoBoxSize, 20);
               } else {
                 ctx.fillRect(boxX, boxY, logoBoxSize, logoBoxSize);
               }
@@ -567,33 +567,33 @@ function initShareLogic() {
               ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
             }
 
-           // ضبط المحاذاة والتوسيط المباشر (400px)
+            // كتابة النص المباشر المحاذى بالمنتصف بدقة
             ctx.direction = 'ltr';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            const centerX = hdSize / 2; // المنتصف تماماً
+            const centerX = hdSize / 2;
 
-            // 1. السطر الأول: العنوان الرئيسي
-            ctx.font = 'bold 26px "Tajawal", system-ui, -apple-system, sans-serif';
+            // السطر الأول: عنوان الأداة
+            ctx.font = 'bold 24px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#0f172a';
-            ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', centerX, hdSize + 50);
+            ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', centerX, hdSize + 32);
 
-            // 2. السطر الثاني: نص إخلاء المسؤولية (واضح ومكبر)
-            ctx.font = '600 22px "Tajawal", system-ui, -apple-system, sans-serif';
+            // السطر الثاني: نص إخلاء المسؤولية المباشر المختصر
+            ctx.font = '600 18px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#475569';
-            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', centerX, hdSize + 112);;
+            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', centerX, hdSize + 66);
 
             const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
             if (img) {
               img.src = finalImageData;
               img.style.width = '100%';
+              img.style.maxWidth = '260px'; // ضبط العرض ليطابق نافذة التلميح
               img.style.height = 'auto';
-              img.style.maxHeight = '320px';
-              img.style.objectFit = 'contain';
               img.style.display = 'block';
               img.style.margin = '0 auto';
+              img.style.borderRadius = '8px';
             }
 
             qrCanvas.style.display = 'none';
