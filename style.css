@@ -1306,14 +1306,14 @@ ul.tips li {
 }
 
 /* ==========================================================================
-   تنسيقات تذييل الصفحة الموحدة مع تصميم التطبيق (Theme Integrated)
+   تنسيقات التذييل وإخلاء المسؤولية الموحدة مع خلفيات المشروع
    ========================================================================== */
 
 footer.app-footer {
-  padding: 36px 16px 28px;
-  margin-top: 48px;
-  background-color: transparent;
-  border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  padding: 32px 16px 24px;
+  margin-top: 40px;
+  border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  background: transparent;
 }
 
 .footer-container {
@@ -1324,35 +1324,28 @@ footer.app-footer {
 
 .footer-logo {
   display: block;
-  margin: 0 auto 20px auto;
-  opacity: 0.9;
-  transition: opacity 0.2s ease;
+  margin: 0 auto 16px auto;
 }
 
-.footer-logo:hover {
-  opacity: 1;
-}
-
-/* بطاقة إخلاء المسؤولية المعتمدة كلياً على متغيّرات ألوان التطبيق الأساسية */
+/* استخدام نفس خلفية وحدود بطاقات التطبيق تماماً لمنع تنافر الألوان */
 .disclaimer-box {
   text-align: right;
   direction: rtl;
-  background-color: var(--card-bg, #1e293b);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  background-color: var(--card-bg, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
   border-radius: var(--radius, 16px);
-  padding: 22px 24px;
-  margin: 20px 0;
-  box-shadow: var(--card-shadow, 0 4px 12px rgba(0, 0, 0, 0.15));
+  padding: 20px 22px;
+  margin: 16px 0;
+  backdrop-filter: blur(8px);
 }
 
 .disclaimer-title {
   text-align: center;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-main, #f8fafc);
   margin-top: 0;
-  margin-bottom: 16px;
-  letter-spacing: -0.01em;
+  margin-bottom: 14px;
 }
 
 .disclaimer-list {
@@ -1362,10 +1355,10 @@ footer.app-footer {
 }
 
 .disclaimer-list li {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--text-muted, #94a3b8);
-  line-height: 1.7;
-  margin-bottom: 12px;
+  line-height: 1.65;
+  margin-bottom: 10px;
 }
 
 .disclaimer-list li:last-child {
@@ -1378,11 +1371,10 @@ footer.app-footer {
 
 .copyright-text {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted, #64748b);
-  margin-top: 20px;
+  margin-top: 16px;
   margin-bottom: 0;
-  opacity: 0.8;
 }
 /* ==========================================================================
    12. ANIMATIONS & RESPONSIVE — الحركات، الاستجابة، وتقليل الحركة
