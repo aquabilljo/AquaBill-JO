@@ -1073,30 +1073,28 @@ body.dark-mode .share-option .qr-menu-badge {
     border-color: rgb(0 0 0 / 60%);
 }
 
-/* حاوية الـ QR Code - حجز المساحة مسبقاً */
+/* حاوية الـ QR - حفظ العرض الكامل وحجز مساحة الارتفاع لمنع القفزات والتداخل */
 #qrContainer,
 .qr-container {
   width: 100%;
-  max-width: 280px;
-  min-height: 280px;
-  aspect-ratio: 1 / 1;
-  margin: 0 auto;
+  max-width: 280px; /* العرض الأصلي الممتاز الذي يضمن وضوح الخط */
+  aspect-ratio: 800 / 910; /* نسبة الأبعاد الدقيقة شاملة النص السفلي */
+  margin: 0 auto 1rem auto;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  opacity: 0; /* يبدأ مخفياً حتى تكتمل المعالجة */
+  transition: opacity 0.2s ease-in-out;
 }
 
-/* تنسيق ثوابت الصورة والـ Canvas */
 #qrContainer img,
 #qrContainer canvas {
   width: 100%;
-  max-width: 280px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-  border-radius: 12px;
+  height: 100%;
   object-fit: contain;
+  border-radius: 12px;
+  display: block;
 }
 
 button.close-qr {
