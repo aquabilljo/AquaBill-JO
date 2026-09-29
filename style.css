@@ -379,7 +379,8 @@ footer a {
 /* ==========================================================================
    5. CARDS & OVERRIDES — بطاقات الأقسام والتأثيرات البصرية
    ========================================================================== */
-.card {
+.card,
+.disclaimer-box {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -387,20 +388,12 @@ footer a {
   box-shadow: var(--shadow-card);
   position: relative;
   z-index: 2;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   will-change: transform;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.3s ease,
               border-color 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.18);
-  border-color: rgba(14, 165, 233, 0.6);
-}
-
-.card:active {
-  transform: translateY(-2px) scale(0.998);
 }
 
 .card:first-of-type {
@@ -411,11 +404,8 @@ footer a {
   margin-top: 1.1rem;
 }
 
-/* تخصيص كرت الخطوة الأولى بأعلى الصفحة */
+/* 2. التخصيصات الهيكلية للبطاقة الأولى وقسم عني */
 main > .card:first-of-type {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
   padding: 1.5rem 1.3rem;
   margin-top: 1.5rem;
   box-shadow: 0 16px 35px -12px rgba(11, 79, 69, 0.22);
@@ -433,7 +423,6 @@ main > .card:first-of-type::before {
   opacity: 0.85;
 }
 
-/* بطاقة قسم "عني" المحاذية */
 .card#about {
   width: 95%;
   max-width: 608px;
@@ -443,6 +432,23 @@ main > .card:first-of-type::before {
   padding-right: 1.1rem;
 }
 
+/* 3. حالات التفاعل (Hover & Active) - كُتبت بعد القواعد الهيكلية وبالمحددات المطابقة لتتغلب عليها تلقائياً وبشكل نظيف */
+.card:hover,
+main > .card:first-of-type:hover,
+.card#about:hover,
+.disclaimer-box:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.22);
+  border-color: rgba(14, 165, 233, 0.6);
+}
+
+.card:active,
+main > .card:first-of-type:active,
+.card#about:active,
+.disclaimer-box:active {
+  transform: translateY(-2px) scale(0.998);
+  transition-duration: 0.08s;
+}
 /* أيقونات العناوين داخل البطاقات */
 h2 .icn {
   background: var(--teal-light);
