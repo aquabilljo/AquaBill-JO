@@ -361,7 +361,7 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-   8. SHARE FEATURE — مشاركة الأداة وتوليد الـ QR عالي الدقة الاحترافي
+   8. SHARE FEATURE — مشاركة الأداة وتوليد الـ QR عالي الدقة (HD)
    ========================================================================== */
 
 function initShareLogic() {
@@ -391,6 +391,19 @@ function initShareLogic() {
 
   const logoImg = new Image();
   logoImg.src = 'images/qr-logo.png';
+
+  /* تعريف دالة الإغلاق في بداية النطاق لتفادي أخطاء ReferenceError */
+  function closeQrModal() {
+    if (!qrModal) return;
+    qrModal.hidden = true;
+    document.body.style.overflow = '';
+
+    if (currentTriggerElement && typeof currentTriggerElement.focus === 'function') {
+      currentTriggerElement.focus();
+    } else if (shareQRBtn) {
+      shareQRBtn.focus();
+    }
+  }
 
   /* تموضع وإغلاق/فتح قائمة المشاركة */
   const positionShareFallback = () => {
@@ -473,8 +486,8 @@ function initShareLogic() {
     });
   }
 
-/* فتح نافذة الـ QR وقفل التمرير ورسم الرمز واللوجو بأبعاد مربعة متناسقة */
-  const openQrModal = (titleText, hintText, triggerBtn) => {
+  /* فتح نافذة الـ QR وقفل التمرير ورسم الرمز واللوجو بأبعاد متناسقة */
+  function openQrModal(titleText, hintText, triggerBtn) {
     if (!qrModal || !qrContainer) return;
 
     currentTriggerElement = triggerBtn || shareQRBtn;
@@ -518,23 +531,20 @@ function initShareLogic() {
 
         const applyHDEnhancements = () => {
           try {
-            // أبعاد مربعة متناسقة للبطاقة (800x920 بكسل)
+            const extraHeight = 110;
             const finalCanvas = document.createElement('canvas');
             finalCanvas.width = hdSize;
-            finalCanvas.height = hdSize + 120;
+            finalCanvas.height = hdSize + extraHeight;
             const ctx = finalCanvas.getContext('2d');
 
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            // خلفية بيضاء
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-            // رسم رمز الـ QR
             ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-            // رسم اللوجو بالمنتصف
             if (logoImg.complete && logoImg.naturalWidth !== 0) {
               const logoBoxSize = 170;
               const logoImgSize = 150;
@@ -555,27 +565,26 @@ function initShareLogic() {
               ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
             }
 
-            // رسم النص بخط عريض وبارز بمنتصف اللوحة
+            ctx.direction = 'ltr';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+
             const centerX = hdSize / 2;
 
-            // السطر الأول: عنوان الحاسبة
-            ctx.font = 'bold 28px "Tajawal", system-ui, -apple-system, sans-serif';
+            ctx.font = 'bold 26px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#0f172a';
-            ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', centerX, hdSize + 40);
+            ctx.fillText('حاسبة المياه الأردنية — AquaBill JO', centerX, hdSize + 36);
 
-            // السطر الثاني: نص إخلاء المسؤولية
-            ctx.font = 'bold 20px "Tajawal", system-ui, -apple-system, sans-serif';
-            ctx.fillStyle = '#334155';
-            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', centerX, hdSize + 85);
+            ctx.font = '600 18px "Tajawal", system-ui, -apple-system, sans-serif';
+            ctx.fillStyle = '#475569';
+            ctx.fillText('أداة مستقلة غير تابعة لأي جهة حكومية أو لسلطة المياه', centerX, hdSize + 76);
 
             const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
             if (img) {
               img.src = finalImageData;
               img.style.width = '100%';
-              img.style.maxWidth = '280px'; // تقييد العرض لإعادة الشاشة للشكل المربع المريحة
+              img.style.maxWidth = '280px';
               img.style.height = 'auto';
               img.style.display = 'block';
               img.style.margin = '0 auto';
@@ -600,7 +609,7 @@ function initShareLogic() {
 
       setTimeout(renderHDQR, 60);
     }
-  };
+  }
 
   /* ربط أزرار فتح الـ QR */
   if (shareQRBtn) {
