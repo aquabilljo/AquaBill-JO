@@ -8,11 +8,11 @@
      1. ERROR LOGGING     → تسجيل أخطاء العميل محلياً دون أي خادم خارجي
      2. STORAGE            → طبقة موحّدة للقراءة/الكتابة بالتخزين المحلي
      3. VALIDATION         → التحقق من صحة مدخلات المستخدم
-     4. CALCULATION ENGINE → دوال حساب الفاتورة (لم تتغيّر نتائجها إطلاقاً)
+     4. CALCULATION ENGINE → دوال حساب الفاتورة
      5. THEME TOGGLE       → التبديل اليدوي بين الوضع الفاتح والداكن
      6. SCROLL EFFECTS     → شريط التقدم والظهور التدريجي للبطاقات
      7. SERVICE WORKER     → تسجيل العمل بدون إنترنت (PWA)
-     8. SHARE FEATURE      → مشاركة الأداة وتوليد QR عالي الدقة مع اللوجو والنص
+     8. SHARE FEATURE      → مشاركة الأداة وتوليد QR عالي الدقة (HD)
      9. PWA INSTALL PROMPT → إشعار "تثبيت التطبيق" على الهاتف
      10. INITIALIZATION    → التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
@@ -41,7 +41,7 @@ function logClientError(message, context) {
     const trimmed = existing.slice(-MAX_LOG_ENTRIES);
     localStorage.setItem(key, JSON.stringify(trimmed));
   } catch (e) {
-    // فشل التسجيل يتجاهل بصمت
+    // يتجاهل الأخطاء بصمت
   }
 }
 
@@ -361,7 +361,7 @@ if ('serviceWorker' in navigator) {
 
 
 /* ==========================================================================
-   8. SHARE FEATURE — مشاركة الأداة وتوليد الـ QR عالي الدقة مع اللوجو والنص
+   8. SHARE FEATURE — مشاركة الأداة وتوليد الـ QR عالي الدقة الاحترافي
    ========================================================================== */
 
 function initShareLogic() {
@@ -486,7 +486,7 @@ function initShareLogic() {
     }
   };
 
-/* فتح نافذة الـ QR وقفل التمرير ورسم الرمز بدقة HD عالية الاحترافية */
+  /* فتح نافذة الـ QR وقفل التمرير الخارجي ورسم الرمز بدقة HD */
   const openQrModal = (titleText, hintText, triggerBtn) => {
     if (!qrModal || !qrContainer) return;
 
@@ -511,7 +511,6 @@ function initShareLogic() {
     qrContainer.innerHTML = '';
 
     if (typeof QRCode !== 'undefined') {
-      // أبعاد بدقة فائقة 800px لضمان عدم وجود أي بكسلة
       const hdSize = 800;
 
       new QRCode(qrContainer, {
@@ -532,63 +531,58 @@ function initShareLogic() {
 
         const applyHDEnhancements = () => {
           try {
-            // 1. إنشاء لوحة مركبة عالية الدقة HD (800x940 بكسل)
             const finalCanvas = document.createElement('canvas');
             finalCanvas.width = hdSize;
-            finalCanvas.height = hdSize + 140; // مساحة احترافية للنص السفلي
+            finalCanvas.height = hdSize + 140;
             const ctx = finalCanvas.getContext('2d');
 
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
 
-            // خلفية بيضاء ناصعة للبطاقة بالكامل
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-            // 2. رسم الرمز الأساسي بدقة HD
             ctx.drawImage(qrCanvas, 0, 0, hdSize, hdSize);
 
-            // 3. تكبير الشعار وتوسيطه بدقة دون فراغات زائدة
-            const logoBoxSize = 180; // حجم المربع الأبيض في منتصف الرمز
-            const logoImgSize = 160; // حجم اللوجو المباشر (كبير وواضح)
-            const boxX = (hdSize - logoBoxSize) / 2;
-            const boxY = (hdSize - logoBoxSize) / 2;
-            const logoX = (hdSize - logoImgSize) / 2;
-            const logoY = (hdSize - logoImgSize) / 2;
+            // رسم اللوجو بمنتصف الرمز فقط إذا كان محملاً بنجاح
+            if (logoImg.complete && logoImg.naturalWidth !== 0) {
+              const logoBoxSize = 180;
+              const logoImgSize = 160;
+              const boxX = (hdSize - logoBoxSize) / 2;
+              const boxY = (hdSize - logoBoxSize) / 2;
+              const logoX = (hdSize - logoImgSize) / 2;
+              const logoY = (hdSize - logoImgSize) / 2;
 
-            // رسم مربع بيضاوي ناعم خلف الشعار
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            if (ctx.roundRect) {
-              ctx.roundRect(boxX, boxY, logoBoxSize, logoBoxSize, 24);
-            } else {
-              ctx.fillRect(boxX, boxY, logoBoxSize, logoBoxSize);
+              ctx.fillStyle = '#ffffff';
+              ctx.beginPath();
+              if (ctx.roundRect) {
+                ctx.roundRect(boxX, boxY, logoBoxSize, logoBoxSize, 24);
+              } else {
+                ctx.fillRect(boxX, boxY, logoBoxSize, logoBoxSize);
+              }
+              ctx.fill();
+
+              ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
             }
-            ctx.fill();
 
-            // رسم الشعار نفسه بحجم بارز وكبير
-            ctx.drawImage(logoImg, logoX, logoY, logoImgSize, logoImgSize);
-
-            // 4. إضافة النص السفلي بخط عريض، داكن، وحاد
+            // كتابة النص التعريفي المباشر بدقة HD وحجم بارز
             ctx.font = 'bold 30px "Tajawal", system-ui, -apple-system, sans-serif';
             ctx.fillStyle = '#0f172a';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('AquaBill JO — حاسبة المياه الأردنية', hdSize / 2, hdSize + 70);
 
-            // 5. تحويل اللوحة لصورة عالية الجودة وتحديث العرض
             const finalImageData = finalCanvas.toDataURL('image/png', 1.0);
 
             if (img) {
               img.src = finalImageData;
               img.style.width = '100%';
               img.style.height = 'auto';
-              img.style.maxHeight = '280px'; // ضبط العرض داخل النافذة دون إفقاد الدقة للتحميل
+              img.style.maxHeight = '280px';
               img.style.display = 'block';
               img.style.margin = '0 auto';
             }
 
-            // إخفاء الـ canvas الأصلي الصغير
             qrCanvas.style.display = 'none';
             qrContainer.dataset.downloadUrl = finalImageData;
 
@@ -597,13 +591,11 @@ function initShareLogic() {
           }
         };
 
-        if (logoImg.complete && logoImg.naturalWidth !== 0) {
+        if (logoImg.complete) {
           applyHDEnhancements();
         } else {
           logoImg.onload = applyHDEnhancements;
-          logoImg.onerror = () => {
-            // بقاء الرمز يعمل بمرونة في حال تعذر تحميل الشعار
-          };
+          logoImg.onerror = applyHDEnhancements; // الاستمرار في العرض دائماً حتى لو تعذر تحميل صورة اللوجو
         }
       };
 
@@ -611,7 +603,39 @@ function initShareLogic() {
     }
   };
 
-  /* تنزيل صورة الـ QR عالية الدقة HD */
+  /* ربط أزرار فتح الـ QR */
+  if (shareQRBtn) {
+    shareQRBtn.addEventListener('click', () => {
+      openQrModal(
+        'شارك حاسبة المياه مع عائلتك وأصدقائك',
+        'امسح الرمز بكاميرا الهاتف أو نزّل الصورة لمشاركتها بسهولة.',
+        shareQRBtn
+      );
+    });
+  }
+
+  if (miniQrBadge) {
+    miniQrBadge.addEventListener('click', () => {
+      openQrModal(
+        'افتح الأداة وتابع الحساب من هاتفك الذكي',
+        'وجّه كاميرا هاتفك نحو الرمز لفتح حاسبة المياه وتثبيتها فوراً.',
+        miniQrBadge
+      );
+    });
+  }
+
+  /* أحداث إغلاق النافذة المنبثقة */
+  if (closeQrBtn && qrModal) {
+    closeQrBtn.addEventListener('click', closeQrModal);
+
+    qrModal.addEventListener('click', (event) => {
+      if (event.target === qrModal) {
+        closeQrModal();
+      }
+    });
+  }
+
+  /* تنزيل صورة الـ QR المكتملة */
   if (downloadQRBtn && qrContainer) {
     downloadQRBtn.addEventListener('click', () => {
       const imageSrc = qrContainer.dataset.downloadUrl || 
@@ -627,6 +651,7 @@ function initShareLogic() {
       }
     });
   }
+
   /* إغلاق عند الضغط خارجاً أو زر Escape */
   document.addEventListener('click', (event) => {
     if (!shareFallback.hidden && !shareFallback.contains(event.target) && !shareBtn.contains(event.target)) {
@@ -682,7 +707,6 @@ function isShareMenuOpen() {
     return shareFallback && !shareFallback.hidden;
 }
 
-/* فحص ما إذا كانت نافذة الـ QR مفتوحة حالياً */
 function isQrModalOpen() {
     const qrModal = document.getElementById('qrModal');
     return qrModal && !qrModal.hidden;
