@@ -1050,16 +1050,16 @@ body.dark-mode .share-option .qr-menu-badge {
 }
 
 .qr-modal-content {
-  position: relative;
-  width: min(120vw, 360px);
-  padding: 24px;
-  border-radius: 18px;
-  background: var(--qr-card-bg);
-  color: var(--qr-text-color);
-  text-align: center;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border); /* تم إصلاح قيمة border المفقودة */
-  border-color: rgb(0 0 0 / 60%);
+    position: relative;
+    width: min(92vw, 430px); /* تم توسيع العرض من 360px إلى 430px لاستعادة الشكل المربع */
+    padding: 22px 24px;
+    border-radius: 18px;
+    background: var(--qr-card-bg);
+    color: var(--qr-text-color);
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-color: rgb(0 0 0 / 60%);
 }
 
 .qr-container {
