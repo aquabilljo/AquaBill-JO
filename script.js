@@ -108,33 +108,35 @@ function initNumberInputs() {
     const tankerPrice = document.getElementById('tankerPrice');
 
     /* ---------- الاستهلاك ---------- */
-    if (consumption) {
-        consumption.addEventListener('input', function () {
-            let value = normalizeArabicNumbers(this.value);
+  if (consumption) {
+    consumption.addEventListener('input', function () {
+        let value = normalizeArabicNumbers(this.value);
 
-            /* أرقام صحيحة فقط */
-            value = value.split('.')[0];
+        /* أرقام صحيحة فقط */
+        value = value.split('.')[0].replace(/\D/g, '');
 
-            this.value = value.replace(/\D/g, '');
+        /* إزالة الأصفار الزائدة */
+        value = value.replace(/^0+(?=\d)/, '');
 
-            const numericValue = Number(this.value);
+        /* إذا كان الحقل فارغًا، اتركه فارغًا */
+        this.value = value;
 
-            if (Number.isFinite(numericValue) && numericValue > 500) {
-                this.value = '500';
+        const numericValue = Number(value);
+        const warning = document.getElementById('consumption-warning');
 
-                const warning = document.getElementById('consumption-warning');
-                if (warning) {
-                    warning.hidden = false;
-                }
-            } else {
-                const warning = document.getElementById('consumption-warning');
-                if (warning) {
-                    warning.hidden = true;
-                }
+        if (Number.isFinite(numericValue) && numericValue > 500) {
+            this.value = '500';
+
+            if (warning && warning.hidden) {
+                warning.hidden = false;
             }
-        });
-    }
-
+        } else {
+            if (warning && !warning.hidden) {
+                warning.hidden = true;
+            }
+        }
+    });
+}
     /* ---------- الصهريج ---------- */
     [
         {
