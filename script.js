@@ -121,8 +121,7 @@ if (consumption) {
         const warning = document.getElementById('consumption-warning');
         const numericValue = Number(value);
 
-        /* تجاوز الحد الأقصى */
-        if (Number.isFinite(numericValue) && numericValue > 500) {
+        if (Number.isFinite(numericValue) && numericValue >= 500) {
             this.value = '500';
 
             if (warning) {
