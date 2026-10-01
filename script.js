@@ -111,7 +111,6 @@ function initNumberInputs() {
   if (consumption) {
     consumption.addEventListener('input', function () {
         let value = normalizeArabicNumbers(this.value);
-
         /* أرقام صحيحة فقط */
         value = value.split('.')[0].replace(/\D/g, '');
 
@@ -121,7 +120,6 @@ function initNumberInputs() {
         /* إذا كان الحقل فارغًا، اتركه فارغًا */
         this.value = value;
 
-        const numericValue = Number(value);
         const warning = document.getElementById('consumption-warning');
 
         if (Number.isFinite(numericValue) && numericValue > 500) {
