@@ -89,192 +89,272 @@ function updateSetting(key, value) {
    3. VALIDATION — التحقق من صحة مدخلات المستخدم
    ========================================================================== */
 
-function sanitizeNumber(val, fallback = 0) {
-  const num = parseFloat(val);
-  return isNaN(num) ? fallback : num;
+function sanitizeNumber(value, fallback = 0) {
+    const n = parseFloat(value);
+    if (Number.isNaN(n) || !Number.isFinite(n) || n < 0) return fallback;
+    return n;
 }
 
 function normalizeArabicNumbers(value) {
-  return value
-    .replace(/[٠-٩]/g, char => '٠١٢٣٤٥٦٧٨٩'.indexOf(char))
-    .replace(/[۰-۹]/g, char => '۰۱۲۳۴۵۶۷۸۹'.indexOf(char))
-    .replace(/٫/g, '.');
+    return String(value)
+        .replace(/[٠-٩]/g, char => '٠١٢٣٤٥٦٧٨٩'.indexOf(char))
+        .replace(/[۰-۹]/g, char => '۰۱۲۳۴۵۶۷۸۹'.indexOf(char))
+        .replace(/٫/g, '.');
 }
 
 function initNumberInputs() {
-  const inputs = document.querySelectorAll(
-    '#consumption, #tankerQty, #tankerPrice'
-  );
+    const consumption = document.getElementById('consumption');
+    const tankerQty = document.getElementById('tankerQty');
+    const tankerPrice = document.getElementById('tankerPrice');
 
-  inputs.forEach(input => {
-    input.addEventListener('input', function () {
-      const normalized = normalizeArabicNumbers(this.value);
+    if (consumption) {
+        consumption.addEventListener('input', function () {
+            let value = normalizeArabicNumbers(this.value);
 
-      if (this.value !== normalized) {
-        this.value = normalized;
-      }
+            /* الاستهلاك: أرقام صحيحة فقط */
+            value = value.split('.')[0];
+
+            this.value = value
+                .replace(/\D/g, '')
+                .slice(0, 3);
+
+            if (Number(this.value) > 500) {
+                this.value = '500';
+            }
+        });
+    }
+
+    [tankerQty, tankerPrice].forEach(input => {
+        if (!input) return;
+
+        input.addEventListener('input', function () {
+            this.value = normalizeArabicNumbers(this.value)
+                .replace(/[^0-9.]/g, '');
+
+            const parts = this.value.split('.');
+
+            if (parts.length > 2) {
+                this.value = parts[0] + '.' + parts.slice(1).join('');
+            }
+
+            this.value = this.value.slice(0, 6);
+        });
     });
-  });
 }
-
 
 /* ==========================================================================
    4. CALCULATION ENGINE — دوال حساب الفاتورة
    ========================================================================== */
 
 function calcAll() {
-  const consumptionInput = document.getElementById('consumption');
-  const tankerCapInput = document.getElementById('tankerQty');
-  const tankerPriceInput = document.getElementById('tankerPrice');
+    const consumptionInput = document.getElementById('consumption');
+    const tankerCapInput = document.getElementById('tankerQty');
+    const tankerPriceInput = document.getElementById('tankerPrice');
 
-  [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
-    if (input && input.value) {
-      input.value = input.value.replace(/-/g, '');
-    }
-  });
-
-  const rawInput = consumptionInput ? consumptionInput.value.trim() : '';
-
-  if (rawInput === '') {
-    document.getElementById('waterOut').textContent = '0.00';
-    document.getElementById('sewageOut').textContent = '0.00';
-    document.getElementById('totalOut').textContent = '0.00';
-
-    const flatFeeHint = document.getElementById('flatFeeHint');
-    if (flatFeeHint) flatFeeHint.style.display = 'none';
-
-    document.getElementById('marginalHint').textContent = 'أدخل كمية الاستهلاك لمعرفة تكلفة المتر القادم.';
-
-    const badge = document.getElementById('statusBadge');
-    if (badge) badge.innerHTML = '';
-
-    document.getElementById('networkMarginal').textContent = '0.00';
-    document.getElementById('tankerMarginal').textContent = '0.00';
-    return;
-  }
-
-  const consumptionVal = parseFloat(rawInput);
-
-  /* 🔴 فحص الاستهلاك: يُشترط أن يكون رقماً صحيحاً فقط (Integer) بين 0 و 500 */
-  if (
-    isNaN(consumptionVal) ||
-    !Number.isInteger(consumptionVal) || /* 👈 يرفض الكسور في الاستهلاك */
-    consumptionVal < 0 ||
-    consumptionVal > 500
-  ) {
-    document.getElementById('waterOut').textContent = '0.00';
-    document.getElementById('sewageOut').textContent = '0.00';
-    document.getElementById('totalOut').textContent = '0.00';
-
-    const flatFeeHint = document.getElementById('flatFeeHint');
-    if (flatFeeHint) flatFeeHint.style.display = 'none';
-
-    document.getElementById('marginalHint').textContent = 'يرجى إدخال رقم صحيح للاستهلاك (بدون أرقام عشرية) بين 0 و 500 م³.';
-
-    const badge = document.getElementById('statusBadge');
-    if (badge) badge.innerHTML = '';
-
-    document.getElementById('networkMarginal').textContent = '0.00';
-    document.getElementById('tankerMarginal').textContent = '0.00';
-    return;
-  }
-
-  const n = Math.max(0, sanitizeNumber(rawInput, 0));
-  const water = costFor(n, 'water');
-  const sewage = costFor(n, 'sewage');
-  const total = water + sewage;
-
-  document.getElementById('waterOut').textContent = `${water.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
-  document.getElementById('sewageOut').textContent = `${sewage.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
-  document.getElementById('totalOut').textContent = `${total.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
-
-  const flatFeeHint = document.getElementById('flatFeeHint');
-  if (flatFeeHint) {
-    flatFeeHint.style.display = (n <= 6) ? 'inline-block' : 'none';
-  }
-
-  const nextWater = costFor(n + 1, 'water') - water;
-  const nextSewage = costFor(n + 1, 'sewage') - sewage;
-  const marginal = Math.max(0, nextWater + nextSewage);
-
-  document.getElementById('marginalHint').textContent =
-    `المتر القادم (رقم ${Math.ceil(n) + 1}) سيكلفك تقريباً ${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr} إضافي.`;
-
-  const badge = document.getElementById('statusBadge');
-  if (badge) {
-    let newHTML = '';
-    if (n <= 6) {
-      newHTML = '<span class="badge ok">💧 شريحة المقطوعية - استهلاك منزلي ممتاز</span>';
-    } else if (n <= 12) {
-      newHTML = '<span class="badge ok">🌿 استهلاك منزلي جيد جداً</span>';
-    } else if (n <= 18) {
-      newHTML = '<span class="badge ok">⚖️ استهلاك منزلي معتدل</span>';
-    } else if (n <= 24) {
-      newHTML = '<span class="badge warn">⚠️ استهلاك متوسط-مرتفع - تحقق من السبب</span>';
-    } else if (n <= 50) {
-      newHTML = '<span class="badge bad">🚨 استهلاك مرتفع - راجع التسريبات وأسباب الزيادة</span>';
-    } else {
-      newHTML = '<span class="badge critical">💥 تحذير: استهلاك مرتفع جداً! افحص العداد والتسريبات فوراً</span>';
-    }
-    badge.innerHTML = newHTML;
-  }
-
-  document.getElementById('networkMarginal').textContent = `${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
-
-  /* 🟢 حقول الصهريج: تقبل الكسور العادية والعشرية بمرونة (مثل 3.5 م³ أو 12.5 دينار) */
-  const rawTankerPrice = parseFloat(tankerPriceInput?.value) || 0;
-  const rawTankerQty = parseFloat(tankerCapInput?.value) || 0;
-
-  const tankerPrice = Math.max(0, rawTankerPrice);
-  const tankerQty = Math.max(0, rawTankerQty);
-
-  const boxNetwork = document.getElementById('boxNetwork');
-  const boxTanker = document.getElementById('boxTanker');
-  const recommendHint = document.getElementById('recommendHint');
-
-  if (tankerPrice > 500 || tankerQty > 100) {
-    document.getElementById('tankerMarginal').textContent = '-';
-    boxNetwork?.classList.remove('win');
-    boxTanker?.classList.remove('win');
-    if (recommendHint) {
-      recommendHint.textContent = '⚠️ السعر أو السعة المدخلة للصهريج غير منطقية (الأقصى: 100 م³ سعة / 500 د.أ سعر).';
-    }
-    return;
-  }
-
-  const tankerPerM3 = (tankerPrice > 0 && tankerQty > 0) ? (tankerPrice / tankerQty) : 0;
-
-  document.getElementById('tankerMarginal').textContent = tankerPerM3 > 0 
-    ? `${tankerPerM3.toFixed(2)} ${APP_CONFIG.currencyLabelAr}` 
-    : `0.00 ${APP_CONFIG.currencyLabelAr}`;
-
-  /* مقارنة المتر الأوفر */
-  if (tankerPerM3 > 0) {
-    if (marginal < tankerPerM3) {
-      boxNetwork?.classList.add('win');
-      boxTanker?.classList.remove('win');
-      if (recommendHint) recommendHint.textContent = 'الأوفر: سحب المتر الإضافي من العداد بدل طلب صهريج مياه.';
-    } else {
-      boxTanker?.classList.add('win');
-      boxNetwork?.classList.remove('win');
-      if (recommendHint) recommendHint.textContent = 'الأوفر هنا: صهريج المياه أرخص من تجاوز الشريحة الحالية.';
-    }
-  } else {
-    boxNetwork?.classList.remove('win');
-    boxTanker?.classList.remove('win');
-    if (recommendHint) recommendHint.textContent = 'أدخل سعر وسعة الصهريج للمقارنة مع العداد.';
-  }
-}
-(function initConsumptionWarning() {
-  const input = document.getElementById('consumption');
-  const badge = document.getElementById('consumption-warning');
-
-  if (input && badge) {
-    input.addEventListener('input', function () {
-      const val = parseFloat(this.value);
-      badge.style.display = (val > 500) ? 'block' : 'none';
+    [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
+        if (input && input.value) {
+            input.value = input.value.replace(/-/g, '');
+        }
     });
-  }
+
+    const rawInput = consumptionInput ? consumptionInput.value.trim() : '';
+
+    if (rawInput === '') {
+        document.getElementById('waterOut').textContent = '0.00';
+        document.getElementById('sewageOut').textContent = '0.00';
+        document.getElementById('totalOut').textContent = '0.00';
+
+        const flatFeeHint = document.getElementById('flatFeeHint');
+        if (flatFeeHint) {
+            flatFeeHint.style.display = 'none';
+        }
+
+        document.getElementById('marginalHint').textContent =
+            'أدخل كمية الاستهلاك لمعرفة تكلفة المتر القادم.';
+
+        const badge = document.getElementById('statusBadge');
+        if (badge) {
+            badge.innerHTML = '';
+        }
+
+        document.getElementById('networkMarginal').textContent = '0.00';
+        document.getElementById('tankerMarginal').textContent = '0.00';
+
+        return;
+    }
+
+    const consumptionVal = parseFloat(rawInput);
+
+    /* فحص الاستهلاك: رقم صحيح فقط بين 0 و 500 */
+    if (
+        isNaN(consumptionVal) ||
+        !Number.isInteger(consumptionVal) ||
+        consumptionVal < 0 ||
+        consumptionVal > 500
+    ) {
+        document.getElementById('waterOut').textContent = '0.00';
+        document.getElementById('sewageOut').textContent = '0.00';
+        document.getElementById('totalOut').textContent = '0.00';
+
+        const flatFeeHint = document.getElementById('flatFeeHint');
+        if (flatFeeHint) {
+            flatFeeHint.style.display = 'none';
+        }
+
+        document.getElementById('marginalHint').textContent =
+            'يرجى إدخال رقم صحيح للاستهلاك (بدون أرقام عشرية) بين 0 و 500 م³.';
+
+        const badge = document.getElementById('statusBadge');
+        if (badge) {
+            badge.innerHTML = '';
+        }
+
+        document.getElementById('networkMarginal').textContent = '0.00';
+        document.getElementById('tankerMarginal').textContent = '0.00';
+
+        return;
+    }
+
+    const n = Math.max(0, sanitizeNumber(rawInput, 0));
+    const water = costFor(n, 'water');
+    const sewage = costFor(n, 'sewage');
+    const total = water + sewage;
+
+    document.getElementById('waterOut').textContent =
+        `${water.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
+
+    document.getElementById('sewageOut').textContent =
+        `${sewage.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
+
+    document.getElementById('totalOut').textContent =
+        `${total.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
+
+    const flatFeeHint = document.getElementById('flatFeeHint');
+
+    if (flatFeeHint) {
+        flatFeeHint.style.display = (n <= 6) ? 'inline-block' : 'none';
+    }
+
+    const nextWater = costFor(n + 1, 'water') - water;
+    const nextSewage = costFor(n + 1, 'sewage') - sewage;
+    const marginal = Math.max(0, nextWater + nextSewage);
+
+    document.getElementById('marginalHint').textContent =
+        `المتر القادم (رقم ${Math.ceil(n) + 1}) سيكلفك تقريباً ` +
+        `${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr} إضافي.`;
+
+    const badge = document.getElementById('statusBadge');
+
+    if (badge) {
+        let newHTML = '';
+
+        if (n <= 6) {
+            newHTML =
+                '<span class="badge ok">💧 شريحة المقطوعية - استهلاك منزلي ممتاز</span>';
+        } else if (n <= 12) {
+            newHTML =
+                '<span class="badge ok">🌿 استهلاك منزلي جيد جداً</span>';
+        } else if (n <= 18) {
+            newHTML =
+                '<span class="badge ok">⚖️ استهلاك منزلي معتدل</span>';
+        } else if (n <= 24) {
+            newHTML =
+                '<span class="badge warn">⚠️ استهلاك متوسط-مرتفع - تحقق من السبب</span>';
+        } else if (n <= 50) {
+            newHTML =
+                '<span class="badge bad">🚨 استهلاك مرتفع - راجع التسريبات وأسباب الزيادة</span>';
+        } else {
+            newHTML =
+                '<span class="badge critical">💥 تحذير: استهلاك مرتفع جداً! افحص العداد والتسريبات فوراً</span>';
+        }
+
+        badge.innerHTML = newHTML;
+    }
+
+    document.getElementById('networkMarginal').textContent =
+        `${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
+
+    /* حقول الصهريج: تسمح بالقيم العشرية */
+    const rawTankerPrice = parseFloat(tankerPriceInput?.value) || 0;
+    const rawTankerQty = parseFloat(tankerCapInput?.value) || 0;
+
+    const tankerPrice = Math.max(0, rawTankerPrice);
+    const tankerQty = Math.max(0, rawTankerQty);
+
+    const boxNetwork = document.getElementById('boxNetwork');
+    const boxTanker = document.getElementById('boxTanker');
+    const recommendHint = document.getElementById('recommendHint');
+
+    if (tankerPrice > 500 || tankerQty > 100) {
+        document.getElementById('tankerMarginal').textContent = '-';
+
+        boxNetwork?.classList.remove('win');
+        boxTanker?.classList.remove('win');
+
+        if (recommendHint) {
+            recommendHint.textContent =
+                '⚠️ السعر أو السعة المدخلة للصهريج غير منطقية ' +
+                '(الأقصى: 100 م³ سعة / 500 د.أ سعر).';
+        }
+
+        return;
+    }
+
+    const tankerPerM3 =
+        (tankerPrice > 0 && tankerQty > 0)
+            ? (tankerPrice / tankerQty)
+            : 0;
+
+    document.getElementById('tankerMarginal').textContent =
+        tankerPerM3 > 0
+            ? `${tankerPerM3.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`
+            : `0.00 ${APP_CONFIG.currencyLabelAr}`;
+
+    /* مقارنة المتر الأوفر */
+    if (tankerPerM3 > 0) {
+        if (marginal < tankerPerM3) {
+            boxNetwork?.classList.add('win');
+            boxTanker?.classList.remove('win');
+
+            if (recommendHint) {
+                recommendHint.textContent =
+                    'الأوفر: سحب المتر الإضافي من العداد بدل طلب صهريج مياه.';
+            }
+        } else {
+            boxTanker?.classList.add('win');
+            boxNetwork?.classList.remove('win');
+
+            if (recommendHint) {
+                recommendHint.textContent =
+                    'الأوفر هنا: صهريج المياه أرخص من تجاوز الشريحة الحالية.';
+            }
+        }
+    } else {
+        boxNetwork?.classList.remove('win');
+        boxTanker?.classList.remove('win');
+
+        if (recommendHint) {
+            recommendHint.textContent =
+                'أدخل سعر وسعة الصهريج للمقارنة مع العداد.';
+        }
+    }
+}
+
+
+/* ==========================================================================
+   CONSUMPTION WARNING — تحذير الاستهلاك المرتفع
+   ========================================================================== */
+
+(function initConsumptionWarning() {
+    const input = document.getElementById('consumption');
+    const badge = document.getElementById('consumption-warning');
+
+    if (input && badge) {
+        input.addEventListener('input', function () {
+            const val = parseFloat(this.value);
+            badge.style.display = (val > 500) ? 'block' : 'none';
+        });
+    }
 })();
 /* ==========================================================================
    5. THEME TOGGLE — التبديل بين الوضع الفاتح والداكن
@@ -878,7 +958,11 @@ window.installApp = installApp;
 
 function initApp() {
     const settings = loadSettings();
-    if (Array.isArray(settings.tariffOverride) && settings.tariffOverride.length === tiers.length) {
+
+    if (
+        Array.isArray(settings.tariffOverride) &&
+        settings.tariffOverride.length === tiers.length
+    ) {
         settings.tariffOverride.forEach((t, i) => {
             tiers[i].water = sanitizeNumber(t.water, tiers[i].water);
             tiers[i].sewage = sanitizeNumber(t.sewage, tiers[i].sewage);
@@ -893,40 +977,62 @@ function initApp() {
     initFadeInCards();
     initShareLogic();
     initPwaToastEvents();
-   initNumberInputs();
+    initNumberInputs();
 
     const themeToggleBtn = document.getElementById('themeToggle');
+
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', toggleTheme);
     }
 
     const consumptionInput = document.getElementById('consumption');
+
     if (consumptionInput) {
         consumptionInput.addEventListener('input', calcAll);
     }
 
     const tankerQtyInput = document.getElementById('tankerQty');
+
     if (tankerQtyInput) {
         tankerQtyInput.addEventListener('input', calcAll);
     }
 
     const tankerPriceInput = document.getElementById('tankerPrice');
+
     if (tankerPriceInput) {
         tankerPriceInput.addEventListener('input', calcAll);
     }
 
     if (themeToggleBtn) {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDarkNow = currentTheme ? currentTheme === 'dark' : systemPrefersDark;
-        themeToggleBtn.setAttribute('aria-pressed', String(isDarkNow));
+        const currentTheme =
+            document.documentElement.getAttribute('data-theme');
+
+        const systemPrefersDark =
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        const isDarkNow =
+            currentTheme
+                ? currentTheme === 'dark'
+                : systemPrefersDark;
+
+        themeToggleBtn.setAttribute(
+            'aria-pressed',
+            String(isDarkNow)
+        );
     }
 
     const versionEl = document.getElementById('appVersion');
+
     if (versionEl) {
-        versionEl.textContent = `${APP_CONFIG.appName} — الإصدار ${APP_CONFIG.version}`;
+        versionEl.textContent =
+            `${APP_CONFIG.appName} — الإصدار ${APP_CONFIG.version}`;
     }
 }
+
+
+/* ==========================================================================
+   APP START — بدء التطبيق
+   ========================================================================== */
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
