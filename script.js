@@ -89,6 +89,11 @@ function updateSetting(key, value) {
    3. VALIDATION — التحقق من صحة مدخلات المستخدم
    ========================================================================== */
 
+function sanitizeNumber(val, fallback = 0) {
+  const num = parseFloat(val);
+  return isNaN(num) ? fallback : num;
+}
+
 function normalizeArabicNumbers(value) {
   return value
     .replace(/[٠-٩]/g, char => '٠١٢٣٤٥٦٧٨٩'.indexOf(char))
@@ -117,41 +122,16 @@ function initNumberInputs() {
    4. CALCULATION ENGINE — دوال حساب الفاتورة
    ========================================================================== */
 
-function costFor(n, field) {
-  let cost = 0;
-  let prevCap = 0;
-
-  for (const t of tiers) {
-    const cap = t.upTo;
-
-    if (t.flat) {
-      cost += t[field];
-      prevCap = cap;
-      if (n <= cap) break;
-      continue;
-    }
-
-    if (n > prevCap) {
-      const units = Math.min(n, cap) - prevCap;
-      cost += units * t[field];
-    }
-    prevCap = cap;
-    if (n <= cap) break;
-  }
-
-  return cost;
-}
-
 function calcAll() {
   const consumptionInput = document.getElementById('consumption');
   const tankerCapInput = document.getElementById('tankerQty');
   const tankerPriceInput = document.getElementById('tankerPrice');
 
- [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
-  if (input && input.value) {
-    input.value = input.value.replace(/-/g, '');
-  }
-});
+  [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
+    if (input && input.value) {
+      input.value = input.value.replace(/-/g, '');
+    }
+  });
 
   const rawInput = consumptionInput ? consumptionInput.value.trim() : '';
 
@@ -175,20 +155,21 @@ function calcAll() {
 
   const consumptionVal = parseFloat(rawInput);
 
-if (
-  isNaN(consumptionVal) ||
-  !Number.isInteger(consumptionVal) ||
-  consumptionVal < 0 ||
-  consumptionVal > 500
-) {
-   document.getElementById('waterOut').textContent = '0.00';
+  /* 🔴 فحص الاستهلاك: يُشترط أن يكون رقماً صحيحاً فقط (Integer) بين 0 و 500 */
+  if (
+    isNaN(consumptionVal) ||
+    !Number.isInteger(consumptionVal) || /* 👈 يرفض الكسور في الاستهلاك */
+    consumptionVal < 0 ||
+    consumptionVal > 500
+  ) {
+    document.getElementById('waterOut').textContent = '0.00';
     document.getElementById('sewageOut').textContent = '0.00';
     document.getElementById('totalOut').textContent = '0.00';
 
     const flatFeeHint = document.getElementById('flatFeeHint');
     if (flatFeeHint) flatFeeHint.style.display = 'none';
 
-    document.getElementById('marginalHint').textContent = 'القيمة المدخلة غير صحيحة أو تتجاوز النطاق المسموح (500 م³).';
+    document.getElementById('marginalHint').textContent = 'يرجى إدخال رقم صحيح للاستهلاك (بدون أرقام عشرية) بين 0 و 500 م³.';
 
     const badge = document.getElementById('statusBadge');
     if (badge) badge.innerHTML = '';
@@ -240,6 +221,7 @@ if (
 
   document.getElementById('networkMarginal').textContent = `${marginal.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`;
 
+  /* 🟢 حقول الصهريج: تقبل الكسور العادية والعشرية بمرونة (مثل 3.5 م³ أو 12.5 دينار) */
   const rawTankerPrice = parseFloat(tankerPriceInput?.value) || 0;
   const rawTankerQty = parseFloat(tankerCapInput?.value) || 0;
 
@@ -266,6 +248,7 @@ if (
     ? `${tankerPerM3.toFixed(2)} ${APP_CONFIG.currencyLabelAr}` 
     : `0.00 ${APP_CONFIG.currencyLabelAr}`;
 
+  /* مقارنة المتر الأوفر */
   if (tankerPerM3 > 0) {
     if (marginal < tankerPerM3) {
       boxNetwork?.classList.add('win');
@@ -282,19 +265,6 @@ if (
     if (recommendHint) recommendHint.textContent = 'أدخل سعر وسعة الصهريج للمقارنة مع العداد.';
   }
 }
-
-(function initConsumptionWarning() {
-  const input = document.getElementById('consumption');
-  const badge = document.getElementById('consumption-warning');
-
-  if (input && badge) {
-    input.addEventListener('input', function () {
-      const val = parseFloat(this.value);
-      badge.style.display = (val > 500) ? 'block' : 'none';
-    });
-  }
-})();
-
 
 /* ==========================================================================
    5. THEME TOGGLE — التبديل بين الوضع الفاتح والداكن
