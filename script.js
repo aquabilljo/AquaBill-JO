@@ -318,7 +318,9 @@ function calcAll() {
                 '<span class="badge critical">💥 تحذير: استهلاك مرتفع جداً! افحص العداد والتسريبات فوراً</span>';
         }
 
-        badge.innerHTML = newHTML;
+       if (badge.innerHTML !== newHTML) {
+           badge.innerHTML = newHTML;
+}
     }
 
     document.getElementById('networkMarginal').textContent =
