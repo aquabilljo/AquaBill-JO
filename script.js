@@ -393,21 +393,6 @@ function calcAll() {
 }
 
 /* ==========================================================================
-   CONSUMPTION WARNING — تحذير الاستهلاك المرتفع
-   ========================================================================== */
-
-(function initConsumptionWarning() {
-    const input = document.getElementById('consumption');
-    const badge = document.getElementById('consumption-warning');
-
-    if (input && badge) {
-        input.addEventListener('input', function () {
-            const val = parseFloat(this.value);
-            badge.style.display = (val > 500) ? 'block' : 'none';
-        });
-    }
-})();
-/* ==========================================================================
    5. THEME TOGGLE — التبديل بين الوضع الفاتح والداكن
    ========================================================================== */
 
