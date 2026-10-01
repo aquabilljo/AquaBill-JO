@@ -146,13 +146,13 @@ function calcAll() {
   const consumptionInput = document.getElementById('consumption');
   const tankerCapInput = document.getElementById('tankerQty');
   const tankerPriceInput = document.getElementById('tankerPrice');
-
+}
  [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
   if (input && input.value) {
     input.value = input.value.replace(/-/g, '');
   }
 });
-
+   
   const rawInput = consumptionInput ? consumptionInput.value.trim() : '';
 
   if (rawInput === '') {
