@@ -107,37 +107,59 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
+    /* الاستهلاك: أرقام صحيحة فقط من 0 إلى 500 */
     if (consumption) {
         consumption.addEventListener('input', function () {
             let value = normalizeArabicNumbers(this.value);
 
-            /* الاستهلاك: أرقام صحيحة فقط */
-            value = value.split('.')[0];
+            /* إزالة أي شيء غير الأرقام */
+            value = value.replace(/\D/g, '');
 
-            this.value = value
-                .replace(/\D/g, '')
-                .slice(0, 3);
+            /* الحد الأقصى 3 خانات */
+            value = value.slice(0, 3);
 
-            if (Number(this.value) > 500) {
-                this.value = '500';
+            /* الحد الرقمي الأقصى */
+            if (Number(value) > 500) {
+                value = '500';
             }
+
+            this.value = value;
         });
     }
 
-    [tankerQty, tankerPrice].forEach(input => {
+    /* الصهريج: قيم عشرية من 0 إلى 100 */
+    [
+        { input: tankerQty, max: 100 },
+        { input: tankerPrice, max: 500 }
+    ].forEach(({ input, max }) => {
         if (!input) return;
 
         input.addEventListener('input', function () {
-            this.value = normalizeArabicNumbers(this.value)
-                .replace(/[^0-9.]/g, '');
+            let value = normalizeArabicNumbers(this.value);
 
-            const parts = this.value.split('.');
+            /* السماح بالأرقام والنقطة فقط */
+            value = value.replace(/[^0-9.]/g, '');
 
-            if (parts.length > 2) {
-                this.value = parts[0] + '.' + parts.slice(1).join('');
+            /* السماح بنقطة عشرية واحدة فقط */
+            const firstDot = value.indexOf('.');
+
+            if (firstDot !== -1) {
+                value =
+                    value.slice(0, firstDot + 1) +
+                    value.slice(firstDot + 1).replace(/\./g, '');
             }
 
-            this.value = this.value.slice(0, 6);
+            /* الحد الأقصى 6 خانات */
+            value = value.slice(0, 6);
+
+            const numericValue = parseFloat(value);
+
+            /* منع تجاوز الحد */
+            if (Number.isFinite(numericValue) && numericValue > max) {
+                value = String(max);
+            }
+
+            this.value = value;
         });
     });
 }
