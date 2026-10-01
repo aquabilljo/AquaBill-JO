@@ -107,7 +107,8 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-  /* ---------- الاستهلاك ---------- */
+
+/* ---------- الاستهلاك ---------- */
 if (consumption) {
     consumption.addEventListener('input', function () {
         let value = normalizeArabicNumbers(this.value);
@@ -118,10 +119,12 @@ if (consumption) {
         /* إزالة الأصفار الزائدة */
         value = value.replace(/^0+(?=\d)/, '');
 
+        const numericValue = Number(value);
         const warning = document.getElementById('consumption-warning');
         const numericValue = Number(value);
 
-        if (Number.isFinite(numericValue) && numericValue >= 500) {
+        /* تجاوز الحد الأقصى */
+        if (Number.isFinite(numericValue) && numericValue > 500) {
             this.value = '500';
 
             if (warning) {
