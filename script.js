@@ -124,28 +124,72 @@ function initNumberInputs() {
         });
     }
 
-    [tankerQty, tankerPrice].forEach(input => {
+    [
+        { input: tankerQty, max: 100 },
+        { input: tankerPrice, max: 500 }
+    ].forEach(({ input, max }) => {
         if (!input) return;
 
         input.addEventListener('input', function () {
-            this.value = normalizeArabicNumbers(this.value)
+            let value = normalizeArabicNumbers(this.value)
                 .replace(/[^0-9.]/g, '');
 
-            const parts = this.value.split('.');
+            const parts = value.split('.');
 
             if (parts.length > 2) {
-                this.value = parts[0] + '.' + parts.slice(1).join('');
+                value = parts[0] + '.' + parts.slice(1).join('');
             }
 
-            this.value = this.value.slice(0, 6);
+            const numericValue = parseFloat(value);
+
+            if (Number.isFinite(numericValue) && numericValue > max) {
+                value = String(max);
+            }
+
+            this.value = value;
         });
     });
 }
-
 /* ==========================================================================
    4. CALCULATION ENGINE — دوال حساب الفاتورة
    ========================================================================== */
 
+function costFor(n, field) {
+    let cost = 0;
+    let prevCap = 0;
+
+    for (const t of tiers) {
+        const cap = t.upTo;
+
+        if (t.flat) {
+            cost += t[field];
+            prevCap = cap;
+
+            if (n <= cap) {
+                break;
+            }
+
+            continue;
+        }
+
+        if (n > prevCap) {
+            const units = Math.min(n, cap) - prevCap;
+            cost += units * t[field];
+        }
+
+        prevCap = cap;
+
+        if (n <= cap) {
+            break;
+        }
+    }
+
+    return cost;
+}
+
+
+function calcAll() {
+    // بقية calcAll الموجودة عندك تبقى كما هي
 function calcAll() {
     const consumptionInput = document.getElementById('consumption');
     const tankerCapInput = document.getElementById('tankerQty');
