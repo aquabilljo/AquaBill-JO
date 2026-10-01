@@ -107,63 +107,89 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-    /* الاستهلاك: أرقام صحيحة فقط من 0 إلى 500 */
+    /* ---------- الاستهلاك ---------- */
     if (consumption) {
         consumption.addEventListener('input', function () {
             let value = normalizeArabicNumbers(this.value);
 
-            /* إزالة أي شيء غير الأرقام */
-            value = value.replace(/\D/g, '');
+            /* أرقام صحيحة فقط */
+            value = value.split('.')[0];
 
-            /* الحد الأقصى 3 خانات */
-            value = value.slice(0, 3);
+            this.value = value.replace(/\D/g, '');
 
-            /* الحد الرقمي الأقصى */
-            if (Number(value) > 500) {
-                value = '500';
+            const numericValue = Number(this.value);
+
+            if (Number.isFinite(numericValue) && numericValue > 500) {
+                this.value = '500';
+
+                const warning = document.getElementById('consumption-warning');
+                if (warning) {
+                    warning.hidden = false;
+                }
+            } else {
+                const warning = document.getElementById('consumption-warning');
+                if (warning) {
+                    warning.hidden = true;
+                }
             }
-
-            this.value = value;
         });
     }
 
-    /* الصهريج: قيم عشرية من 0 إلى 100 */
+    /* ---------- الصهريج ---------- */
     [
-        { input: tankerQty, max: 100 },
-        { input: tankerPrice, max: 500 }
-    ].forEach(({ input, max }) => {
+        {
+            input: tankerQty,
+            max: 100,
+            warningId: 'tankerQtyWarning'
+        },
+        {
+            input: tankerPrice,
+            max: 500,
+            warningId: 'tankerPriceWarning'
+        }
+    ].forEach(({ input, max, warningId }) => {
         if (!input) return;
 
         input.addEventListener('input', function () {
-            let value = normalizeArabicNumbers(this.value);
+            let value = normalizeArabicNumbers(this.value)
+                .replace(/[^0-9.]/g, '');
 
-            /* السماح بالأرقام والنقطة فقط */
-            value = value.replace(/[^0-9.]/g, '');
+            const parts = value.split('.');
 
             /* السماح بنقطة عشرية واحدة فقط */
-            const firstDot = value.indexOf('.');
-
-            if (firstDot !== -1) {
-                value =
-                    value.slice(0, firstDot + 1) +
-                    value.slice(firstDot + 1).replace(/\./g, '');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
             }
 
-            /* الحد الأقصى 6 خانات */
-            value = value.slice(0, 6);
+       const numericValue = parseFloat(value);
 
-            const numericValue = parseFloat(value);
+const warning = document.getElementById(warningId);
 
-            /* منع تجاوز الحد */
-            if (Number.isFinite(numericValue) && numericValue > max) {
-                value = String(max);
-            }
+if (Number.isFinite(numericValue) && numericValue > max) {
+    value = String(max);
 
-            this.value = value;
+    if (warning) {
+        warning.hidden = false;
+    }
+} else {
+    if (warning) {
+        warning.hidden = true;
+    }
+
+    /* إزالة الأصفار الزائدة من الجزء الصحيح */
+    if (value.includes('.')) {
+        const parts = value.split('.');
+        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+        value = parts.join('.');
+    } else {
+        value = value.replace(/^0+(?=\d)/, '');
+    }
+}
+
+this.value = value;
         });
     });
 }
-
 /* ==========================================================================
    4. CALCULATION ENGINE — دوال حساب الفاتورة
    ========================================================================== */
