@@ -89,10 +89,27 @@ function updateSetting(key, value) {
    3. VALIDATION — التحقق من صحة مدخلات المستخدم
    ========================================================================== */
 
-function sanitizeNumber(value, fallback = 0) {
-  const n = parseFloat(value);
-  if (Number.isNaN(n) || !Number.isFinite(n) || n < 0) return fallback;
-  return n;
+function normalizeArabicNumbers(value) {
+  return value
+    .replace(/[٠-٩]/g, char => '٠١٢٣٤٥٦٧٨٩'.indexOf(char))
+    .replace(/[۰-۹]/g, char => '۰۱۲۳۴۵۶۷۸۹'.indexOf(char))
+    .replace(/٫/g, '.');
+}
+
+function initNumberInputs() {
+  const inputs = document.querySelectorAll(
+    '#consumption, #tankerQty, #tankerPrice'
+  );
+
+  inputs.forEach(input => {
+    input.addEventListener('input', function () {
+      const normalized = normalizeArabicNumbers(this.value);
+
+      if (this.value !== normalized) {
+        this.value = normalized;
+      }
+    });
+  });
 }
 
 
@@ -130,16 +147,11 @@ function calcAll() {
   const tankerCapInput = document.getElementById('tankerQty');
   const tankerPriceInput = document.getElementById('tankerPrice');
 
-  [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
-    if (input && input.value) {
-      if (input.value.includes('-')) {
-        input.value = input.value.replace(/-/g, '');
-      }
-      if (input.value.length > 3) {
-        input.value = input.value.slice(0, 3);
-      }
-    }
-  });
+ [consumptionInput, tankerCapInput, tankerPriceInput].forEach(input => {
+  if (input && input.value) {
+    input.value = input.value.replace(/-/g, '');
+  }
+});
 
   const rawInput = consumptionInput ? consumptionInput.value.trim() : '';
 
@@ -163,8 +175,13 @@ function calcAll() {
 
   const consumptionVal = parseFloat(rawInput);
 
-  if (isNaN(consumptionVal) || consumptionVal < 0 || consumptionVal > 500) {
-    document.getElementById('waterOut').textContent = '0.00';
+if (
+  isNaN(consumptionVal) ||
+  !Number.isInteger(consumptionVal) ||
+  consumptionVal < 0 ||
+  consumptionVal > 500
+) {
+   document.getElementById('waterOut').textContent = '0.00';
     document.getElementById('sewageOut').textContent = '0.00';
     document.getElementById('totalOut').textContent = '0.00';
 
@@ -896,6 +913,7 @@ function initApp() {
     initFadeInCards();
     initShareLogic();
     initPwaToastEvents();
+   initNumberInputs();
 
     const themeToggleBtn = document.getElementById('themeToggle');
     if (themeToggleBtn) {
