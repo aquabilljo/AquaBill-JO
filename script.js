@@ -281,7 +281,7 @@ if (
     boxTanker?.classList.remove('win');
     if (recommendHint) recommendHint.textContent = 'أدخل سعر وسعة الصهريج للمقارنة مع العداد.';
   }
-}
+
 
 (function initConsumptionWarning() {
   const input = document.getElementById('consumption');
