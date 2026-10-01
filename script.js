@@ -107,7 +107,7 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-  /* ---------- الاستهلاك ---------- */
+   /* ---------- الاستهلاك ---------- */
 if (consumption) {
     consumption.addEventListener('input', function () {
         let value = normalizeArabicNumbers(this.value);
