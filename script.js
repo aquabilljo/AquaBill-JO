@@ -124,7 +124,7 @@ function initNumberInputs() {
         const numericValue = Number(value);
         const warning = document.getElementById('consumption-warning');
 
-        if (Number.isFinite(numericValue) && numericValue > 500) {
+        if (Number.isFinite(numericValue) && numericValue >= 500) {
             this.value = '500';
 
             if (warning && warning.hidden) {
