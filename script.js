@@ -340,7 +340,6 @@ function calcAll() {
     }
 }
 
-
 /* ==========================================================================
    CONSUMPTION WARNING — تحذير الاستهلاك المرتفع
    ========================================================================== */
@@ -955,6 +954,38 @@ window.installApp = installApp;
 /* ==========================================================================
    10. INITIALIZATION — التشغيل الأولي عند تحميل الصفحة
    ========================================================================== */
+function costFor(n, field) {
+    let cost = 0;
+    let prevCap = 0;
+
+    for (const t of tiers) {
+        const cap = t.upTo;
+
+        if (t.flat) {
+            cost += t[field];
+            prevCap = cap;
+
+            if (n <= cap) {
+                break;
+            }
+
+            continue;
+        }
+
+        if (n > prevCap) {
+            const units = Math.min(n, cap) - prevCap;
+            cost += units * t[field];
+        }
+
+        prevCap = cap;
+
+        if (n <= cap) {
+            break;
+        }
+    }
+
+    return cost;
+}
 
 function initApp() {
     const settings = loadSettings();
