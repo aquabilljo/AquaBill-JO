@@ -107,38 +107,38 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-   /* ---------- الاستهلاك ---------- */
-if (consumption) {
-    consumption.addEventListener('input', function () {
-        let value = normalizeArabicNumbers(this.value);
+    /* ---------- الاستهلاك ---------- */
+    if (consumption) {
+        consumption.addEventListener('input', function () {
+            let value = normalizeArabicNumbers(this.value);
 
-        /* أرقام صحيحة فقط */
-        value = value.split('.')[0].replace(/\D/g, '');
+            /* أرقام صحيحة فقط */
+            value = value.split('.')[0].replace(/\D/g, '');
 
-        /* إزالة الأصفار الزائدة */
-        value = value.replace(/^0+(?=\d)/, '');
+            /* إزالة الأصفار الزائدة */
+            value = value.replace(/^0+(?=\d)/, '');
 
-        const warning = document.getElementById('consumption-warning');
-        const numericValue = Number(value);
+            const warning = document.getElementById('consumption-warning');
+            const numericValue = Number(value);
 
-        if (Number.isFinite(numericValue) && numericValue >= 500) {
-            this.value = '500';
+            if (Number.isFinite(numericValue) && numericValue >= 500) {
+                this.value = '500';
 
-            if (warning) {
-                warning.hidden = false;
+                if (warning) {
+                    warning.hidden = false;
+                }
+
+                return;
             }
 
-            return;
-        }
+            this.value = value;
 
-        /* القيمة ضمن الحد */
-        this.value = value;
+            if (warning) {
+                warning.hidden = true;
+            }
+        });
+    }
 
-        if (warning) {
-            warning.hidden = true;
-        }
-    });
-}
     /* ---------- الصهريج ---------- */
     [
         {
@@ -158,39 +158,54 @@ if (consumption) {
             let value = normalizeArabicNumbers(this.value)
                 .replace(/[^0-9.]/g, '');
 
-            const parts = value.split('.');
-
             /* السماح بنقطة عشرية واحدة فقط */
-            if (parts.length > 2) {
-                value = parts[0] + '.' + parts.slice(1).join('');
+            const firstDot = value.indexOf('.');
+
+            if (firstDot !== -1) {
+                value =
+                    value.slice(0, firstDot + 1) +
+                    value.slice(firstDot + 1)
+                        .replace(/\./g, '')
+                        .slice(0, 1);
             }
 
-       const numericValue = parseFloat(value);
+            const numericValue = parseFloat(value);
+            const warning = document.getElementById(warningId);
 
-const warning = document.getElementById(warningId);
+            /* تجاوز الحد الأقصى */
+            if (Number.isFinite(numericValue) && numericValue > max) {
+                this.value = String(max);
 
-if (Number.isFinite(numericValue) && numericValue > max) {
-    value = String(max);
+                if (warning) {
+                    warning.hidden = false;
+                }
 
-    if (warning) {
-        warning.hidden = false;
-    }
-} else {
-    if (warning) {
-        warning.hidden = true;
-    }
+                return;
+            }
 
-    /* إزالة الأصفار الزائدة من الجزء الصحيح */
-    if (value.includes('.')) {
-        const parts = value.split('.');
-        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-        value = parts.join('.');
-    } else {
-        value = value.replace(/^0+(?=\d)/, '');
-    }
-}
+            /* القيمة ضمن الحد */
+            if (warning) {
+                warning.hidden = true;
+            }
 
-this.value = value;
+            /* إزالة الأصفار الزائدة */
+            if (value !== '' && value !== '.') {
+                if (value.includes('.')) {
+                    const parts = value.split('.');
+                    parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+                    value = parts.join('.');
+                } else {
+                    value = value.replace(/^0+(?=\d)/, '');
+                }
+            }
+
+            /*
+             * لا نعيد كتابة القيمة أثناء الحالة المؤقتة
+             * مثل 3. حتى لا يتحرك المؤشر.
+             */
+            if (value !== '' && value !== '.' && !value.endsWith('.')) {
+                this.value = value;
+            }
         });
     });
 }
