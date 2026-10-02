@@ -107,38 +107,38 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-   /* ---------- الاستهلاك ---------- */
-if (consumption) {
-    consumption.addEventListener('input', function () {
-        let value = normalizeArabicNumbers(this.value);
+    /* ---------- الاستهلاك ---------- */
+    if (consumption) {
+        consumption.addEventListener('input', function () {
+            let value = normalizeArabicNumbers(this.value);
 
-        /* أرقام صحيحة فقط */
-        value = value.split('.')[0].replace(/\D/g, '');
+            /* أرقام صحيحة فقط */
+            value = value.split('.')[0].replace(/\D/g, '');
 
-        /* إزالة الأصفار الزائدة */
-        value = value.replace(/^0+(?=\d)/, '');
+            /* إزالة الأصفار الزائدة */
+            value = value.replace(/^0+(?=\d)/, '');
 
-        const warning = document.getElementById('consumption-warning');
-        const numericValue = Number(value);
+            const warning = document.getElementById('consumption-warning');
+            const numericValue = Number(value);
 
-        if (Number.isFinite(numericValue) && numericValue >= 500) {
-            this.value = '500';
+            if (Number.isFinite(numericValue) && numericValue >= 500) {
+                this.value = '500';
 
-            if (warning) {
-                warning.hidden = false;
+                if (warning) {
+                    warning.hidden = false;
+                }
+
+                return;
             }
 
-            return;
-        }
+            this.value = value;
 
-        /* القيمة ضمن الحد */
-        this.value = value;
+            if (warning) {
+                warning.hidden = true;
+            }
+        });
+    }
 
-        if (warning) {
-            warning.hidden = true;
-        }
-    });
-}
    /* ---------- الصهريج ---------- */
 [
     {
@@ -158,12 +158,15 @@ if (consumption) {
         let value = normalizeArabicNumbers(this.value)
             .replace(/[^0-9.]/g, '');
 
-        /* السماح بنقطة عشرية واحدة فقط */
+        /* السماح بنقطة عشرية واحدة ومنزلة عشرية واحدة فقط */
         const firstDot = value.indexOf('.');
+
         if (firstDot !== -1) {
             value =
                 value.slice(0, firstDot + 1) +
-                value.slice(firstDot + 1).replace(/\./g, '');
+                value.slice(firstDot + 1)
+                    .replace(/\./g, '')
+                    .slice(0, 1);
         }
 
         const numericValue = parseFloat(value);
@@ -175,16 +178,19 @@ if (consumption) {
 
             if (warning) {
                 warning.hidden = false;
+                warning.style.display = 'block';
             }
 
             return;
         }
 
+        /* القيمة ضمن الحد */
         if (warning) {
             warning.hidden = true;
+            warning.style.display = 'none';
         }
 
-        /* إزالة الأصفار الزائدة من الجزء الصحيح */
+        /* إزالة الأصفار الزائدة */
         if (value !== '' && value !== '.') {
             if (value.includes('.')) {
                 const parts = value.split('.');
@@ -196,13 +202,11 @@ if (consumption) {
         }
 
         /*
-         * لا تعيد كتابة القيمة إذا كانت مجرد نقطة أو
-         * إذا كانت النقطة هي آخر حرف، حتى لا يتحرك المؤشر.
+         * لا نعيد كتابة القيمة أثناء الحالة المؤقتة
+         * مثل 3. حتى لا يتحرك المؤشر.
          */
-        if (value !== '' && value !== '.') {
-            if (!value.endsWith('.')) {
-                this.value = value;
-            }
+        if (value !== '' && value !== '.' && !value.endsWith('.')) {
+            this.value = value;
         }
     });
 });
