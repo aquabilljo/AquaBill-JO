@@ -107,7 +107,6 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-   /* ---------- الاستهلاك ---------- */
 /* ---------- الاستهلاك ---------- */
 if (consumption) {
     consumption.addEventListener('input', function () {
@@ -140,7 +139,7 @@ if (consumption) {
         });
     }
 
-   /* ---------- الصهريج ---------- */
+/* ---------- الصهريج ---------- */
 [
     {
         input: tankerQty,
@@ -171,16 +170,17 @@ if (consumption) {
         }
 
         const numericValue = parseFloat(value);
-        const warning = document.getElementById('consumption-warning');
+        const warning = document.getElementById(warningId);
 
         /* تجاوز الحد الأقصى */
-        if (Number.isFinite(numericValue) && numericValue > 500) {
+        if (Number.isFinite(numericValue) && numericValue > max) {
+            this.value = String(max);
+
             if (warning) {
                 warning.hidden = false;
                 warning.style.display = 'block';
             }
 
-            this.value = '500';
             return;
         }
 
