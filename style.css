@@ -491,6 +491,8 @@ label {
 
 /* 1. الحقول الافتراضية وصناديق النتائج والمقارنة (تنسيق موحد) */
 input[type="number"],
+#tankerQty,
+#tankerPrice,
 select,
 .result,
 .compare .box,
@@ -512,6 +514,8 @@ select,
 
 /* حالة التركيز عند الكتابة والتأثير التفاعلي */
 input[type="number"]:focus,
+#tankerQty:focus,
+#tankerPrice:focus,
 select:focus {
   outline: none;
   border-color: var(--accent-strong);
