@@ -155,6 +155,8 @@ if (consumption) {
     if (!input) return;
 
     input.addEventListener('input', function () {
+        console.log('TANKER INPUT:', this.id, this.value);
+
         let value = normalizeArabicNumbers(this.value)
             .replace(/[^0-9.]/g, '');
 
@@ -191,23 +193,23 @@ if (consumption) {
         }
 
         /* إزالة الأصفار الزائدة فقط عند الحاجة */
-if (value !== '' && value !== '.') {
-    if (value.includes('.')) {
-        const parts = value.split('.');
-        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-        value = parts.join('.');
-    } else {
-        value = value.replace(/^0+(?=\d)/, '');
-    }
-}
+        if (value !== '' && value !== '.') {
+            if (value.includes('.')) {
+                const parts = value.split('.');
+                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+                value = parts.join('.');
+            } else {
+                value = value.replace(/^0+(?=\d)/, '');
+            }
+        }
 
-/*
- * لا نعيد كتابة القيمة أثناء الإدخال الطبيعي.
- * نترك المتصفح يدير المؤشر والقيمة.
- */
-if (this.value !== value && !value.endsWith('.')) {
-    this.value = value;
-}
+        /*
+         * لا نعيد كتابة القيمة أثناء الإدخال الطبيعي.
+         * نترك المتصفح يدير المؤشر والقيمة.
+         */
+        if (this.value !== value && !value.endsWith('.')) {
+            this.value = value;
+        }
     });
 });
 }
