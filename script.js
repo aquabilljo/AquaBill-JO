@@ -158,12 +158,15 @@ if (consumption) {
         let value = normalizeArabicNumbers(this.value)
             .replace(/[^0-9.]/g, '');
 
-        /* السماح بنقطة عشرية واحدة فقط */
+        /* السماح بنقطة عشرية واحدة ومنزلة عشرية واحدة فقط */
         const firstDot = value.indexOf('.');
+
         if (firstDot !== -1) {
             value =
                 value.slice(0, firstDot + 1) +
-                value.slice(firstDot + 1).replace(/\./g, '');
+                value.slice(firstDot + 1)
+                    .replace(/\./g, '')
+                    .slice(0, 1);
         }
 
         const numericValue = parseFloat(value);
@@ -180,6 +183,7 @@ if (consumption) {
             return;
         }
 
+        /* القيمة ضمن الحد */
         if (warning) {
             warning.hidden = true;
         }
@@ -194,6 +198,26 @@ if (consumption) {
                 value = value.replace(/^0+(?=\d)/, '');
             }
         }
+
+        /*
+         * لا نعيد كتابة القيمة إذا كانت في حالة إدخال مؤقتة
+         * مثل 3. حتى لا يتحرك المؤشر أثناء الكتابة.
+         */
+        if (value !== '' && value !== '.' && !value.endsWith('.')) {
+            this.value = value;
+        }
+    });
+});
+}
+    /* إزالة الأصفار الزائدة من الجزء الصحيح */
+    if (value.includes('.')) {
+        const parts = value.split('.');
+        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+        value = parts.join('.');
+    } else {
+        value = value.replace(/^0+(?=\d)/, '');
+    }
+}
 
         /*
          * لا تعيد كتابة القيمة إذا كانت مجرد نقطة أو
