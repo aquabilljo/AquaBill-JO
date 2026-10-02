@@ -113,11 +113,62 @@ if (consumption) {
     consumption.addEventListener('input', function () {
         let value = normalizeArabicNumbers(this.value);
 
-        /* أرقام صحيحة فقط */
-        value = value.split('.')[0].replace(/\D/g, '');
+            /* أرقام صحيحة فقط */
+            value = value.split('.')[0].replace(/\D/g, '');
 
-        /* إزالة الأصفار الزائدة */
-        value = value.replace(/^0+(?=\d)/, '');
+            /* إزالة الأصفار الزائدة */
+            value = value.replace(/^0+(?=\d)/, '');
+
+            const warning = document.getElementById('consumption-warning');
+            const numericValue = Number(value);
+
+            if (Number.isFinite(numericValue) && numericValue >= 500) {
+                this.value = '500';
+
+                if (warning) {
+                    warning.hidden = false;
+                }
+
+                return;
+            }
+
+            this.value = value;
+
+            if (warning) {
+                warning.hidden = true;
+            }
+        });
+    }
+
+   /* ---------- الصهريج ---------- */
+[
+    {
+        input: tankerQty,
+        max: 100,
+        warningId: 'tankerQtyWarning'
+    },
+    {
+        input: tankerPrice,
+        max: 500,
+        warningId: 'tankerPriceWarning'
+    }
+].forEach(({ input, max, warningId }) => {
+    if (!input) return;
+
+    input.addEventListener('input', function () {
+        let value = normalizeArabicNumbers(this.value)
+            .replace(/[^0-9.]/g, '');
+
+        /* السماح بنقطة عشرية واحدة ومنزلة عشرية واحدة فقط */
+        const firstDot = value.indexOf('.');
+
+        if (firstDot !== -1) {
+            value =
+                value.slice(0, firstDot + 1) +
+                value.slice(firstDot + 1)
+                    .replace(/\./g, '')
+                    .slice(0, 1);
+        }
 
         const numericValue = parseFloat(value);
         const warning = document.getElementById('consumption-warning');
@@ -134,69 +185,33 @@ if (consumption) {
         }
 
         /* القيمة ضمن الحد */
-        this.value = value;
-
         if (warning) {
             warning.hidden = true;
             warning.style.display = 'none';
         }
-    });
-}
-    /* ---------- الصهريج ---------- */
-    [
-        {
-            input: tankerQty,
-            max: 100,
-            warningId: 'tankerQtyWarning'
-        },
-        {
-            input: tankerPrice,
-            max: 500,
-            warningId: 'tankerPriceWarning'
-        }
-    ].forEach(({ input, max, warningId }) => {
-        if (!input) return;
 
-        input.addEventListener('input', function () {
-            let value = normalizeArabicNumbers(this.value)
-                .replace(/[^0-9.]/g, '');
-
-            const parts = value.split('.');
-
-            /* السماح بنقطة عشرية واحدة فقط */
-            if (parts.length > 2) {
-                value = parts[0] + '.' + parts.slice(1).join('');
+        /* إزالة الأصفار الزائدة */
+        if (value !== '' && value !== '.') {
+            if (value.includes('.')) {
+                const parts = value.split('.');
+                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+                value = parts.join('.');
+            } else {
+                value = value.replace(/^0+(?=\d)/, '');
             }
+        }
 
-       const numericValue = parseFloat(value);
-
-const warning = document.getElementById(warningId);
-
-if (Number.isFinite(numericValue) && numericValue > max) {
-    value = String(max);
-
-    if (warning) {
-        warning.hidden = false;
-    }
-} else {
-    if (warning) {
-        warning.hidden = true;
-    }
-
-    /* إزالة الأصفار الزائدة من الجزء الصحيح */
-    if (value.includes('.')) {
-        const parts = value.split('.');
-        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-        value = parts.join('.');
-    } else {
-        value = value.replace(/^0+(?=\d)/, '');
-    }
-}
-
-this.value = value;
-        });
+        /*
+         * لا نعيد كتابة القيمة أثناء الحالة المؤقتة
+         * مثل 3. حتى لا يتحرك المؤشر.
+         */
+        if (value !== '' && value !== '.' && !value.endsWith('.')) {
+            this.value = value;
+        }
     });
+});
 }
+
 /* ==========================================================================
    4. CALCULATION ENGINE — دوال حساب الفاتورة
    ========================================================================== */
