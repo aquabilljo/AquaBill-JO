@@ -190,27 +190,24 @@ if (consumption) {
             warning.style.display = 'none';
         }
 
-         /* إزالة الأصفار الزائدة */
-        if (value !== '' && value !== '.') {
-            if (value.includes('.')) {
-                const parts = value.split('.');
-                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-                value = parts.join('.');
-            } else {
-                value = value.replace(/^0+(?=\d)/, '');
-            }
-        }
+        /* إزالة الأصفار الزائدة فقط عند الحاجة */
+if (value !== '' && value !== '.') {
+    if (value.includes('.')) {
+        const parts = value.split('.');
+        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+        value = parts.join('.');
+    } else {
+        value = value.replace(/^0+(?=\d)/, '');
+    }
+}
 
-        /*
-         * تحديث القيمة فقط عند الحاجة.
-         * إذا كانت القيمة المنظفة مطابقة للقيمة الحالية،
-         * لا نعيد كتابتها حتى لا يتحرك المؤشر.
-         */
-        if (value !== '' && value !== '.' && !value.endsWith('.')) {
-            if (this.value !== value) {
-                this.value = value;
-            }
-        }
+/*
+ * لا نعيد كتابة القيمة أثناء الإدخال الطبيعي.
+ * نترك المتصفح يدير المؤشر والقيمة.
+ */
+if (this.value !== value && !value.endsWith('.')) {
+    this.value = value;
+}
     });
 });
 }
