@@ -158,16 +158,17 @@ function initNumberInputs() {
             let value = normalizeArabicNumbers(this.value)
                 .replace(/[^0-9.]/g, '');
 
-            /* السماح بنقطة عشرية واحدة ومنزلة عشرية واحدة فقط */
-            const firstDot = value.indexOf('.');
+           /* السماح فقط بـ 0.5 كجزء عشري */
+          const firstDot = value.indexOf('.');
 
-            if (firstDot !== -1) {
-                value =
-                    value.slice(0, firstDot + 1) +
-                    value.slice(firstDot + 1)
-                        .replace(/\./g, '')
-                        .slice(0, 1);
-            }
+         if (firstDot !== -1) {
+          value =
+           value.slice(0, firstDot + 1) +
+           value.slice(firstDot + 1)
+            .replace(/\./g, '')
+            .replace(/[^05]/g, '')
+            .slice(0, 1);
+}
 
             const numericValue = parseFloat(value);
             const warning = document.getElementById(warningId);
@@ -216,7 +217,7 @@ function initNumberInputs() {
             event.preventDefault();
 
             const current = parseFloat(this.value) || 0;
-            const step = 0.1;
+            const step = 0.5;
 
             let next = event.deltaY < 0
                 ? current + step
