@@ -216,7 +216,7 @@ function initNumberInputs() {
             event.preventDefault();
 
             const current = parseFloat(this.value) || 0;
-            const step = 0.1;
+            const step = 0.5;
 
             let next = event.deltaY < 0
                 ? current + step
