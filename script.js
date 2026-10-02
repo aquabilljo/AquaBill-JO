@@ -139,59 +139,71 @@ if (consumption) {
         }
     });
 }
-    /* ---------- الصهريج ---------- */
-    [
-        {
-            input: tankerQty,
-            max: 100,
-            warningId: 'tankerQtyWarning'
-        },
-        {
-            input: tankerPrice,
-            max: 500,
-            warningId: 'tankerPriceWarning'
+   /* ---------- الصهريج ---------- */
+[
+    {
+        input: tankerQty,
+        max: 100,
+        warningId: 'tankerQtyWarning'
+    },
+    {
+        input: tankerPrice,
+        max: 500,
+        warningId: 'tankerPriceWarning'
+    }
+].forEach(({ input, max, warningId }) => {
+    if (!input) return;
+
+    input.addEventListener('input', function () {
+        let value = normalizeArabicNumbers(this.value)
+            .replace(/[^0-9.]/g, '');
+
+        /* السماح بنقطة عشرية واحدة فقط */
+        const firstDot = value.indexOf('.');
+        if (firstDot !== -1) {
+            value =
+                value.slice(0, firstDot + 1) +
+                value.slice(firstDot + 1).replace(/\./g, '');
         }
-    ].forEach(({ input, max, warningId }) => {
-        if (!input) return;
 
-        input.addEventListener('input', function () {
-            let value = normalizeArabicNumbers(this.value)
-                .replace(/[^0-9.]/g, '');
+        const numericValue = parseFloat(value);
+        const warning = document.getElementById(warningId);
 
-            const parts = value.split('.');
+        /* تجاوز الحد الأقصى */
+        if (Number.isFinite(numericValue) && numericValue > max) {
+            this.value = String(max);
 
-            /* السماح بنقطة عشرية واحدة فقط */
-            if (parts.length > 2) {
-                value = parts[0] + '.' + parts.slice(1).join('');
+            if (warning) {
+                warning.hidden = false;
             }
 
-       const numericValue = parseFloat(value);
+            return;
+        }
 
-const warning = document.getElementById(warningId);
+        if (warning) {
+            warning.hidden = true;
+        }
 
-if (Number.isFinite(numericValue) && numericValue > max) {
-    value = String(max);
+        /* إزالة الأصفار الزائدة من الجزء الصحيح */
+        if (value !== '' && value !== '.') {
+            if (value.includes('.')) {
+                const parts = value.split('.');
+                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+                value = parts.join('.');
+            } else {
+                value = value.replace(/^0+(?=\d)/, '');
+            }
+        }
 
-    if (warning) {
-        warning.hidden = false;
-    }
-} else {
-    if (warning) {
-        warning.hidden = true;
-    }
-
-    /* إزالة الأصفار الزائدة من الجزء الصحيح */
-    if (value.includes('.')) {
-        const parts = value.split('.');
-        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-        value = parts.join('.');
-    } else {
-        value = value.replace(/^0+(?=\d)/, '');
-    }
-}
-
-this.value = value;
-        });
+        /*
+         * لا تعيد كتابة القيمة إذا كانت مجرد نقطة أو
+         * إذا كانت النقطة هي آخر حرف، حتى لا يتحرك المؤشر.
+         */
+        if (value !== '' && value !== '.') {
+            if (!value.endsWith('.')) {
+                this.value = value;
+            }
+        }
     });
    
 /* ==========================================================================
