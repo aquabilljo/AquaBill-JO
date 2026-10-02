@@ -190,26 +190,23 @@ if (consumption) {
             warning.style.display = 'none';
         }
 
-        /* إزالة الأصفار الزائدة */
-        if (value !== '' && value !== '.') {
-            if (value.includes('.')) {
-                const parts = value.split('.');
-                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-                value = parts.join('.');
-            } else {
-                value = value.replace(/^0+(?=\d)/, '');
-            }
-        }
+   /* إزالة الأصفار الزائدة فقط عند الحاجة */
+if (value !== '' && value !== '.') {
+    if (value.includes('.')) {
+        const parts = value.split('.');
+        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+        value = parts.join('.');
+    } else {
+        value = value.replace(/^0+(?=\d)/, '');
+    }
+}
 
-        /*
-         * لا نعيد كتابة القيمة أثناء الحالة المؤقتة
-         * مثل 3. حتى لا يتحرك المؤشر.
-         */
-        if (value !== '' && value !== '.' && !value.endsWith('.')) {
-            this.value = value;
-        }
-    });
-});
+/*
+ * لا نعيد كتابة القيمة أثناء الإدخال الطبيعي.
+ * نترك المتصفح يدير المؤشر والقيمة.
+ */
+if (this.value !== value && !value.endsWith('.')) {
+    this.value = value;
 }
 
 /* ==========================================================================
