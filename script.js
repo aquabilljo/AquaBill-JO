@@ -371,7 +371,6 @@ function calcAll() {
 
         return;
     }
-
     const tankerPerM3 =
         (tankerPrice > 0 && tankerQty > 0)
             ? (tankerPrice / tankerQty)
@@ -382,21 +381,40 @@ function calcAll() {
             ? `${tankerPerM3.toFixed(2)} ${APP_CONFIG.currencyLabelAr}`
             : `0.00 ${APP_CONFIG.currencyLabelAr}`;
 
+    /*
+     * فحص منطقي عام لسعر الصهريج:
+     * هذه الحدود ليست أسعاراً رسمية، وإنما تستخدم فقط
+     * لاكتشاف القيم غير المعتادة جداً.
+     */
+    const minReasonablePricePerM3 = 1;
+    const maxReasonablePricePerM3 = 15;
+
+    const tankerPriceWarning =
+        tankerPerM3 > 0 &&
+        (
+            tankerPerM3 < minReasonablePricePerM3 ||
+            tankerPerM3 > maxReasonablePricePerM3
+        );
+
     /* مقارنة المتر الأوفر */
     if (tankerPerM3 > 0) {
         if (marginal < tankerPerM3) {
             boxNetwork?.classList.add('win');
             boxTanker?.classList.remove('win');
-
-            if (recommendHint) {
-                recommendHint.textContent =
-                    'الأوفر: سحب المتر الإضافي من العداد بدل طلب صهريج مياه.';
-            }
         } else {
             boxTanker?.classList.add('win');
             boxNetwork?.classList.remove('win');
+        }
 
-            if (recommendHint) {
+        if (recommendHint) {
+            if (tankerPriceWarning) {
+                recommendHint.textContent =
+                    '⚠️ السعر أو السعة المدخلة للصهريج تبدو غير معتادة، ' +
+                    'يرجى التحقق من القيم. قد تختلف الأسعار حسب المنطقة والكمية ومقدم الخدمة.';
+            } else if (marginal < tankerPerM3) {
+                recommendHint.textContent =
+                    'الأوفر: سحب المتر الإضافي من العداد بدل طلب صهريج مياه.';
+            } else {
                 recommendHint.textContent =
                     'الأوفر هنا: صهريج المياه أرخص من تجاوز الشريحة الحالية.';
             }
@@ -411,6 +429,7 @@ function calcAll() {
         }
     }
 }
+
 /* ==========================================================================
    CONSUMPTION WARNING — تحذير الاستهلاك المرتفع
    ========================================================================== */
