@@ -207,8 +207,8 @@ if (consumption) {
          * لا نعيد كتابة القيمة أثناء الإدخال الطبيعي.
          * نترك المتصفح يدير المؤشر والقيمة.
          */
-        if (this.value !== value && !value.endsWith('.')) {
-            this.value = value;
+        if (this.value !== value) {
+       this.value = value;
         }
     });
 });
