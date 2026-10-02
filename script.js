@@ -107,10 +107,10 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-/* ---------- الاستهلاك ---------- */
-if (consumption) {
-    consumption.addEventListener('input', function () {
-        let value = normalizeArabicNumbers(this.value);
+    /* ---------- الاستهلاك ---------- */
+    if (consumption) {
+        consumption.addEventListener('input', function () {
+            let value = normalizeArabicNumbers(this.value);
 
             /* أرقام صحيحة فقط */
             value = value.split('.')[0].replace(/\D/g, '');
@@ -139,80 +139,98 @@ if (consumption) {
         });
     }
 
-/* ---------- الصهريج ---------- */
-[
-    {
-        input: tankerQty,
-        max: 100,
-        warningId: 'tankerQtyWarning'
-    },
-    {
-        input: tankerPrice,
-        max: 500,
-        warningId: 'tankerPriceWarning'
-    }
-].forEach(({ input, max, warningId }) => {
-    if (!input) return;
-
-    input.addEventListener('input', function () {
-        console.log('TANKER INPUT:', this.id, this.value);
-
-        let value = normalizeArabicNumbers(this.value)
-            .replace(/[^0-9.]/g, '');
-
-        /* السماح بنقطة عشرية واحدة ومنزلة عشرية واحدة فقط */
-        const firstDot = value.indexOf('.');
-
-        if (firstDot !== -1) {
-            value =
-                value.slice(0, firstDot + 1) +
-                value.slice(firstDot + 1)
-                    .replace(/\./g, '')
-                    .slice(0, 1);
+    /* ---------- الصهريج ---------- */
+    [
+        {
+            input: tankerQty,
+            max: 100,
+            warningId: 'tankerQtyWarning'
+        },
+        {
+            input: tankerPrice,
+            max: 500,
+            warningId: 'tankerPriceWarning'
         }
+    ].forEach(({ input, max, warningId }) => {
+        if (!input) return;
 
-        const numericValue = parseFloat(value);
-        const warning = document.getElementById(warningId);
+        input.addEventListener('input', function () {
+            let value = normalizeArabicNumbers(this.value)
+                .replace(/[^0-9.]/g, '');
 
-        /* تجاوز الحد الأقصى */
-        if (Number.isFinite(numericValue) && numericValue > max) {
-            this.value = String(max);
+            /* السماح بنقطة عشرية واحدة ومنزلة عشرية واحدة فقط */
+            const firstDot = value.indexOf('.');
 
+            if (firstDot !== -1) {
+                value =
+                    value.slice(0, firstDot + 1) +
+                    value.slice(firstDot + 1)
+                        .replace(/\./g, '')
+                        .slice(0, 1);
+            }
+
+            const numericValue = parseFloat(value);
+            const warning = document.getElementById(warningId);
+
+            /* تجاوز الحد الأقصى */
+            if (Number.isFinite(numericValue) && numericValue > max) {
+                this.value = String(max);
+
+                if (warning) {
+                    warning.hidden = false;
+                    warning.style.display = 'block';
+                }
+
+                return;
+            }
+
+            /* القيمة ضمن الحد */
             if (warning) {
-                warning.hidden = false;
-                warning.style.display = 'block';
+                warning.hidden = true;
+                warning.style.display = 'none';
             }
 
-            return;
-        }
-
-        /* القيمة ضمن الحد */
-        if (warning) {
-            warning.hidden = true;
-            warning.style.display = 'none';
-        }
-
-        /* إزالة الأصفار الزائدة فقط عند الحاجة */
-        if (value !== '' && value !== '.') {
-            if (value.includes('.')) {
-                const parts = value.split('.');
-                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-                value = parts.join('.');
-            } else {
-                value = value.replace(/^0+(?=\d)/, '');
+            /* إزالة الأصفار الزائدة فقط عند الحاجة */
+            if (value !== '' && value !== '.') {
+                if (value.includes('.')) {
+                    const parts = value.split('.');
+                    parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+                    value = parts.join('.');
+                } else {
+                    value = value.replace(/^0+(?=\d)/, '');
+                }
             }
-        }
 
-        /*
-         * لا نعيد كتابة القيمة أثناء الإدخال الطبيعي.
-         * نترك المتصفح يدير المؤشر والقيمة.
-         */
-        if (this.value !== value) {
-       this.value = value;
-        }
+            /*
+             * لا نعيد كتابة القيمة إلا إذا تغيرت فعليًا.
+             */
+            if (this.value !== value) {
+                this.value = value;
+            }
+        });
+
+        /* دعم تغيير القيمة بعجلة الماوس */
+        input.addEventListener('wheel', function (event) {
+            if (document.activeElement !== this) return;
+
+            event.preventDefault();
+
+            const current = parseFloat(this.value) || 0;
+            const step = 0.1;
+
+            let next = event.deltaY < 0
+                ? current + step
+                : current - step;
+
+            next = Math.max(0, Math.min(max, next));
+
+            this.value = Number(next.toFixed(1)).toString();
+
+            this.dispatchEvent(new Event('input', { bubbles: true }));
+        });
     });
-});
 }
+      
 /* ==========================================================================
    4. CALCULATION ENGINE — دوال حساب الفاتورة
    ========================================================================== */
