@@ -139,47 +139,76 @@ if (consumption) {
         }
     });
 }
-    /* ---------- الصهريج ---------- */
-    [
-        {
-            input: tankerQty,
-            max: 100,
-            warningId: 'tankerQtyWarning'
-        },
-        {
-            input: tankerPrice,
-            max: 500,
-            warningId: 'tankerPriceWarning'
+   /* ---------- الصهريج ---------- */
+[
+    {
+        input: tankerQty,
+        max: 100,
+        warningId: 'tankerQtyWarning'
+    },
+    {
+        input: tankerPrice,
+        max: 500,
+        warningId: 'tankerPriceWarning'
+    }
+].forEach(({ input, max, warningId }) => {
+    if (!input) return;
+
+    input.addEventListener('input', function () {
+        let value = normalizeArabicNumbers(this.value)
+            .replace(/[^0-9.]/g, '');
+
+        /* السماح بنقطة عشرية واحدة ومنزلة عشرية واحدة فقط */
+        const firstDot = value.indexOf('.');
+
+        if (firstDot !== -1) {
+            value =
+                value.slice(0, firstDot + 1) +
+                value.slice(firstDot + 1)
+                    .replace(/\./g, '')
+                    .slice(0, 1);
         }
-    ].forEach(({ input, max, warningId }) => {
-        if (!input) return;
 
-        input.addEventListener('input', function () {
-            let value = normalizeArabicNumbers(this.value)
-                .replace(/[^0-9.]/g, '');
+        const numericValue = parseFloat(value);
+        const warning = document.getElementById(warningId);
 
-            const parts = value.split('.');
+        /* تجاوز الحد الأقصى */
+        if (Number.isFinite(numericValue) && numericValue > max) {
+            this.value = String(max);
 
-            /* السماح بنقطة عشرية واحدة فقط */
-            if (parts.length > 2) {
-                value = parts[0] + '.' + parts.slice(1).join('');
+            if (warning) {
+                warning.hidden = false;
             }
 
-       const numericValue = parseFloat(value);
+            return;
+        }
 
-const warning = document.getElementById(warningId);
+        /* القيمة ضمن الحد */
+        if (warning) {
+            warning.hidden = true;
+        }
 
-if (Number.isFinite(numericValue) && numericValue > max) {
-    value = String(max);
+        /* إزالة الأصفار الزائدة من الجزء الصحيح */
+        if (value !== '' && value !== '.') {
+            if (value.includes('.')) {
+                const parts = value.split('.');
+                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+                value = parts.join('.');
+            } else {
+                value = value.replace(/^0+(?=\d)/, '');
+            }
+        }
 
-    if (warning) {
-        warning.hidden = false;
-    }
-} else {
-    if (warning) {
-        warning.hidden = true;
-    }
-
+        /*
+         * لا نعيد كتابة القيمة إذا كانت في حالة إدخال مؤقتة
+         * مثل 3. حتى لا يتحرك المؤشر أثناء الكتابة.
+         */
+        if (value !== '' && value !== '.' && !value.endsWith('.')) {
+            this.value = value;
+        }
+    });
+});
+}
     /* إزالة الأصفار الزائدة من الجزء الصحيح */
     if (value.includes('.')) {
         const parts = value.split('.');
