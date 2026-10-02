@@ -387,7 +387,7 @@ function calcAll() {
      * لاكتشاف القيم غير المعتادة جداً.
      */
     const minReasonablePricePerM3 = 1;
-    const maxReasonablePricePerM3 = 15;
+    const maxReasonablePricePerM3 = 7;
 
     const tankerPriceWarning =
         tankerPerM3 > 0 &&
