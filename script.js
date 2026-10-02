@@ -190,26 +190,46 @@ if (consumption) {
             warning.style.display = 'none';
         }
 
-        /* إزالة الأصفار الزائدة */
-        if (value !== '' && value !== '.') {
-            if (value.includes('.')) {
-                const parts = value.split('.');
-                parts[0] = parts[0].replace(/^0+(?=\d)/, '');
-                value = parts.join('.');
-            } else {
-                value = value.replace(/^0+(?=\d)/, '');
-            }
-        }
+       /* إزالة الأصفار الزائدة */
+if (value !== '' && value !== '.') {
+    if (value.includes('.')) {
+        const parts = value.split('.');
+        parts[0] = parts[0].replace(/^0+(?=\d)/, '');
+        value = parts.join('.');
+    } else {
+        value = value.replace(/^0+(?=\d)/, '');
+    }
+}
 
-        /*
-         * لا نعيد كتابة القيمة أثناء الحالة المؤقتة
-         * مثل 3. حتى لا يتحرك المؤشر.
-         */
-        if (value !== '' && value !== '.' && !value.endsWith('.')) {
-            this.value = value;
+/*
+ * تحديث القيمة مع الحفاظ على موضع المؤشر.
+ * لا نعيد كتابة القيمة أثناء الحالة المؤقتة مثل 3.
+ */
+if (value !== '' && value !== '.' && !value.endsWith('.')) {
+    const cursorPosition = this.selectionStart;
+    const oldValueLength = this.value.length;
+
+    this.value = value;
+
+    if (typeof cursorPosition === 'number') {
+        const lengthDifference = value.length - oldValueLength;
+        const newCursorPosition = Math.max(
+            0,
+            Math.min(
+                value.length,
+                cursorPosition + lengthDifference
+            )
+        );
+
+        try {
+            this.setSelectionRange(
+                newCursorPosition,
+                newCursorPosition
+            );
+        } catch (_) {
+            /* بعض المتصفحات لا تسمح بتحديد المؤشر في type=number */
         }
-    });
-});
+    }
 }
 
 /* ==========================================================================
