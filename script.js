@@ -107,10 +107,11 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-    /* ---------- الاستهلاك ---------- */
-    if (consumption) {
-        consumption.addEventListener('input', function () {
-            let value = normalizeArabicNumbers(this.value);
+   /* ---------- الاستهلاك ---------- */
+/* ---------- الاستهلاك ---------- */
+if (consumption) {
+    consumption.addEventListener('input', function () {
+        let value = normalizeArabicNumbers(this.value);
 
             /* أرقام صحيحة فقط */
             value = value.split('.')[0].replace(/\D/g, '');
@@ -170,17 +171,16 @@ function initNumberInputs() {
         }
 
         const numericValue = parseFloat(value);
-        const warning = document.getElementById(warningId);
+        const warning = document.getElementById('consumption-warning');
 
         /* تجاوز الحد الأقصى */
-        if (Number.isFinite(numericValue) && numericValue > max) {
-            this.value = String(max);
-
+        if (Number.isFinite(numericValue) && numericValue > 500) {
             if (warning) {
                 warning.hidden = false;
                 warning.style.display = 'block';
             }
 
+            this.value = '500';
             return;
         }
 
