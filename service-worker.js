@@ -2,7 +2,7 @@
    AquaBill JO — حاسبة فاتورة المياه الأردنية — Service Worker
    ========================================================================== */
 
-const CACHE_NAME = 'aquabill-jo-v14.9';
+const CACHE_NAME = 'aquabill-jo-v15.0';
 
 const ASSETS_TO_CACHE = [
   './',
