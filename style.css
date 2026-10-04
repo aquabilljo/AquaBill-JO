@@ -523,7 +523,7 @@ select:focus {
 }
 
 /* 2. تخصيص حقل الاستهلاك الرئيسي المميز (#consumption) */
-input[type="number"]#consumption {
+#consumption:focus {
   font-size: 1.35rem;
   font-weight: 700;
   text-align: center;
@@ -533,7 +533,7 @@ input[type="number"]#consumption {
   transition: all var(--transition-base);
 }
 
-input[type="number"]#consumption:focus {
+#consumption:focus {
   border-color: var(--accent-strong);
   box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.22);
 }
@@ -622,7 +622,7 @@ input[type="number"]#consumption:focus {
   margin-right: 4px;
 }
 /* مسافة فاصلة مريحة بأسفل حقل الاستهلاك */
-input[type="number"]#consumption {
+#consumption {
   margin-bottom: 1.2rem;
 }
 
