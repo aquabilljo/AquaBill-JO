@@ -491,6 +491,7 @@ label {
 
 /* 1. الحقول الافتراضية وصناديق النتائج والمقارنة (تنسيق موحد) */
 input[type="number"],
+#consumption,
 #tankerQty,
 #tankerPrice,
 select,
@@ -514,6 +515,7 @@ select,
 
 /* حالة التركيز عند الكتابة والتأثير التفاعلي */
 input[type="number"]:focus,
+#consumption:focus,
 #tankerQty:focus,
 #tankerPrice:focus,
 select:focus {
@@ -523,7 +525,7 @@ select:focus {
 }
 
 /* 2. تخصيص حقل الاستهلاك الرئيسي المميز (#consumption) */
-#consumption:focus {
+#consumption {
   font-size: 1.35rem;
   font-weight: 700;
   text-align: center;
