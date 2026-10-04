@@ -107,37 +107,57 @@ function initNumberInputs() {
     const tankerQty = document.getElementById('tankerQty');
     const tankerPrice = document.getElementById('tankerPrice');
 
-    /* ---------- الاستهلاك ---------- */
-    if (consumption) {
-        consumption.addEventListener('input', function () {
-            let value = normalizeArabicNumbers(this.value);
+/* ---------- الاستهلاك ---------- */
+if (consumption) {
+    consumption.addEventListener('input', function () {
+        let value = normalizeArabicNumbers(this.value);
 
-            /* أرقام صحيحة فقط */
-            value = value.split('.')[0].replace(/\D/g, '');
+        /* أرقام صحيحة فقط */
+        value = value.split('.')[0].replace(/\D/g, '');
 
-            /* إزالة الأصفار الزائدة */
-            value = value.replace(/^0+(?=\d)/, '');
+        /* إزالة الأصفار الزائدة */
+        value = value.replace(/^0+(?=\d)/, '');
 
-            const warning = document.getElementById('consumption-warning');
-            const numericValue = Number(value);
+        const warning = document.getElementById('consumption-warning');
+        const numericValue = Number(value);
 
-            if (Number.isFinite(numericValue) && numericValue >= 500) {
-                this.value = '500';
-
-                if (warning) {
-                    warning.hidden = false;
-                }
-
-                return;
-            }
-
-            this.value = value;
+        if (Number.isFinite(numericValue) && numericValue >= 500) {
+            this.value = '500';
 
             if (warning) {
-                warning.hidden = true;
+                warning.hidden = false;
             }
-        });
-    }
+
+            return;
+        }
+
+        this.value = value;
+
+        if (warning) {
+            warning.hidden = true;
+        }
+    });
+
+    /* دعم تغيير الاستهلاك بعجلة الماوس — خطوة واحدة */
+    consumption.addEventListener('wheel', function (event) {
+        if (document.activeElement !== this) return;
+
+        event.preventDefault();
+
+        const current = parseInt(this.value, 10) || 0;
+        const step = 1;
+
+        let next = event.deltaY < 0
+            ? current + step
+            : current - step;
+
+        next = Math.max(0, Math.min(500, next));
+
+        this.value = String(next);
+
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+}
 
     /* ---------- الصهريج ---------- */
     [
