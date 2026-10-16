@@ -1,21 +1,46 @@
-MIT License
+uaBill JO — Proprietary License Copyright (c) 2026 AquaBill JO. All
+rights reserved.
 
-Copyright (c) 2026 AquaBill JO
+NOTICE
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+The AquaBill JO source code and associated project materials are
+publicly visible for inspection only. Public availability of this
+repository does not grant permission to use, copy, reproduce, modify,
+adapt, publish, distribute, sublicense, sell, or create derivative works
+from the code or other protected materials.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+PERMISSION REQUIRED
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Any use beyond viewing the publicly available materials requires prior,
+express written permission from the rights holder, AquaBill JO.
+Permission must be obtained before copying, modifying, reusing,
+redistributing, or incorporating any part of the project into another
+product or project.
+
+NO LICENSE GRANTED
+
+Except for the limited ability to view the publicly available materials,
+no license or other rights are granted, whether by implication,
+estoppel, or otherwise, to any intellectual property in AquaBill JO. All
+rights are reserved, subject to rights that cannot lawfully be excluded
+or restricted.
+
+THIRD-PARTY MATERIALS
+
+This notice applies only to materials for which AquaBill JO owns or
+controls the relevant rights. Third-party libraries, fonts, images, and
+other materials may be governed by their own licenses and terms.
+
+DISCLAIMER
+
+The project is provided “AS IS”, to the extent permitted by applicable
+law, without warranties of any kind. Nothing in this notice limits any
+rights or remedies that cannot lawfully be limited.
+
+IMPORTANT TRANSITION NOTE
+
+This file states the intended terms for the project going forward.
+Replacing an earlier license does not automatically revoke permissions
+already granted under prior versions or copies of a license. Review the
+repository’s commit history, releases, and any previously distributed
+copies before relying on this change.
