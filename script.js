@@ -587,7 +587,7 @@ function initShareLogic() {
 
   let currentTriggerElement = null;
 
-  const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+  const cleanUrl = 'https://aquabilljo.github.io/AquaBill-JO/';
 
   const shareData = {
 title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
