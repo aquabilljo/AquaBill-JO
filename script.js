@@ -590,10 +590,10 @@ function initShareLogic() {
   const cleanUrl = `${window.location.origin}${window.location.pathname}`;
 
   const shareData = {
-    title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
-    text: 'قدّر تكلفة استهلاكك الشهري للمياه بسهولة مع AquaBill JO.',
-    url: cleanUrl
-  };
+title: 'AquaBill JO — حاسبة فاتورة المياه الأردنية',
+text: 'قدّر تكلفة استهلاكك الشهري للمياه بسهولة مع AquaBill JO.',
+url: 'https://aquabilljo.github.io/AquaBill-JO/'
+};
 
   const logoImg = new Image();
   logoImg.src = 'images/qr-logo.png';
