@@ -1,46 +1,47 @@
-uaBill JO — Proprietary License Copyright (c) 2026 AquaBill JO. All
-rights reserved.
+AquaBill JO — Proprietary License
 
-NOTICE
+Copyright (c) 2026 AquaBill JO. All rights reserved.
 
-The AquaBill JO source code and associated project materials are
-publicly visible for inspection only. Public availability of this
-repository does not grant permission to use, copy, reproduce, modify,
-adapt, publish, distribute, sublicense, sell, or create derivative works
-from the code or other protected materials.
+## 1. NOTICE
 
-PERMISSION REQUIRED
+The source code, design, documentation, and other project materials of AquaBill JO are publicly available for viewing and inspection only.
 
-Any use beyond viewing the publicly available materials requires prior,
-express written permission from the rights holder, AquaBill JO.
-Permission must be obtained before copying, modifying, reusing,
-redistributing, or incorporating any part of the project into another
-product or project.
+Public access to this repository does not constitute, and shall not be interpreted as, permission or authorization to use, copy, reproduce, modify, adapt, create derivative works from, publish, distribute, sublicense, sell, or otherwise exploit any part of the project, except as expressly permitted in writing by the rights holder or as required by applicable law.
 
-NO LICENSE GRANTED
+## 2. PERMISSION REQUIRED
 
-Except for the limited ability to view the publicly available materials,
-no license or other rights are granted, whether by implication,
-estoppel, or otherwise, to any intellectual property in AquaBill JO. All
-rights are reserved, subject to rights that cannot lawfully be excluded
-or restricted.
+Any use of the project materials beyond viewing and inspection requires prior express written permission from the rights holder, AquaBill JO.
 
-THIRD-PARTY MATERIALS
+Such permission must be obtained before copying, modifying, adapting, reusing, redistributing, incorporating, or otherwise using any portion of the project in another product, service, application, or project.
 
-This notice applies only to materials for which AquaBill JO owns or
-controls the relevant rights. Third-party libraries, fonts, images, and
-other materials may be governed by their own licenses and terms.
+## 3. NO LICENSE GRANTED
 
-DISCLAIMER
+Except for the limited right to access and view the publicly available materials, no license, permission, or other rights are granted, whether expressly, implicitly, by implication, estoppel, or otherwise, to any intellectual property rights in or relating to AquaBill JO.
 
-The project is provided “AS IS”, to the extent permitted by applicable
-law, without warranties of any kind. Nothing in this notice limits any
-rights or remedies that cannot lawfully be limited.
+All rights are reserved, subject to any rights that cannot lawfully be excluded or restricted.
 
-IMPORTANT TRANSITION NOTE
+## 4. THIRD-PARTY MATERIALS
 
-This file states the intended terms for the project going forward.
-Replacing an earlier license does not automatically revoke permissions
-already granted under prior versions or copies of a license. Review the
-repository’s commit history, releases, and any previously distributed
-copies before relying on this change.
+This license applies only to materials owned or controlled by AquaBill JO.
+
+Third-party libraries, frameworks, fonts, images, icons, and other externally sourced materials may be subject to their own licenses, copyright notices, and terms of use. Those materials remain governed by their respective rights and licenses.
+
+Nothing in this license grants rights to third-party materials.
+
+## 5. DISCLAIMER OF WARRANTIES
+
+The project and its materials are provided "AS IS" and "AS AVAILABLE", to the maximum extent permitted by applicable law, without warranties or representations of any kind, whether express or implied.
+
+Nothing in this section excludes or limits any rights, warranties, liabilities, or remedies that cannot lawfully be excluded or limited.
+
+## 6. IMPORTANT TRANSITION NOTE
+
+This license states the intended terms governing the project going forward.
+
+Replacing or updating a previous license does not automatically revoke permissions or licenses validly granted under earlier versions of the project or previously distributed copies of a license.
+
+Before relying on this change, review the repository's commit history, releases, and any previously distributed versions of the project or its license to identify rights that may have already been granted.
+
+---
+
+For permission requests, contact the AquaBill JO rights holder through the project's designated contact channel.
